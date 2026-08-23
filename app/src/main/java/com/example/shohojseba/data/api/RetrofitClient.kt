@@ -1,38 +1,42 @@
 package com.example.shohojseba.data.api
 
-
+import com.example.shohojseba.data.supabase.supabase
+import io.github.jan.supabase.auth.auth
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-
 object RetrofitClient {
-
 
     private const val BASE_URL =
         "https://spmffufgmzeyvndqknom.supabase.co/rest/v1/"
-
 
     private const val SUPABASE_ANON_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwbWZmdWZnbXpleXZuZHFrbm9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5MzU5MDQsImV4cCI6MjEwMjUxMTkwNH0.GHN_dkhyXVmQfaFUyUGnrC2SqjRzNAp6NZKZedylU3w"
 
 
-
     private val loggingInterceptor =
         HttpLoggingInterceptor().apply {
 
-            level = HttpLoggingInterceptor.Level.BODY
-
+            level =
+                HttpLoggingInterceptor.Level.BODY
         }
-
-
 
     private val client =
         OkHttpClient.Builder()
 
             .addInterceptor { chain ->
 
+                // Use the logged-in user's JWT whenever available.
+                val sessionToken =
+                    supabase.auth
+                        .currentSessionOrNull()
+                        ?.accessToken
+
+                val authorizationToken =
+                    sessionToken
+                        ?: SUPABASE_ANON_KEY
 
                 val request =
                     chain.request()
@@ -45,7 +49,7 @@ object RetrofitClient {
 
                         .addHeader(
                             "Authorization",
-                            "Bearer $SUPABASE_ANON_KEY"
+                            "Bearer $authorizationToken"
                         )
 
                         .addHeader(
@@ -55,23 +59,25 @@ object RetrofitClient {
 
                         .build()
 
-
                 chain.proceed(request)
-
             }
 
-            .addInterceptor(loggingInterceptor)
+            .addInterceptor(
+                loggingInterceptor
+            )
 
             .build()
-
-
 
     private val retrofit =
         Retrofit.Builder()
 
-            .baseUrl(BASE_URL)
+            .baseUrl(
+                BASE_URL
+            )
 
-            .client(client)
+            .client(
+                client
+            )
 
             .addConverterFactory(
                 GsonConverterFactory.create()
@@ -79,18 +85,23 @@ object RetrofitClient {
 
             .build()
 
-
-
-    // Category API
     val categoryApi: CategoryApi =
-        retrofit.create(CategoryApi::class.java)
+        retrofit.create(
+            CategoryApi::class.java
+        )
 
-
-
-    // Service API
     val serviceApi: ServiceApi =
-        retrofit.create(ServiceApi::class.java)
+        retrofit.create(
+            ServiceApi::class.java
+        )
 
+    val bookingApi: BookingApi =
+        retrofit.create(
+            BookingApi::class.java
+        )
 
-
+    val reviewApi: ReviewApi =
+        retrofit.create(
+            ReviewApi::class.java
+        )
 }

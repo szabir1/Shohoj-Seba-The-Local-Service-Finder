@@ -1,21 +1,21 @@
 package com.example.shohojseba.ui.auth
 
 
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 import com.example.shohojseba.viewmodel.AuthViewModel
-
 
 
 
@@ -26,8 +26,7 @@ fun RegisterScreen(
 
     onLoginClick: () -> Unit
 
-){
-
+) {
 
 
     var role by remember {
@@ -35,11 +34,9 @@ fun RegisterScreen(
     }
 
 
-
     var name by remember {
         mutableStateOf("")
     }
-
 
 
     var phone by remember {
@@ -47,17 +44,14 @@ fun RegisterScreen(
     }
 
 
-
     var email by remember {
         mutableStateOf("")
     }
 
 
-
     var password by remember {
         mutableStateOf("")
     }
-
 
 
     var experience by remember {
@@ -66,37 +60,33 @@ fun RegisterScreen(
 
 
 
-
-
     val message by viewModel.message
-
-
-
 
 
 
     Column(
 
-        modifier =
-            Modifier
+        modifier = Modifier
 
-                .fillMaxSize()
+            .fillMaxSize()
 
-                .padding(25.dp),
+            .verticalScroll(
+                rememberScrollState()
+            )
 
+            .imePadding()
 
-        horizontalAlignment =
-            Alignment.CenterHorizontally
-
-    ){
-
+            .padding(25.dp),
 
 
+        horizontalAlignment = Alignment.CenterHorizontally
+
+    ) {
 
 
         Text(
 
-            "Create Account",
+            text = "Create Account",
 
             fontSize = 32.sp,
 
@@ -106,19 +96,15 @@ fun RegisterScreen(
 
 
 
-
-
         Spacer(
-            Modifier.height(15.dp)
+            Modifier.height(12.dp)
         )
-
-
 
 
 
         Text(
 
-            "Who are you?",
+            text = "Who are you?",
 
             fontSize = 20.sp
 
@@ -126,9 +112,6 @@ fun RegisterScreen(
 
 
 
-
-
-
         Spacer(
             Modifier.height(15.dp)
         )
@@ -136,172 +119,108 @@ fun RegisterScreen(
 
 
 
-
         Row(
 
-            horizontalArrangement =
-                Arrangement.spacedBy(15.dp)
+            horizontalArrangement = Arrangement.spacedBy(15.dp)
 
+        ) {
+
+
+            AccountCard(
+
+                icon = "👤",
+
+                title = "Customer",
+
+                selected = role == "CUSTOMER"
+
+            ){
+
+                role = "CUSTOMER"
+
+            }
+
+
+
+
+
+            AccountCard(
+
+                icon = "🛠",
+
+                title = "Provider",
+
+                selected = role == "PROVIDER"
+
+            ){
+
+                role = "PROVIDER"
+
+            }
+
+
+        }
+
+
+
+        Spacer(
+            Modifier.height(25.dp)
+        )
+
+
+
+        RegisterField(
+            value = name,
+            label = "Full Name"
         ){
+            name = it
+        }
 
 
 
-            AccountCard(
-
-                "👤",
-
-                "Customer",
-
-                role=="CUSTOMER"
-
-            ){
-
-                role="CUSTOMER"
-
-            }
+        RegisterField(
+            value = phone,
+            label = "Phone"
+        ){
+            phone = it
+        }
 
 
 
-
-
-            AccountCard(
-
-                "🛠",
-
-                "Provider",
-
-                role=="PROVIDER"
-
-            ){
-
-                role="PROVIDER"
-
-            }
+        RegisterField(
+            value = email,
+            label = "Email"
+        ){
+            email = it
+        }
 
 
 
+        RegisterField(
+            value = password,
+            label = "Password"
+        ){
+            password = it
         }
 
 
 
 
 
+        if(role == "PROVIDER"){
 
 
-        Spacer(
-            Modifier.height(20.dp)
-        )
+            RegisterField(
 
+                value = experience,
 
+                label = "Experience years"
 
+            ){
 
+                experience = it
 
-
-        OutlinedTextField(
-
-            value=name,
-
-            onValueChange={
-                name=it
-            },
-
-            label={
-                Text("Full Name")
-            },
-
-            modifier=
-                Modifier.fillMaxWidth()
-
-        )
-
-
-
-
-
-        OutlinedTextField(
-
-            value=phone,
-
-            onValueChange={
-                phone=it
-            },
-
-            label={
-                Text("Phone")
-            },
-
-            modifier=
-                Modifier.fillMaxWidth()
-
-        )
-
-
-
-
-
-        OutlinedTextField(
-
-            value=email,
-
-            onValueChange={
-                email=it
-            },
-
-            label={
-                Text("Email")
-            },
-
-            modifier=
-                Modifier.fillMaxWidth()
-
-        )
-
-
-
-
-
-        OutlinedTextField(
-
-            value=password,
-
-            onValueChange={
-                password=it
-            },
-
-            label={
-                Text("Password")
-            },
-
-            modifier=
-                Modifier.fillMaxWidth()
-
-        )
-
-
-
-
-
-        if(role=="PROVIDER"){
-
-
-            OutlinedTextField(
-
-                value=experience,
-
-                onValueChange={
-                    experience=it
-                },
-
-
-                label={
-                    Text("Experience years")
-                },
-
-
-                modifier=
-                    Modifier.fillMaxWidth()
-
-            )
+            }
 
 
         }
@@ -311,10 +230,8 @@ fun RegisterScreen(
 
 
         Spacer(
-            Modifier.height(20.dp)
+            Modifier.height(25.dp)
         )
-
-
 
 
 
@@ -343,25 +260,65 @@ fun RegisterScreen(
 
             },
 
-            modifier =
-                Modifier
 
-                    .fillMaxWidth()
+            modifier = Modifier
 
-                    .height(60.dp),
+                .fillMaxWidth()
+
+                .height(58.dp),
 
 
-            shape =
-                RoundedCornerShape(25.dp)
+            shape = RoundedCornerShape(30.dp)
 
         ){
 
 
             Text(
 
-                "Create Account →"
+                "Create Account →",
+
+                fontSize = 16.sp
 
             )
+
+        }
+
+
+
+
+        Spacer(
+            Modifier.height(12.dp)
+        )
+
+
+
+
+
+        if(message.isNotEmpty()){
+
+
+            Text(
+
+                text = message,
+
+
+                color = if(
+                    message.contains("success",
+                        ignoreCase = true
+                    )
+                )
+
+                    Color(0xFF008577)
+
+                else
+
+                    Color.Red,
+
+
+                fontWeight = FontWeight.Bold
+
+            )
+
 
         }
 
@@ -376,29 +333,64 @@ fun RegisterScreen(
         ){
 
             Text(
-                "Already have account? Login"
+
+                "Already have account? Login",
+
+                color = Color(0xFF008577)
+
             )
 
         }
 
 
 
-
-
-        Text(message)
-
-
-
-
-
-
     }
-
-
 
 }
 
 
+
+
+
+@Composable
+fun RegisterField(
+
+    value:String,
+
+    label:String,
+
+    onChange:(String)->Unit
+
+){
+
+
+    OutlinedTextField(
+
+        value = value,
+
+        onValueChange = onChange,
+
+
+        label = {
+
+            Text(label)
+
+        },
+
+
+        modifier = Modifier
+
+            .fillMaxWidth()
+
+            .padding(vertical = 6.dp),
+
+
+        shape = RoundedCornerShape(16.dp)
+
+    )
+
+
+}
 
 
 
@@ -424,27 +416,28 @@ fun AccountCard(
         onClick = onClick,
 
 
-        modifier =
-            Modifier
+        modifier = Modifier
 
-                .width(150.dp)
+            .width(150.dp)
 
-                .height(110.dp),
+            .height(110.dp),
 
 
-        colors =
-            CardDefaults.cardColors(
 
-                containerColor =
-                    if(selected)
+        colors = CardDefaults.cardColors(
 
-                        Color(0xFFDFF7F2)
 
-                    else
+            containerColor =
 
-                        Color.White
+                if(selected)
 
-            )
+                    Color(0xFFDFF7F2)
+
+                else
+
+                    Color.White
+
+        )
 
     ){
 
@@ -452,23 +445,21 @@ fun AccountCard(
 
         Column(
 
-            horizontalAlignment =
-                Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally,
 
 
-            verticalArrangement =
-                Arrangement.Center,
+            verticalArrangement = Arrangement.Center,
 
 
-            modifier =
-                Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize()
 
         ){
 
 
+
             Text(
 
-                icon,
+                text = icon,
 
                 fontSize = 35.sp
 
@@ -476,16 +467,16 @@ fun AccountCard(
 
 
 
-            Text(
+            Text(title)
 
-                title
 
-            )
 
         }
 
 
+
     }
+
 
 
 }

@@ -1,57 +1,183 @@
 package com.example.shohojseba.ui.customer
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.HomeRepairService
+import androidx.compose.material.icons.filled.LocationOn
+
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 
-
+import com.example.shohojseba.data.model.Area
+import com.example.shohojseba.navigation.Screen
 import com.example.shohojseba.ui.customer.components.CategoryChip
+import com.example.shohojseba.viewmodel.AreaViewModel
 import com.example.shohojseba.viewmodel.CategoryViewModel
 
-
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
 
     navController: NavController,
 
-    viewModel: CategoryViewModel = viewModel()
+    viewModel: CategoryViewModel =
+        viewModel(),
 
-){
+    areaViewModel: AreaViewModel =
+        viewModel()
+
+) {
+
+    val categories by
+    viewModel.categories
+
+    val areas by
+    areaViewModel.areas
+
+    var selectedArea by remember {
+        mutableStateOf<Area?>(null)
+    }
+
+    var areaExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    var showSelectAreaDialog by remember {
+        mutableStateOf(false)
+    }
 
 
+    // =====================================================
+    // LOAD DATA
+    // =====================================================
 
-    val categories by viewModel.categories
-
-
-
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
 
         viewModel.loadCategories()
+
+        areaViewModel.loadAreas()
 
     }
 
 
+    // =====================================================
+    // SELECT AREA REQUIRED POPUP
+    // =====================================================
+
+    if (showSelectAreaDialog) {
+
+        AlertDialog(
+
+            onDismissRequest = {
+
+                showSelectAreaDialog =
+                    false
+
+            },
+
+            icon = {
+
+                Icon(
+
+                    imageVector =
+                        Icons.Default.LocationOn,
+
+                    contentDescription =
+                        null,
+
+                    tint =
+                        Color(0xFF007A7A),
+
+                    modifier =
+                        Modifier.size(48.dp)
+
+                )
+
+            },
+
+            title = {
+
+                Text(
+                    "Select Your Area"
+                )
+
+            },
+
+            text = {
+
+                Text(
+                    "Please select your area first so we can show providers who serve your location."
+                )
+
+            },
+
+            confirmButton = {
+
+                Button(
+
+                    onClick = {
+
+                        showSelectAreaDialog =
+                            false
+
+                        areaExpanded =
+                            true
+
+                    },
+
+                    colors =
+                        ButtonDefaults.buttonColors(
+
+                            containerColor =
+                                Color(0xFF007A7A)
+
+                        ),
+
+                    shape =
+                        RoundedCornerShape(14.dp)
+
+                ) {
+
+                    Text(
+                        "Select Area"
+                    )
+
+                }
+
+            },
+
+            shape =
+                RoundedCornerShape(24.dp)
+
+        )
+
+    }
+
+
+    // =====================================================
+    // SCREEN
+    // =====================================================
 
     Column(
 
-
         modifier = Modifier
-
             .fillMaxSize()
-
             .background(
 
                 Brush.verticalGradient(
@@ -67,51 +193,287 @@ fun HomeScreen(
                 )
 
             )
-
             .verticalScroll(
-
                 rememberScrollState()
+            )
+            .padding(24.dp)
+
+    ) {
+
+        Text(
+
+            text =
+                "Good Morning 👋",
+
+            style =
+                MaterialTheme
+                    .typography
+                    .headlineMedium
+
+        )
+
+        Text(
+
+            text =
+                "Find services near you",
+
+            style =
+                MaterialTheme
+                    .typography
+                    .titleMedium
+
+        )
+
+        Spacer(
+            Modifier.height(22.dp)
+        )
+
+
+        // =====================================================
+        // AREA SELECTION
+        // =====================================================
+
+        Text(
+
+            text =
+                "Your Area",
+
+            style =
+                MaterialTheme
+                    .typography
+                    .titleMedium
+
+        )
+
+        Spacer(
+            Modifier.height(8.dp)
+        )
+
+
+        ExposedDropdownMenuBox(
+
+            expanded =
+                areaExpanded,
+
+            onExpandedChange = {
+
+                areaExpanded =
+                    !areaExpanded
+
+            }
+
+        ) {
+
+            OutlinedTextField(
+
+                value =
+                    selectedArea
+                        ?.area_name
+                        ?: "",
+
+                onValueChange = {},
+
+                readOnly = true,
+
+                label = {
+
+                    Text(
+                        "Select Area"
+                    )
+
+                },
+
+                placeholder = {
+
+                    Text(
+                        "Choose your location"
+                    )
+
+                },
+
+                leadingIcon = {
+
+                    Icon(
+
+                        imageVector =
+                            Icons.Default.LocationOn,
+
+                        contentDescription =
+                            null,
+
+                        tint =
+                            Color(0xFF007A7A)
+
+                    )
+
+                },
+
+                trailingIcon = {
+
+                    ExposedDropdownMenuDefaults
+                        .TrailingIcon(
+
+                            expanded =
+                                areaExpanded
+
+                        )
+
+                },
+
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(),
+
+                shape =
+                    RoundedCornerShape(22.dp)
 
             )
 
-            .padding(24.dp)
+
+            ExposedDropdownMenu(
+
+                expanded =
+                    areaExpanded,
+
+                onDismissRequest = {
+
+                    areaExpanded =
+                        false
+
+                }
+
+            ) {
+
+                areas.forEach { area ->
+
+                    DropdownMenuItem(
+
+                        text = {
+
+                            Text(
+                                area.area_name
+                            )
+
+                        },
+
+                        leadingIcon = {
+
+                            Icon(
+
+                                imageVector =
+                                    Icons.Default.LocationOn,
+
+                                contentDescription =
+                                    null
+
+                            )
+
+                        },
+
+                        onClick = {
+
+                            selectedArea =
+                                area
+
+                            areaExpanded =
+                                false
+
+                        }
+
+                    )
+
+                }
+
+            }
+
+        }
 
 
-    ){
+        // =====================================================
+        // SELECTED AREA INDICATOR
+        // =====================================================
 
+        if (selectedArea != null) {
 
+            Spacer(
+                Modifier.height(10.dp)
+            )
 
-        Text(
+            Card(
 
-            text = "Good Morning 👋",
+                colors =
+                    CardDefaults.cardColors(
 
-            style = MaterialTheme.typography.headlineMedium
+                        containerColor =
+                            Color(0xFFDDF8F3)
 
-        )
+                    ),
 
+                shape =
+                    RoundedCornerShape(18.dp)
 
+            ) {
 
-        Text(
+                Row(
 
-            text = "Find services for your home",
+                    modifier =
+                        Modifier.padding(
 
-            style = MaterialTheme.typography.titleMedium
+                            horizontal =
+                                14.dp,
 
-        )
+                            vertical =
+                                10.dp
 
+                        ),
 
+                    verticalAlignment =
+                        Alignment.CenterVertically
 
+                ) {
+
+                    Icon(
+
+                        imageVector =
+                            Icons.Default.LocationOn,
+
+                        contentDescription =
+                            null,
+
+                        tint =
+                            Color(0xFF007A7A)
+
+                    )
+
+                    Spacer(
+                        Modifier.width(6.dp)
+                    )
+
+                    Text(
+
+                        text =
+                            "Showing services in ${selectedArea!!.area_name}",
+
+                        color =
+                            Color(0xFF007A7A)
+
+                    )
+
+                }
+
+            }
+
+        }
 
 
         Spacer(
-
-            Modifier.height(20.dp)
-
+            Modifier.height(22.dp)
         )
 
 
-
-
+        // =====================================================
+        // SEARCH
+        // =====================================================
 
         OutlinedTextField(
 
@@ -121,242 +483,398 @@ fun HomeScreen(
 
             placeholder = {
 
-                Text("Search services...")
+                Text(
+                    "Search services..."
+                )
 
             },
 
+            modifier =
+                Modifier.fillMaxWidth(),
 
-            modifier = Modifier.fillMaxWidth(),
-
-
-            shape = RoundedCornerShape(30.dp)
-
+            shape =
+                RoundedCornerShape(30.dp)
 
         )
-
-
-
-
 
 
         Spacer(
-
             Modifier.height(25.dp)
-
         )
 
 
+        // =====================================================
+        // QUICK ACTIONS
+        // =====================================================
+
+        Row(
+
+            modifier =
+                Modifier.fillMaxWidth(),
+
+            horizontalArrangement =
+                Arrangement.spacedBy(14.dp)
+
+        ) {
+
+            Card(
+
+                modifier =
+                    Modifier.weight(1f),
+
+                shape =
+                    RoundedCornerShape(24.dp),
+
+                colors =
+                    CardDefaults.cardColors(
+
+                        containerColor =
+                            Color(0xFF007A7A)
+
+                    ),
+
+                onClick = {
+
+                    navController.navigate(
+                        Screen.CustomerBookings.route
+                    )
+
+                }
+
+            ) {
+
+                Column(
+
+                    modifier =
+                        Modifier.padding(18.dp),
+
+                    horizontalAlignment =
+                        Alignment.CenterHorizontally
+
+                ) {
+
+                    Icon(
+
+                        imageVector =
+                            Icons.Default.Book,
+
+                        contentDescription =
+                            null,
+
+                        tint =
+                            Color.White
+
+                    )
+
+                    Spacer(
+                        Modifier.height(8.dp)
+                    )
+
+                    Text(
+
+                        text =
+                            "My Bookings",
+
+                        color =
+                            Color.White
+
+                    )
+
+                }
+
+            }
 
 
+            Card(
+
+                modifier =
+                    Modifier.weight(1f),
+
+                shape =
+                    RoundedCornerShape(24.dp),
+
+                colors =
+                    CardDefaults.cardColors(
+
+                        containerColor =
+                            Color(0xFFDDF8F3)
+
+                    )
+
+            ) {
+
+                Column(
+
+                    modifier =
+                        Modifier.padding(18.dp),
+
+                    horizontalAlignment =
+                        Alignment.CenterHorizontally
+
+                ) {
+
+                    Icon(
+
+                        imageVector =
+                            Icons.Default.HomeRepairService,
+
+                        contentDescription =
+                            null,
+
+                        tint =
+                            Color(0xFF007A7A)
+
+                    )
+
+                    Spacer(
+                        Modifier.height(8.dp)
+                    )
+
+                    Text(
+
+                        text =
+                            "Services",
+
+                        color =
+                            Color(0xFF007A7A)
+
+                    )
+
+                }
+
+            }
+
+        }
+
+
+        Spacer(
+            Modifier.height(30.dp)
+        )
+
+
+        // =====================================================
+        // CATEGORIES
+        // =====================================================
 
         Text(
 
-            "Categories",
+            text =
+                "Categories",
 
-            style = MaterialTheme.typography.titleLarge
+            style =
+                MaterialTheme
+                    .typography
+                    .titleLarge
 
         )
-
-
-
-
-
 
         Spacer(
-
             Modifier.height(15.dp)
-
         )
-
-
-
 
 
         Row(
 
-            modifier = Modifier.horizontalScroll(
+            modifier =
+                Modifier.horizontalScroll(
 
-                rememberScrollState()
+                    rememberScrollState()
 
-            ),
+                ),
 
+            horizontalArrangement =
+                Arrangement.spacedBy(14.dp)
 
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
 
-        ){
-
-
-
-            categories.forEach { category ->
-
-
+            categories.forEach {
+                    category ->
 
                 CategoryChip(
 
+                    icon =
+                        when (
+                            category.category_name
+                        ) {
 
-                    icon = when(category.category_name){
+                            "Cleaning" ->
+                                "🧹"
 
+                            "AC Service" ->
+                                "❄️"
 
-                        "Cleaning" -> "🧹"
+                            "Plumbing" ->
+                                "🚰"
 
-                        "AC Service" -> "❄️"
+                            "Electrician" ->
+                                "⚡"
 
-                        "Plumbing" -> "🚰"
+                            else ->
+                                "🔧"
 
-                        "Electrician" -> "⚡"
+                        },
 
-                        else -> "🔧"
-
-
-                    },
-
-
-                    name = category.category_name,
-
+                    name =
+                        category.category_name,
 
                     onClick = {
 
+                        val area =
+                            selectedArea
 
-                        navController.navigate(
+                        if (area == null) {
 
-                            "services/${category.category_id}"
+                            showSelectAreaDialog =
+                                true
 
-                        )
+                        } else {
 
+                            navController.navigate(
+
+                                "services/" +
+                                        "${category.category_id}" +
+                                        "?areaId=${area.area_id}" +
+                                        "&areaName=${android.net.Uri.encode(area.area_name)}"
+
+                            )
+
+                        }
 
                     }
 
-
                 )
 
-
             }
-
-
 
         }
 
 
-
-
-
-
-
         Spacer(
-
             Modifier.height(35.dp)
-
         )
 
 
-
-
+        // =====================================================
+        // PROMOTIONAL CARD
+        // =====================================================
 
         Card(
 
-            modifier = Modifier.fillMaxWidth(),
+            modifier =
+                Modifier.fillMaxWidth(),
 
+            shape =
+                RoundedCornerShape(30.dp),
 
-            shape = RoundedCornerShape(30.dp),
+            colors =
+                CardDefaults.cardColors(
 
+                    containerColor =
+                        Color(0xFFDDF8F3)
 
-            colors = CardDefaults.cardColors(
+                )
 
-                containerColor = Color(0xFFDDF8F3)
-
-            )
-
-
-        ){
-
-
+        ) {
 
             Column(
 
-                modifier = Modifier.padding(25.dp)
+                modifier =
+                    Modifier.padding(25.dp)
 
-            ){
-
-
-
-                Text(
-
-                    "20% OFF",
-
-                    color = Color(0xFF00897B)
-
-                )
-
-
+            ) {
 
                 Text(
 
-                    "Home Cleaning",
+                    text =
+                        "20% OFF",
 
-                    style = MaterialTheme.typography.headlineSmall
+                    color =
+                        Color(0xFF00897B)
 
                 )
-
-
 
                 Text(
 
-                    "Professional cleaning at your doorstep"
+                    text =
+                        "Home Cleaning",
+
+                    style =
+                        MaterialTheme
+                            .typography
+                            .headlineSmall
 
                 )
 
+                Text(
 
+                    text =
+                        "Professional cleaning at your doorstep"
 
-
+                )
 
                 Spacer(
-
                     Modifier.height(15.dp)
-
                 )
-
-
-
 
 
                 Button(
 
-                    onClick = {}
+                    onClick = {
 
-                ){
+                        val area =
+                            selectedArea
 
-                    Text("Book Now")
+                        if (area == null) {
+
+                            showSelectAreaDialog =
+                                true
+
+                        } else {
+
+                            categories
+                                .firstOrNull {
+
+                                    it.category_name ==
+                                            "Cleaning"
+
+                                }
+                                ?.let {
+
+                                    navController.navigate(
+
+                                        "services/" +
+                                                "${it.category_id}" +
+                                                "?areaId=${area.area_id}" +
+                                                "&areaName=${android.net.Uri.encode(area.area_name)}"
+
+                                    )
+
+                                }
+
+                        }
+
+                    },
+
+                    shape =
+                        RoundedCornerShape(30.dp)
+
+                ) {
+
+                    Text(
+                        "Book Now"
+                    )
 
                 }
 
-
-
             }
-
 
         }
 
 
-
-
-
         Spacer(
-
             Modifier.height(30.dp)
-
         )
-
-
-
-        Text(
-
-            "Categories Loaded: ${categories.size}"
-
-        )
-
 
     }
-
-
 
 }

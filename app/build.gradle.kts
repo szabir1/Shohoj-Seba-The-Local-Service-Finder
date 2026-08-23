@@ -102,6 +102,7 @@ dependencies {
 
     implementation("androidx.navigation:navigation-compose:2.9.0")
     implementation("androidx.compose.animation:animation")
+    implementation("androidx.compose.material:material-icons-extended")
 
 
     // -------------------------
