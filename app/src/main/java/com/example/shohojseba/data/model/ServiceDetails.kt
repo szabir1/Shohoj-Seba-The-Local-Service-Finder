@@ -1,8 +1,6 @@
 package com.example.shohojseba.data.model
 
-
 import kotlinx.serialization.Serializable
-
 
 @Serializable
 data class ServiceDetails(
@@ -27,6 +25,8 @@ data class ServiceDetails(
 
     val provider_phone: String,
 
-    val experience: Int
+    val experience: Int,
+
+    val service_status: String = "ACTIVE"
 
 )

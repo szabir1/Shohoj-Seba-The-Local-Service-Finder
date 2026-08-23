@@ -14,6 +14,13 @@ import com.example.shohojseba.ui.auth.LandingScreen
 import com.example.shohojseba.ui.auth.LoginScreen
 import com.example.shohojseba.ui.auth.RegisterScreen
 
+import com.example.shohojseba.ui.admin.AdminAreaScreen
+import com.example.shohojseba.ui.admin.AdminCategoryScreen
+import com.example.shohojseba.ui.admin.AdminCustomersScreen
+import com.example.shohojseba.ui.admin.AdminDashboard
+import com.example.shohojseba.ui.admin.AdminProvidersScreen
+import com.example.shohojseba.ui.admin.AdminServicesScreen
+
 import com.example.shohojseba.ui.customer.BookingScreen
 import com.example.shohojseba.ui.customer.CategoryScreen
 import com.example.shohojseba.ui.customer.CustomerBookingsScreen
@@ -26,9 +33,14 @@ import com.example.shohojseba.ui.provider.AddServiceScreen
 import com.example.shohojseba.ui.provider.ProviderBookingsScreen
 import com.example.shohojseba.ui.provider.ProviderDashboard
 
+
 sealed class Screen(
     val route: String
 ) {
+
+    // =====================================================
+    // AUTH
+    // =====================================================
 
     object Landing :
         Screen("landing")
@@ -38,6 +50,11 @@ sealed class Screen(
 
     object Register :
         Screen("register")
+
+
+    // =====================================================
+    // CUSTOMER
+    // =====================================================
 
     object Home :
         Screen("home")
@@ -69,6 +86,34 @@ sealed class Screen(
         Screen(
             "provider_reviews/{providerId}/{providerName}"
         )
+
+
+    // =====================================================
+    // ADMIN
+    // =====================================================
+
+    object Admin :
+        Screen("admin")
+
+    object AdminCategories :
+        Screen("admin_categories")
+
+    object AdminAreas :
+        Screen("admin_areas")
+
+    object AdminCustomers :
+        Screen("admin_customers")
+
+    object AdminProviders :
+        Screen("admin_providers")
+
+    object AdminServices :
+        Screen("admin_services")
+
+
+    // =====================================================
+    // PROVIDER
+    // =====================================================
 
     object Provider :
         Screen("provider")
@@ -103,7 +148,9 @@ fun NavGraph() {
     ) {
 
 
+        // =====================================================
         // LANDING
+        // =====================================================
 
         composable(
             Screen.Landing.route
@@ -132,7 +179,9 @@ fun NavGraph() {
         }
 
 
+        // =====================================================
         // LOGIN
+        // =====================================================
 
         composable(
             Screen.Login.route
@@ -148,13 +197,12 @@ fun NavGraph() {
 
                 },
 
-                onLoginSuccess = {
-                        role ->
+                onLoginSuccess = { role ->
 
-                    if (
-                        role ==
-                        "CUSTOMER"
-                    ) {
+
+                    // CUSTOMER
+
+                    if (role == "CUSTOMER") {
 
                         navController.navigate(
                             Screen.Home.route
@@ -164,16 +212,19 @@ fun NavGraph() {
                                 Screen.Login.route
                             ) {
 
-                                inclusive =
-                                    true
+                                inclusive = true
 
                             }
 
                         }
 
-                    } else if (
-                        role ==
-                        "PROVIDER"
+                    }
+
+
+                    // PROVIDER
+
+                    else if (
+                        role == "PROVIDER"
                     ) {
 
                         navController.navigate(
@@ -184,8 +235,30 @@ fun NavGraph() {
                                 Screen.Login.route
                             ) {
 
-                                inclusive =
-                                    true
+                                inclusive = true
+
+                            }
+
+                        }
+
+                    }
+
+
+                    // ADMIN
+
+                    else if (
+                        role == "ADMIN"
+                    ) {
+
+                        navController.navigate(
+                            Screen.Admin.route
+                        ) {
+
+                            popUpTo(
+                                Screen.Login.route
+                            ) {
+
+                                inclusive = true
 
                             }
 
@@ -200,7 +273,9 @@ fun NavGraph() {
         }
 
 
+        // =====================================================
         // REGISTER
+        // =====================================================
 
         composable(
             Screen.Register.route
@@ -221,7 +296,129 @@ fun NavGraph() {
         }
 
 
-        // HOME
+        // =====================================================
+        // ADMIN DASHBOARD
+        // =====================================================
+
+        composable(
+            Screen.Admin.route
+        ) {
+
+            AdminDashboard(
+
+                onCategoriesClick = {
+
+                    navController.navigate(
+                        Screen.AdminCategories.route
+                    )
+
+                },
+
+                onAreasClick = {
+
+                    navController.navigate(
+                        Screen.AdminAreas.route
+                    )
+
+                },
+
+                onCustomersClick = {
+
+                    navController.navigate(
+                        Screen.AdminCustomers.route
+                    )
+
+                },
+
+                onProvidersClick = {
+
+                    navController.navigate(
+                        Screen.AdminProviders.route
+                    )
+
+                },
+
+                onServicesClick = {
+
+                    navController.navigate(
+                        Screen.AdminServices.route
+                    )
+
+                }
+
+            )
+
+        }
+
+
+        // =====================================================
+        // ADMIN CATEGORIES
+        // =====================================================
+
+        composable(
+            Screen.AdminCategories.route
+        ) {
+
+            AdminCategoryScreen()
+
+        }
+
+
+        // =====================================================
+        // ADMIN AREAS
+        // =====================================================
+
+        composable(
+            Screen.AdminAreas.route
+        ) {
+
+            AdminAreaScreen()
+
+        }
+
+
+        // =====================================================
+        // ADMIN CUSTOMERS
+        // =====================================================
+
+        composable(
+            Screen.AdminCustomers.route
+        ) {
+
+            AdminCustomersScreen()
+
+        }
+
+
+        // =====================================================
+        // ADMIN PROVIDERS
+        // =====================================================
+
+        composable(
+            Screen.AdminProviders.route
+        ) {
+
+            AdminProvidersScreen()
+
+        }
+
+
+        // =====================================================
+        // ADMIN SERVICES
+        // =====================================================
+
+        composable(
+            Screen.AdminServices.route
+        ) {
+
+            AdminServicesScreen()
+
+        }
+
+
+        // =====================================================
+        // CUSTOMER HOME
+        // =====================================================
 
         composable(
             Screen.Home.route
@@ -237,7 +434,9 @@ fun NavGraph() {
         }
 
 
+        // =====================================================
         // CUSTOMER BOOKINGS
+        // =====================================================
 
         composable(
             Screen.CustomerBookings.route
@@ -269,7 +468,9 @@ fun NavGraph() {
         }
 
 
+        // =====================================================
         // REVIEW
+        // =====================================================
 
         composable(
 
@@ -319,6 +520,7 @@ fun NavGraph() {
 
         ) { entry ->
 
+
             ReviewScreen(
 
                 bookingId =
@@ -361,7 +563,9 @@ fun NavGraph() {
         }
 
 
+        // =====================================================
         // PROVIDER REVIEWS
+        // =====================================================
 
         composable(
 
@@ -393,6 +597,7 @@ fun NavGraph() {
 
         ) { entry ->
 
+
             ProviderReviewsScreen(
 
                 providerId =
@@ -414,7 +619,9 @@ fun NavGraph() {
         }
 
 
+        // =====================================================
         // CATEGORY
+        // =====================================================
 
         composable(
             Screen.Category.route
@@ -430,7 +637,9 @@ fun NavGraph() {
         }
 
 
+        // =====================================================
         // SERVICES
+        // =====================================================
 
         composable(
 
@@ -554,7 +763,9 @@ fun NavGraph() {
         }
 
 
+        // =====================================================
         // BOOKING
+        // =====================================================
 
         composable(
 
@@ -640,7 +851,9 @@ fun NavGraph() {
         }
 
 
-        // PROVIDER
+        // =====================================================
+        // PROVIDER DASHBOARD
+        // =====================================================
 
         composable(
             Screen.Provider.route
@@ -669,7 +882,9 @@ fun NavGraph() {
         }
 
 
+        // =====================================================
         // PROVIDER BOOKINGS
+        // =====================================================
 
         composable(
             Screen.ProviderBookings.route
@@ -680,7 +895,9 @@ fun NavGraph() {
         }
 
 
+        // =====================================================
         // ADD SERVICE
+        // =====================================================
 
         composable(
             Screen.AddService.route

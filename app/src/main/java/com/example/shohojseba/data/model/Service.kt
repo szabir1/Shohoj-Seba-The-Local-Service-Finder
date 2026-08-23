@@ -2,7 +2,6 @@ package com.example.shohojseba.data.model
 
 import kotlinx.serialization.Serializable
 
-
 @Serializable
 data class Service(
 
@@ -20,6 +19,8 @@ data class Service(
 
     val provider_id: Long,
 
-    val category_id: Long
+    val category_id: Long,
+
+    val service_status: String = "ACTIVE"
 
 )
