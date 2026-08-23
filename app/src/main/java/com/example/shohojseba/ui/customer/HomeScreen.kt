@@ -9,10 +9,14 @@ import androidx.compose.foundation.verticalScroll
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.HomeRepairService
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.NotificationsActive
 
 import androidx.compose.material3.*
+
 import androidx.compose.runtime.*
 
 import androidx.compose.ui.Alignment
@@ -30,6 +34,7 @@ import com.example.shohojseba.ui.customer.components.CategoryChip
 import com.example.shohojseba.viewmodel.AreaViewModel
 import com.example.shohojseba.viewmodel.CategoryViewModel
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -44,19 +49,24 @@ fun HomeScreen(
 
 ) {
 
+
     val categories by
     viewModel.categories
 
+
     val areas by
     areaViewModel.areas
+
 
     var selectedArea by remember {
         mutableStateOf<Area?>(null)
     }
 
+
     var areaExpanded by remember {
         mutableStateOf(false)
     }
+
 
     var showSelectAreaDialog by remember {
         mutableStateOf(false)
@@ -77,10 +87,12 @@ fun HomeScreen(
 
 
     // =====================================================
-    // SELECT AREA REQUIRED POPUP
+    // AREA REQUIRED DIALOG
     // =====================================================
 
-    if (showSelectAreaDialog) {
+    if (
+        showSelectAreaDialog
+    ) {
 
         AlertDialog(
 
@@ -102,10 +114,14 @@ fun HomeScreen(
                         null,
 
                     tint =
-                        Color(0xFF007A7A),
+                        Color(
+                            0xFF007A7A
+                        ),
 
                     modifier =
-                        Modifier.size(48.dp)
+                        Modifier.size(
+                            48.dp
+                        )
 
                 )
 
@@ -142,15 +158,20 @@ fun HomeScreen(
                     },
 
                     colors =
-                        ButtonDefaults.buttonColors(
+                        ButtonDefaults
+                            .buttonColors(
 
-                            containerColor =
-                                Color(0xFF007A7A)
+                                containerColor =
+                                    Color(
+                                        0xFF007A7A
+                                    )
 
-                        ),
+                            ),
 
                     shape =
-                        RoundedCornerShape(14.dp)
+                        RoundedCornerShape(
+                            14.dp
+                        )
 
                 ) {
 
@@ -163,7 +184,9 @@ fun HomeScreen(
             },
 
             shape =
-                RoundedCornerShape(24.dp)
+                RoundedCornerShape(
+                    24.dp
+                )
 
         )
 
@@ -171,34 +194,40 @@ fun HomeScreen(
 
 
     // =====================================================
-    // SCREEN
+    // MAIN SCREEN
     // =====================================================
 
     Column(
 
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(
 
-                Brush.verticalGradient(
+                    Brush.verticalGradient(
 
-                    listOf(
+                        listOf(
 
-                        Color(0xFFE9FFFA),
+                            Color(
+                                0xFFE9FFFA
+                            ),
 
-                        Color.White
+                            Color.White
+
+                        )
 
                     )
 
                 )
-
-            )
-            .verticalScroll(
-                rememberScrollState()
-            )
-            .padding(24.dp)
+                .verticalScroll(
+                    rememberScrollState()
+                )
+                .padding(
+                    24.dp
+                )
 
     ) {
+
 
         Text(
 
@@ -212,6 +241,7 @@ fun HomeScreen(
 
         )
 
+
         Text(
 
             text =
@@ -224,13 +254,16 @@ fun HomeScreen(
 
         )
 
+
         Spacer(
-            Modifier.height(22.dp)
+            Modifier.height(
+                22.dp
+            )
         )
 
 
         // =====================================================
-        // AREA SELECTION
+        // AREA
         // =====================================================
 
         Text(
@@ -245,8 +278,11 @@ fun HomeScreen(
 
         )
 
+
         Spacer(
-            Modifier.height(8.dp)
+            Modifier.height(
+                8.dp
+            )
         )
 
 
@@ -264,6 +300,7 @@ fun HomeScreen(
 
         ) {
 
+
             OutlinedTextField(
 
                 value =
@@ -273,7 +310,8 @@ fun HomeScreen(
 
                 onValueChange = {},
 
-                readOnly = true,
+                readOnly =
+                    true,
 
                 label = {
 
@@ -302,7 +340,9 @@ fun HomeScreen(
                             null,
 
                         tint =
-                            Color(0xFF007A7A)
+                            Color(
+                                0xFF007A7A
+                            )
 
                     )
 
@@ -320,12 +360,15 @@ fun HomeScreen(
 
                 },
 
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(),
 
                 shape =
-                    RoundedCornerShape(22.dp)
+                    RoundedCornerShape(
+                        22.dp
+                    )
 
             )
 
@@ -344,7 +387,9 @@ fun HomeScreen(
 
             ) {
 
+
                 areas.forEach { area ->
+
 
                     DropdownMenuItem(
 
@@ -390,27 +435,37 @@ fun HomeScreen(
 
 
         // =====================================================
-        // SELECTED AREA INDICATOR
+        // SELECTED AREA
         // =====================================================
 
-        if (selectedArea != null) {
+        if (
+            selectedArea != null
+        ) {
 
             Spacer(
-                Modifier.height(10.dp)
+                Modifier.height(
+                    10.dp
+                )
             )
+
 
             Card(
 
                 colors =
-                    CardDefaults.cardColors(
+                    CardDefaults
+                        .cardColors(
 
-                        containerColor =
-                            Color(0xFFDDF8F3)
+                            containerColor =
+                                Color(
+                                    0xFFDDF8F3
+                                )
 
-                    ),
+                        ),
 
                 shape =
-                    RoundedCornerShape(18.dp)
+                    RoundedCornerShape(
+                        18.dp
+                    )
 
             ) {
 
@@ -441,13 +496,19 @@ fun HomeScreen(
                             null,
 
                         tint =
-                            Color(0xFF007A7A)
+                            Color(
+                                0xFF007A7A
+                            )
 
                     )
+
 
                     Spacer(
-                        Modifier.width(6.dp)
+                        Modifier.width(
+                            6.dp
+                        )
                     )
+
 
                     Text(
 
@@ -455,7 +516,9 @@ fun HomeScreen(
                             "Showing services in ${selectedArea!!.area_name}",
 
                         color =
-                            Color(0xFF007A7A)
+                            Color(
+                                0xFF007A7A
+                            )
 
                     )
 
@@ -467,7 +530,9 @@ fun HomeScreen(
 
 
         Spacer(
-            Modifier.height(22.dp)
+            Modifier.height(
+                22.dp
+            )
         )
 
 
@@ -477,7 +542,8 @@ fun HomeScreen(
 
         OutlinedTextField(
 
-            value = "",
+            value =
+                "",
 
             onValueChange = {},
 
@@ -493,13 +559,17 @@ fun HomeScreen(
                 Modifier.fillMaxWidth(),
 
             shape =
-                RoundedCornerShape(30.dp)
+                RoundedCornerShape(
+                    30.dp
+                )
 
         )
 
 
         Spacer(
-            Modifier.height(25.dp)
+            Modifier.height(
+                25.dp
+            )
         )
 
 
@@ -513,23 +583,32 @@ fun HomeScreen(
                 Modifier.fillMaxWidth(),
 
             horizontalArrangement =
-                Arrangement.spacedBy(14.dp)
+                Arrangement.spacedBy(
+                    14.dp
+                )
 
         ) {
+
 
             Card(
 
                 modifier =
-                    Modifier.weight(1f),
+                    Modifier.weight(
+                        1f
+                    ),
 
                 shape =
-                    RoundedCornerShape(24.dp),
+                    RoundedCornerShape(
+                        24.dp
+                    ),
 
                 colors =
                     CardDefaults.cardColors(
 
                         containerColor =
-                            Color(0xFF007A7A)
+                            Color(
+                                0xFF007A7A
+                            )
 
                     ),
 
@@ -546,7 +625,9 @@ fun HomeScreen(
                 Column(
 
                     modifier =
-                        Modifier.padding(18.dp),
+                        Modifier.padding(
+                            18.dp
+                        ),
 
                     horizontalAlignment =
                         Alignment.CenterHorizontally
@@ -566,9 +647,13 @@ fun HomeScreen(
 
                     )
 
+
                     Spacer(
-                        Modifier.height(8.dp)
+                        Modifier.height(
+                            8.dp
+                        )
                     )
+
 
                     Text(
 
@@ -588,16 +673,22 @@ fun HomeScreen(
             Card(
 
                 modifier =
-                    Modifier.weight(1f),
+                    Modifier.weight(
+                        1f
+                    ),
 
                 shape =
-                    RoundedCornerShape(24.dp),
+                    RoundedCornerShape(
+                        24.dp
+                    ),
 
                 colors =
                     CardDefaults.cardColors(
 
                         containerColor =
-                            Color(0xFFDDF8F3)
+                            Color(
+                                0xFFDDF8F3
+                            )
 
                     )
 
@@ -606,7 +697,9 @@ fun HomeScreen(
                 Column(
 
                     modifier =
-                        Modifier.padding(18.dp),
+                        Modifier.padding(
+                            18.dp
+                        ),
 
                     horizontalAlignment =
                         Alignment.CenterHorizontally
@@ -622,13 +715,19 @@ fun HomeScreen(
                             null,
 
                         tint =
-                            Color(0xFF007A7A)
+                            Color(
+                                0xFF007A7A
+                            )
 
                     )
+
 
                     Spacer(
-                        Modifier.height(8.dp)
+                        Modifier.height(
+                            8.dp
+                        )
                     )
+
 
                     Text(
 
@@ -636,7 +735,9 @@ fun HomeScreen(
                             "Services",
 
                         color =
-                            Color(0xFF007A7A)
+                            Color(
+                                0xFF007A7A
+                            )
 
                     )
 
@@ -648,7 +749,339 @@ fun HomeScreen(
 
 
         Spacer(
-            Modifier.height(30.dp)
+            Modifier.height(
+                14.dp
+            )
+        )
+
+
+        // =====================================================
+        // FAVORITES
+        // =====================================================
+
+        Card(
+
+            modifier =
+                Modifier.fillMaxWidth(),
+
+            shape =
+                RoundedCornerShape(
+                    24.dp
+                ),
+
+            colors =
+                CardDefaults.cardColors(
+
+                    containerColor =
+                        Color(
+                            0xFFFFEBEE
+                        )
+
+                ),
+
+            onClick = {
+
+                navController.navigate(
+                    Screen.Favorites.route
+                )
+
+            }
+
+        ) {
+
+            Row(
+
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            18.dp
+                        ),
+
+                verticalAlignment =
+                    Alignment.CenterVertically
+
+            ) {
+
+                Icon(
+
+                    imageVector =
+                        Icons.Default.Favorite,
+
+                    contentDescription =
+                        null,
+
+                    tint =
+                        Color(
+                            0xFFE53935
+                        )
+
+                )
+
+
+                Spacer(
+                    Modifier.width(
+                        12.dp
+                    )
+                )
+
+
+                Column {
+
+                    Text(
+
+                        text =
+                            "My Favorites",
+
+                        style =
+                            MaterialTheme
+                                .typography
+                                .titleMedium
+
+                    )
+
+
+                    Text(
+
+                        text =
+                            "View your saved services",
+
+                        color =
+                            Color.Gray
+
+                    )
+
+                }
+
+            }
+
+        }
+
+
+        Spacer(
+            Modifier.height(
+                14.dp
+            )
+        )
+
+
+        // =====================================================
+        // NOTIFICATIONS
+        // =====================================================
+
+        Card(
+
+            modifier =
+                Modifier.fillMaxWidth(),
+
+            shape =
+                RoundedCornerShape(
+                    24.dp
+                ),
+
+            colors =
+                CardDefaults.cardColors(
+
+                    containerColor =
+                        Color(
+                            0xFFE3F2FD
+                        )
+
+                ),
+
+            onClick = {
+
+                navController.navigate(
+                    Screen.Notifications.route
+                )
+
+            }
+
+        ) {
+
+            Row(
+
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            18.dp
+                        ),
+
+                verticalAlignment =
+                    Alignment.CenterVertically
+
+            ) {
+
+                Icon(
+
+                    imageVector =
+                        Icons.Default.Notifications,
+
+                    contentDescription =
+                        null,
+
+                    tint =
+                        Color(
+                            0xFF1565C0
+                        )
+
+                )
+
+
+                Spacer(
+                    Modifier.width(
+                        12.dp
+                    )
+                )
+
+
+                Column {
+
+                    Text(
+
+                        text =
+                            "Notifications",
+
+                        style =
+                            MaterialTheme
+                                .typography
+                                .titleMedium
+
+                    )
+
+
+                    Text(
+
+                        text =
+                            "View booking and service updates",
+
+                        color =
+                            Color.Gray
+
+                    )
+
+                }
+
+            }
+
+        }
+
+
+        Spacer(
+            Modifier.height(
+                14.dp
+            )
+        )
+
+
+        // =====================================================
+        // SERVICE REMINDERS
+        // =====================================================
+
+        Card(
+
+            modifier =
+                Modifier.fillMaxWidth(),
+
+            shape =
+                RoundedCornerShape(
+                    24.dp
+                ),
+
+            colors =
+                CardDefaults.cardColors(
+
+                    containerColor =
+                        Color(
+                            0xFFFFF3E0
+                        )
+
+                ),
+
+            onClick = {
+
+                navController.navigate(
+                    Screen.ServiceReminders.route
+                )
+
+            }
+
+        ) {
+
+            Row(
+
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            18.dp
+                        ),
+
+                verticalAlignment =
+                    Alignment.CenterVertically
+
+            ) {
+
+                Icon(
+
+                    imageVector =
+                        Icons.Default.NotificationsActive,
+
+                    contentDescription =
+                        null,
+
+                    tint =
+                        Color(
+                            0xFFFF8F00
+                        )
+
+                )
+
+
+                Spacer(
+                    Modifier.width(
+                        12.dp
+                    )
+                )
+
+
+                Column {
+
+                    Text(
+
+                        text =
+                            "Service Reminders",
+
+                        style =
+                            MaterialTheme
+                                .typography
+                                .titleMedium
+
+                    )
+
+
+                    Text(
+
+                        text =
+                            "View upcoming servicing dates",
+
+                        color =
+                            Color.Gray
+
+                    )
+
+                }
+
+            }
+
+        }
+
+
+        Spacer(
+            Modifier.height(
+                30.dp
+            )
         )
 
 
@@ -668,8 +1101,11 @@ fun HomeScreen(
 
         )
 
+
         Spacer(
-            Modifier.height(15.dp)
+            Modifier.height(
+                15.dp
+            )
         )
 
 
@@ -683,12 +1119,15 @@ fun HomeScreen(
                 ),
 
             horizontalArrangement =
-                Arrangement.spacedBy(14.dp)
+                Arrangement.spacedBy(
+                    14.dp
+                )
 
         ) {
 
-            categories.forEach {
-                    category ->
+
+            categories.forEach { category ->
+
 
                 CategoryChip(
 
@@ -722,7 +1161,10 @@ fun HomeScreen(
                         val area =
                             selectedArea
 
-                        if (area == null) {
+
+                        if (
+                            area == null
+                        ) {
 
                             showSelectAreaDialog =
                                 true
@@ -734,7 +1176,11 @@ fun HomeScreen(
                                 "services/" +
                                         "${category.category_id}" +
                                         "?areaId=${area.area_id}" +
-                                        "&areaName=${android.net.Uri.encode(area.area_name)}"
+                                        "&areaName=${
+                                            android.net.Uri.encode(
+                                                area.area_name
+                                            )
+                                        }"
 
                             )
 
@@ -750,7 +1196,9 @@ fun HomeScreen(
 
 
         Spacer(
-            Modifier.height(35.dp)
+            Modifier.height(
+                35.dp
+            )
         )
 
 
@@ -764,13 +1212,17 @@ fun HomeScreen(
                 Modifier.fillMaxWidth(),
 
             shape =
-                RoundedCornerShape(30.dp),
+                RoundedCornerShape(
+                    30.dp
+                ),
 
             colors =
                 CardDefaults.cardColors(
 
                     containerColor =
-                        Color(0xFFDDF8F3)
+                        Color(
+                            0xFFDDF8F3
+                        )
 
                 )
 
@@ -779,7 +1231,9 @@ fun HomeScreen(
             Column(
 
                 modifier =
-                    Modifier.padding(25.dp)
+                    Modifier.padding(
+                        25.dp
+                    )
 
             ) {
 
@@ -789,9 +1243,12 @@ fun HomeScreen(
                         "20% OFF",
 
                     color =
-                        Color(0xFF00897B)
+                        Color(
+                            0xFF00897B
+                        )
 
                 )
+
 
                 Text(
 
@@ -805,6 +1262,7 @@ fun HomeScreen(
 
                 )
 
+
                 Text(
 
                     text =
@@ -812,8 +1270,11 @@ fun HomeScreen(
 
                 )
 
+
                 Spacer(
-                    Modifier.height(15.dp)
+                    Modifier.height(
+                        15.dp
+                    )
                 )
 
 
@@ -824,7 +1285,10 @@ fun HomeScreen(
                         val area =
                             selectedArea
 
-                        if (area == null) {
+
+                        if (
+                            area == null
+                        ) {
 
                             showSelectAreaDialog =
                                 true
@@ -838,14 +1302,18 @@ fun HomeScreen(
                                             "Cleaning"
 
                                 }
-                                ?.let {
+                                ?.let { category ->
 
                                     navController.navigate(
 
                                         "services/" +
-                                                "${it.category_id}" +
+                                                "${category.category_id}" +
                                                 "?areaId=${area.area_id}" +
-                                                "&areaName=${android.net.Uri.encode(area.area_name)}"
+                                                "&areaName=${
+                                                    android.net.Uri.encode(
+                                                        area.area_name
+                                                    )
+                                                }"
 
                                     )
 
@@ -856,7 +1324,9 @@ fun HomeScreen(
                     },
 
                     shape =
-                        RoundedCornerShape(30.dp)
+                        RoundedCornerShape(
+                            30.dp
+                        )
 
                 ) {
 
@@ -872,7 +1342,9 @@ fun HomeScreen(
 
 
         Spacer(
-            Modifier.height(30.dp)
+            Modifier.height(
+                30.dp
+            )
         )
 
     }

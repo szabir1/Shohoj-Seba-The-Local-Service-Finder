@@ -1,15 +1,14 @@
 package com.example.shohojseba.ui.customer
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.Favorite
 
 import androidx.compose.material3.*
 
@@ -19,60 +18,48 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-import com.example.shohojseba.notification.BookingNotificationHelper
-import com.example.shohojseba.ui.customer.components.CustomerBookingCard
-import com.example.shohojseba.viewmodel.BookingViewModel
+import com.example.shohojseba.ui.customer.components.ServiceCard
+
 import com.example.shohojseba.viewmodel.FavoriteViewModel
+import com.example.shohojseba.viewmodel.ReviewViewModel
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(
+    ExperimentalMaterial3Api::class
+)
 @Composable
-fun CustomerBookingsScreen(
+fun FavoritesScreen(
 
-    onReviewClick: (
-        bookingId: Long,
+    onBookServiceClick: (
         providerId: Long,
+        serviceId: Long,
         serviceName: String,
         providerName: String
     ) -> Unit,
 
-    viewModel: BookingViewModel =
-        viewModel(),
+    onReviewsClick: (
+        providerId: Long,
+        providerName: String
+    ) -> Unit,
 
     favoriteViewModel: FavoriteViewModel =
+        viewModel(),
+
+    reviewViewModel: ReviewViewModel =
         viewModel()
 
 ) {
 
 
-    // =====================================================
-    // CONTEXT
-    // =====================================================
+    val services by
+    favoriteViewModel
+        .favoriteServices
+        .collectAsState()
 
-    val context =
-        LocalContext.current
-
-
-    // =====================================================
-    // BOOKING STATE
-    // =====================================================
-
-    val bookings by
-    viewModel.bookings
-
-
-    val isLoading by
-    viewModel.isLoading
-
-
-    // =====================================================
-    // FAVORITE STATE
-    // =====================================================
 
     val favoriteIds by
     favoriteViewModel
@@ -80,56 +67,55 @@ fun CustomerBookingsScreen(
         .collectAsState()
 
 
-    // =====================================================
-    // LOAD DATA
-    // =====================================================
-
-    LaunchedEffect(Unit) {
-
-
-        viewModel
-            .loadCustomerBookings()
-
-
-        favoriteViewModel
-            .loadFavoriteIds()
-
-    }
+    val isLoading by
+    favoriteViewModel
+        .isLoading
+        .collectAsState()
 
 
     // =====================================================
-    // CHECK BOOKING STATUS CHANGES
+    // LOAD FAVORITES
     // =====================================================
 
     LaunchedEffect(
-        bookings
+        Unit
     ) {
 
 
-        if (
-            bookings.isNotEmpty()
-        ) {
-
-
-            BookingNotificationHelper
-                .checkBookingStatusChanges(
-
-                    context =
-                        context,
-
-                    bookings =
-                        bookings
-
-                )
-
-        }
+        favoriteViewModel
+            .loadFavoriteServices()
 
     }
 
 
     // =====================================================
-    // SCREEN
+    // LOAD RATINGS
     // =====================================================
+
+    LaunchedEffect(
+        services
+    ) {
+
+
+        services
+            .map {
+
+                it.provider_id
+
+            }
+            .distinct()
+            .forEach { providerId ->
+
+
+                reviewViewModel
+                    .loadProviderRating(
+                        providerId
+                    )
+
+            }
+
+    }
+
 
     Scaffold(
 
@@ -144,7 +130,7 @@ fun CustomerBookingsScreen(
                 title = {
 
                     Text(
-                        "My Bookings"
+                        "My Favorites"
                     )
 
                 },
@@ -177,7 +163,7 @@ fun CustomerBookingsScreen(
                             listOf(
 
                                 Color(
-                                    0xFFEFFFFB
+                                    0xFFFFF0F2
                                 ),
 
                                 Color.White
@@ -197,10 +183,6 @@ fun CustomerBookingsScreen(
             when {
 
 
-                // =================================================
-                // LOADING
-                // =================================================
-
                 isLoading -> {
 
 
@@ -219,7 +201,7 @@ fun CustomerBookingsScreen(
 
                             color =
                                 Color(
-                                    0xFF007A7A
+                                    0xFFE53935
                                 )
 
                         )
@@ -229,17 +211,17 @@ fun CustomerBookingsScreen(
                 }
 
 
-                // =================================================
-                // EMPTY
-                // =================================================
-
-                bookings.isEmpty() -> {
+                services.isEmpty() -> {
 
 
                     Box(
 
                         modifier =
-                            Modifier.fillMaxSize(),
+                            Modifier
+                                .fillMaxSize()
+                                .padding(
+                                    24.dp
+                                ),
 
                         contentAlignment =
                             Alignment.Center
@@ -251,7 +233,7 @@ fun CustomerBookingsScreen(
 
                             shape =
                                 RoundedCornerShape(
-                                    24.dp
+                                    26.dp
                                 ),
 
                             elevation =
@@ -267,7 +249,7 @@ fun CustomerBookingsScreen(
 
                                 modifier =
                                     Modifier.padding(
-                                        28.dp
+                                        30.dp
                                     ),
 
                                 horizontalAlignment =
@@ -279,19 +261,19 @@ fun CustomerBookingsScreen(
                                 Icon(
 
                                     imageVector =
-                                        Icons.Default.Book,
+                                        Icons.Default.Favorite,
 
                                     contentDescription =
                                         null,
 
-                                    modifier =
-                                        Modifier.size(
-                                            60.dp
-                                        ),
-
                                     tint =
                                         Color(
-                                            0xFF007A7A
+                                            0xFFE53935
+                                        ),
+
+                                    modifier =
+                                        Modifier.size(
+                                            55.dp
                                         )
 
                                 )
@@ -299,7 +281,7 @@ fun CustomerBookingsScreen(
 
                                 Spacer(
                                     Modifier.height(
-                                        12.dp
+                                        14.dp
                                     )
                                 )
 
@@ -307,19 +289,19 @@ fun CustomerBookingsScreen(
                                 Text(
 
                                     text =
-                                        "No bookings yet",
+                                        "No Favorites Yet",
 
                                     style =
                                         MaterialTheme
                                             .typography
-                                            .titleMedium
+                                            .titleLarge
 
                                 )
 
 
                                 Spacer(
                                     Modifier.height(
-                                        4.dp
+                                        6.dp
                                     )
                                 )
 
@@ -327,7 +309,7 @@ fun CustomerBookingsScreen(
                                 Text(
 
                                     text =
-                                        "Book your first service from the Home screen.",
+                                        "Tap the heart icon on a service to save it here.",
 
                                     color =
                                         Color.Gray
@@ -342,10 +324,6 @@ fun CustomerBookingsScreen(
 
                 }
 
-
-                // =================================================
-                // BOOKINGS
-                // =================================================
 
                 else -> {
 
@@ -362,7 +340,7 @@ fun CustomerBookingsScreen(
 
                         verticalArrangement =
                             Arrangement.spacedBy(
-                                16.dp
+                                8.dp
                             )
 
                     ) {
@@ -371,63 +349,89 @@ fun CustomerBookingsScreen(
                         items(
 
                             items =
-                                bookings,
+                                services,
 
                             key = {
 
-                                it.bookingId
+                                it.service_id
 
                             }
 
-                        ) { booking ->
+                        ) { service ->
 
 
-                            val isFavorite =
+                            val averageRating =
 
-                                favoriteIds
-                                    .contains(
-                                        booking.serviceId
-                                    )
-
-
-                            CustomerBookingCard(
-
-                                booking =
-                                    booking,
+                                reviewViewModel
+                                    .providerRatings[
+                                    service.provider_id
+                                ]
+                                    ?: 0.0
 
 
-                                // =================================
-                                // REVIEW
-                                // =================================
+                            val reviewCount =
 
-                                onReviewClick = {
-
-
-                                    onReviewClick(
-
-                                        booking.bookingId,
-
-                                        booking.providerId,
-
-                                        booking.service
-                                            ?.serviceName
-                                            ?: "Service",
-
-                                        booking.provider
-                                            ?.name
-                                            ?: "Provider"
-
-                                    )
-
-                                },
+                                reviewViewModel
+                                    .providerReviewCounts[
+                                    service.provider_id
+                                ]
+                                    ?: 0
 
 
-                                // =================================
-                                // FAVORITE
-                                // =================================
+                            ServiceCard(
+
+
+                                title =
+                                    service.service_name,
+
+
+                                description =
+                                    service.description
+                                        ?: "Professional service for your home",
+
+
+                                price =
+                                    service.price
+                                        .toString(),
+
+
+                                duration =
+                                    service.duration,
+
+
+                                provider =
+                                    service.provider_name,
+
+
+                                phone =
+                                    service.provider_phone,
+
+
+                                experience =
+                                    service.experience
+                                        .toString(),
+
+
+                                averageRating =
+                                    averageRating,
+
+
+                                reviewCount =
+                                    reviewCount,
+
+
+                                isVerified =
+                                    service.is_verified,
+
+
+                                availabilityStatus =
+                                    service.availability_status,
+
 
                                 isFavorite =
-                                    isFavorite,
+                                    favoriteIds.contains(
+                                        service.service_id
+                                    ),
 
 
                                 onFavoriteClick = {
@@ -435,10 +439,40 @@ fun CustomerBookingsScreen(
 
                                     favoriteViewModel
                                         .toggleFavorite(
-
-                                            booking.serviceId
-
+                                            service.service_id
                                         )
+
+                                },
+
+
+                                onBookClick = {
+
+
+                                    onBookServiceClick(
+
+                                        service.provider_id,
+
+                                        service.service_id,
+
+                                        service.service_name,
+
+                                        service.provider_name
+
+                                    )
+
+                                },
+
+
+                                onReviewsClick = {
+
+
+                                    onReviewsClick(
+
+                                        service.provider_id,
+
+                                        service.provider_name
+
+                                    )
 
                                 }
 

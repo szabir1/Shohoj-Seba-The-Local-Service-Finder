@@ -1,8 +1,10 @@
 package com.example.shohojseba.viewmodel
 
 import android.util.Log
+
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
@@ -10,13 +12,15 @@ import com.example.shohojseba.data.model.AddServiceRequest
 import com.example.shohojseba.data.model.Area
 import com.example.shohojseba.data.model.Category
 import com.example.shohojseba.data.model.Provider
-import com.example.shohojseba.data.model.ProviderArea
 import com.example.shohojseba.data.model.Service
+
 import com.example.shohojseba.data.repository.ProviderRepository
 
 import kotlinx.coroutines.launch
 
+
 class ProviderViewModel : ViewModel() {
+
 
     private val repository =
         ProviderRepository()
@@ -27,9 +31,12 @@ class ProviderViewModel : ViewModel() {
     // =====================================================
 
     private val _provider =
-        mutableStateOf<Provider?>(null)
+        mutableStateOf<Provider?>(
+            null
+        )
 
-    val provider: State<Provider?> =
+    val provider:
+            State<Provider?> =
         _provider
 
 
@@ -38,9 +45,12 @@ class ProviderViewModel : ViewModel() {
     // =====================================================
 
     private val _services =
-        mutableStateOf<List<Service>>(emptyList())
+        mutableStateOf<List<Service>>(
+            emptyList()
+        )
 
-    val services: State<List<Service>> =
+    val services:
+            State<List<Service>> =
         _services
 
 
@@ -49,9 +59,12 @@ class ProviderViewModel : ViewModel() {
     // =====================================================
 
     private val _categories =
-        mutableStateOf<List<Category>>(emptyList())
+        mutableStateOf<List<Category>>(
+            emptyList()
+        )
 
-    val categories: State<List<Category>> =
+    val categories:
+            State<List<Category>> =
         _categories
 
 
@@ -60,9 +73,12 @@ class ProviderViewModel : ViewModel() {
     // =====================================================
 
     private val _areas =
-        mutableStateOf<List<Area>>(emptyList())
+        mutableStateOf<List<Area>>(
+            emptyList()
+        )
 
-    val areas: State<List<Area>> =
+    val areas:
+            State<List<Area>> =
         _areas
 
 
@@ -71,9 +87,12 @@ class ProviderViewModel : ViewModel() {
     // =====================================================
 
     private val _selectedAreaIds =
-        mutableStateOf<Set<Long>>(emptySet())
+        mutableStateOf<Set<Long>>(
+            emptySet()
+        )
 
-    val selectedAreaIds: State<Set<Long>> =
+    val selectedAreaIds:
+            State<Set<Long>> =
         _selectedAreaIds
 
 
@@ -84,7 +103,8 @@ class ProviderViewModel : ViewModel() {
     private val _message =
         mutableStateOf("")
 
-    val message: State<String> =
+    val message:
+            State<String> =
         _message
 
 
@@ -95,7 +115,8 @@ class ProviderViewModel : ViewModel() {
     private val _isLoading =
         mutableStateOf(false)
 
-    val isLoading: State<Boolean> =
+    val isLoading:
+            State<Boolean> =
         _isLoading
 
 
@@ -110,33 +131,43 @@ class ProviderViewModel : ViewModel() {
             _isLoading.value =
                 true
 
+
             val result =
-                repository.getCurrentProvider()
+                repository
+                    .getCurrentProvider()
+
 
             if (result.isSuccess) {
 
                 val providerData =
                     result.getOrNull()
 
+
                 _provider.value =
                     providerData
+
 
                 Log.d(
                     "PROVIDER_TEST",
                     "CURRENT PROVIDER = $providerData"
                 )
 
+
                 providerData
                     ?.provider_id
                     ?.let { providerId ->
+
 
                         loadProviderServices(
                             providerId
                         )
 
+
                         loadCategories()
 
+
                         loadAreas()
+
 
                         loadProviderAreas(
                             providerId
@@ -154,6 +185,107 @@ class ProviderViewModel : ViewModel() {
 
             }
 
+
+            _isLoading.value =
+                false
+
+        }
+
+    }
+
+
+    // =====================================================
+    // UPDATE AVAILABILITY STATUS
+    // =====================================================
+
+    fun updateAvailabilityStatus(
+
+        status: String
+
+    ) {
+
+        val providerId =
+            _provider.value
+                ?.provider_id
+
+
+        if (providerId == null) {
+
+            _message.value =
+                "Provider profile not loaded"
+
+            return
+
+        }
+
+
+        viewModelScope.launch {
+
+            _isLoading.value =
+                true
+
+
+            val result =
+                repository
+                    .updateAvailabilityStatus(
+
+                        providerId =
+                            providerId,
+
+                        status =
+                            status
+
+                    )
+
+
+            if (result.isSuccess) {
+
+                _message.value =
+
+                    when (status) {
+
+                        "AVAILABLE" ->
+                            "Availability set to Available"
+
+                        "BUSY" ->
+                            "Availability set to Busy"
+
+                        "UNAVAILABLE" ->
+                            "Availability set to Unavailable"
+
+                        else ->
+                            "Availability updated successfully"
+
+                    }
+
+
+                // Update immediately in UI
+                _provider.value =
+                    _provider.value
+                        ?.copy(
+
+                            availability_status =
+                                status
+
+                        )
+
+
+                Log.d(
+                    "AVAILABILITY_TEST",
+                    "Provider $providerId status = $status"
+                )
+
+            } else {
+
+                _message.value =
+                    result
+                        .exceptionOrNull()
+                        ?.message
+                        ?: "Failed to update availability"
+
+            }
+
+
             _isLoading.value =
                 false
 
@@ -167,20 +299,25 @@ class ProviderViewModel : ViewModel() {
     // =====================================================
 
     private fun loadProviderServices(
+
         providerId: Long
+
     ) {
 
         viewModelScope.launch {
 
             val result =
-                repository.getProviderServices(
-                    providerId
-                )
+                repository
+                    .getProviderServices(
+                        providerId
+                    )
+
 
             if (result.isSuccess) {
 
                 _services.value =
-                    result.getOrNull()
+                    result
+                        .getOrNull()
                         ?: emptyList()
 
             } else {
@@ -207,12 +344,15 @@ class ProviderViewModel : ViewModel() {
         viewModelScope.launch {
 
             val result =
-                repository.getCategories()
+                repository
+                    .getCategories()
+
 
             if (result.isSuccess) {
 
                 _categories.value =
-                    result.getOrNull()
+                    result
+                        .getOrNull()
                         ?: emptyList()
 
             }
@@ -231,13 +371,17 @@ class ProviderViewModel : ViewModel() {
         viewModelScope.launch {
 
             val result =
-                repository.getAreas()
+                repository
+                    .getAreas()
+
 
             if (result.isSuccess) {
 
                 _areas.value =
-                    result.getOrNull()
+                    result
+                        .getOrNull()
                         ?: emptyList()
+
 
                 Log.d(
                     "AREA_TEST",
@@ -248,9 +392,7 @@ class ProviderViewModel : ViewModel() {
 
                 Log.e(
                     "AREA_TEST",
-                    "AREA ERROR = ${
-                        result.exceptionOrNull()?.message
-                    }"
+                    "AREA ERROR = ${result.exceptionOrNull()?.message}"
                 )
 
             }
@@ -265,21 +407,27 @@ class ProviderViewModel : ViewModel() {
     // =====================================================
 
     private fun loadProviderAreas(
+
         providerId: Long
+
     ) {
 
         viewModelScope.launch {
 
             val result =
-                repository.getProviderAreas(
-                    providerId
-                )
+                repository
+                    .getProviderAreas(
+                        providerId
+                    )
+
 
             if (result.isSuccess) {
 
                 val providerAreas =
-                    result.getOrNull()
+                    result
+                        .getOrNull()
                         ?: emptyList()
+
 
                 _selectedAreaIds.value =
                     providerAreas
@@ -288,11 +436,10 @@ class ProviderViewModel : ViewModel() {
                         }
                         .toSet()
 
+
                 Log.d(
                     "AREA_TEST",
-                    "SELECTED AREAS = ${
-                        _selectedAreaIds.value
-                    }"
+                    "SELECTED AREAS = ${_selectedAreaIds.value}"
                 )
 
             }
@@ -307,12 +454,15 @@ class ProviderViewModel : ViewModel() {
     // =====================================================
 
     fun toggleArea(
+
         areaId: Long
+
     ) {
 
         val current =
             _selectedAreaIds.value
                 .toMutableSet()
+
 
         if (
             current.contains(
@@ -332,6 +482,7 @@ class ProviderViewModel : ViewModel() {
 
         }
 
+
         _selectedAreaIds.value =
             current
 
@@ -349,15 +500,19 @@ class ProviderViewModel : ViewModel() {
                 ?.provider_id
                 ?: return
 
+
         viewModelScope.launch {
 
             _isLoading.value =
                 true
 
+
             val existingResult =
-                repository.getProviderAreas(
-                    providerId
-                )
+                repository
+                    .getProviderAreas(
+                        providerId
+                    )
+
 
             val existingAreaIds =
                 existingResult
@@ -368,58 +523,63 @@ class ProviderViewModel : ViewModel() {
                     ?.toSet()
                     ?: emptySet()
 
+
             val selected =
                 _selectedAreaIds.value
 
 
-            // Areas that need INSERT
             val areasToAdd =
                 selected -
                         existingAreaIds
 
 
-            // Areas that need DELETE
             val areasToRemove =
                 existingAreaIds -
                         selected
 
 
-            areasToAdd.forEach { areaId ->
+            areasToAdd
+                .forEach { areaId ->
 
-                repository.addProviderArea(
+                    repository
+                        .addProviderArea(
 
-                    providerId =
-                        providerId,
+                            providerId =
+                                providerId,
 
-                    areaId =
-                        areaId
+                            areaId =
+                                areaId
 
-                )
+                        )
 
-            }
+                }
 
 
-            areasToRemove.forEach { areaId ->
+            areasToRemove
+                .forEach { areaId ->
 
-                repository.removeProviderArea(
+                    repository
+                        .removeProviderArea(
 
-                    providerId =
-                        providerId,
+                            providerId =
+                                providerId,
 
-                    areaId =
-                        areaId
+                            areaId =
+                                areaId
 
-                )
+                        )
 
-            }
+                }
 
 
             _message.value =
                 "Service areas updated successfully"
 
+
             loadProviderAreas(
                 providerId
             )
+
 
             _isLoading.value =
                 false
@@ -434,20 +594,25 @@ class ProviderViewModel : ViewModel() {
     // =====================================================
 
     fun addService(
+
         service: AddServiceRequest
+
     ) {
 
         viewModelScope.launch {
 
             val result =
-                repository.addService(
-                    service
-                )
+                repository
+                    .addService(
+                        service
+                    )
+
 
             if (result.isSuccess) {
 
                 _message.value =
                     "Service added successfully"
+
 
                 _provider.value
                     ?.provider_id
@@ -470,6 +635,18 @@ class ProviderViewModel : ViewModel() {
             }
 
         }
+
+    }
+
+
+    // =====================================================
+    // CLEAR MESSAGE
+    // =====================================================
+
+    fun clearMessage() {
+
+        _message.value =
+            ""
 
     }
 

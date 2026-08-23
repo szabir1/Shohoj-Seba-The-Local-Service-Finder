@@ -2,6 +2,7 @@ package com.example.shohojseba.viewmodel
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
@@ -9,7 +10,9 @@ import com.example.shohojseba.data.model.Area
 import com.example.shohojseba.data.model.Category
 import com.example.shohojseba.data.model.Customer
 import com.example.shohojseba.data.model.Provider
+import com.example.shohojseba.data.model.Review
 import com.example.shohojseba.data.model.Service
+
 import com.example.shohojseba.data.repository.AdminRepository
 
 import kotlinx.coroutines.launch
@@ -87,6 +90,19 @@ class AdminViewModel : ViewModel() {
 
 
     // =====================================================
+    // REVIEWS
+    // =====================================================
+
+    private val _reviews =
+        mutableStateOf<List<Review>>(
+            emptyList()
+        )
+
+    val reviews: State<List<Review>> =
+        _reviews
+
+
+    // =====================================================
     // LOADING
     // =====================================================
 
@@ -116,7 +132,8 @@ class AdminViewModel : ViewModel() {
 
         viewModelScope.launch {
 
-            _isLoading.value = true
+            _isLoading.value =
+                true
 
             val result =
                 repository.getCategories()
@@ -135,7 +152,8 @@ class AdminViewModel : ViewModel() {
 
             }
 
-            _isLoading.value = false
+            _isLoading.value =
+                false
         }
     }
 
@@ -158,7 +176,8 @@ class AdminViewModel : ViewModel() {
 
         viewModelScope.launch {
 
-            _isLoading.value = true
+            _isLoading.value =
+                true
 
             val result =
                 repository.addCategory(
@@ -180,7 +199,8 @@ class AdminViewModel : ViewModel() {
 
             }
 
-            _isLoading.value = false
+            _isLoading.value =
+                false
         }
     }
 
@@ -204,7 +224,8 @@ class AdminViewModel : ViewModel() {
 
         viewModelScope.launch {
 
-            _isLoading.value = true
+            _isLoading.value =
+                true
 
             val result =
                 repository.updateCategory(
@@ -227,7 +248,8 @@ class AdminViewModel : ViewModel() {
 
             }
 
-            _isLoading.value = false
+            _isLoading.value =
+                false
         }
     }
 
@@ -242,7 +264,8 @@ class AdminViewModel : ViewModel() {
 
         viewModelScope.launch {
 
-            _isLoading.value = true
+            _isLoading.value =
+                true
 
             val result =
                 repository.deleteCategory(
@@ -264,7 +287,8 @@ class AdminViewModel : ViewModel() {
 
             }
 
-            _isLoading.value = false
+            _isLoading.value =
+                false
         }
     }
 
@@ -277,7 +301,8 @@ class AdminViewModel : ViewModel() {
 
         viewModelScope.launch {
 
-            _isLoading.value = true
+            _isLoading.value =
+                true
 
             val result =
                 repository.getAreas()
@@ -296,7 +321,8 @@ class AdminViewModel : ViewModel() {
 
             }
 
-            _isLoading.value = false
+            _isLoading.value =
+                false
         }
     }
 
@@ -319,7 +345,8 @@ class AdminViewModel : ViewModel() {
 
         viewModelScope.launch {
 
-            _isLoading.value = true
+            _isLoading.value =
+                true
 
             val result =
                 repository.addArea(
@@ -341,7 +368,8 @@ class AdminViewModel : ViewModel() {
 
             }
 
-            _isLoading.value = false
+            _isLoading.value =
+                false
         }
     }
 
@@ -365,7 +393,8 @@ class AdminViewModel : ViewModel() {
 
         viewModelScope.launch {
 
-            _isLoading.value = true
+            _isLoading.value =
+                true
 
             val result =
                 repository.updateArea(
@@ -388,7 +417,8 @@ class AdminViewModel : ViewModel() {
 
             }
 
-            _isLoading.value = false
+            _isLoading.value =
+                false
         }
     }
 
@@ -403,7 +433,8 @@ class AdminViewModel : ViewModel() {
 
         viewModelScope.launch {
 
-            _isLoading.value = true
+            _isLoading.value =
+                true
 
             val result =
                 repository.deleteArea(
@@ -425,7 +456,8 @@ class AdminViewModel : ViewModel() {
 
             }
 
-            _isLoading.value = false
+            _isLoading.value =
+                false
         }
     }
 
@@ -438,7 +470,8 @@ class AdminViewModel : ViewModel() {
 
         viewModelScope.launch {
 
-            _isLoading.value = true
+            _isLoading.value =
+                true
 
             val result =
                 repository.getCustomers()
@@ -457,7 +490,8 @@ class AdminViewModel : ViewModel() {
 
             }
 
-            _isLoading.value = false
+            _isLoading.value =
+                false
         }
     }
 
@@ -470,7 +504,8 @@ class AdminViewModel : ViewModel() {
 
         viewModelScope.launch {
 
-            _isLoading.value = true
+            _isLoading.value =
+                true
 
             val result =
                 repository.getProviders()
@@ -489,7 +524,8 @@ class AdminViewModel : ViewModel() {
 
             }
 
-            _isLoading.value = false
+            _isLoading.value =
+                false
         }
     }
 
@@ -503,10 +539,16 @@ class AdminViewModel : ViewModel() {
     ) {
 
         updateProviderStatus(
-            providerId = providerId,
-            status = "SUSPENDED",
+
+            providerId =
+                providerId,
+
+            status =
+                "SUSPENDED",
+
             successMessage =
                 "Provider suspended successfully"
+
         )
     }
 
@@ -520,10 +562,16 @@ class AdminViewModel : ViewModel() {
     ) {
 
         updateProviderStatus(
-            providerId = providerId,
-            status = "ACTIVE",
+
+            providerId =
+                providerId,
+
+            status =
+                "ACTIVE",
+
             successMessage =
                 "Provider reactivated successfully"
+
         )
     }
 
@@ -537,10 +585,16 @@ class AdminViewModel : ViewModel() {
     ) {
 
         updateProviderStatus(
-            providerId = providerId,
-            status = "REMOVED",
+
+            providerId =
+                providerId,
+
+            status =
+                "REMOVED",
+
             successMessage =
                 "Provider removed successfully"
+
         )
     }
 
@@ -550,19 +604,29 @@ class AdminViewModel : ViewModel() {
     // =====================================================
 
     private fun updateProviderStatus(
+
         providerId: Long,
+
         status: String,
+
         successMessage: String
+
     ) {
 
         viewModelScope.launch {
 
-            _isLoading.value = true
+            _isLoading.value =
+                true
 
             val result =
                 repository.updateProviderStatus(
-                    providerId = providerId,
-                    status = status
+
+                    providerId =
+                        providerId,
+
+                    status =
+                        status
+
                 )
 
             if (result.isSuccess) {
@@ -580,7 +644,105 @@ class AdminViewModel : ViewModel() {
 
             }
 
-            _isLoading.value = false
+            _isLoading.value =
+                false
+        }
+    }
+
+
+    // =====================================================
+    // VERIFY PROVIDER
+    // =====================================================
+
+    fun verifyProvider(
+        providerId: Long
+    ) {
+
+        updateProviderVerification(
+
+            providerId =
+                providerId,
+
+            verified =
+                true,
+
+            successMessage =
+                "Provider verified successfully"
+
+        )
+    }
+
+
+    // =====================================================
+    // REMOVE PROVIDER VERIFICATION
+    // =====================================================
+
+    fun removeProviderVerification(
+        providerId: Long
+    ) {
+
+        updateProviderVerification(
+
+            providerId =
+                providerId,
+
+            verified =
+                false,
+
+            successMessage =
+                "Provider verification removed successfully"
+
+        )
+    }
+
+
+    // =====================================================
+    // PRIVATE VERIFICATION UPDATE
+    // =====================================================
+
+    private fun updateProviderVerification(
+
+        providerId: Long,
+
+        verified: Boolean,
+
+        successMessage: String
+
+    ) {
+
+        viewModelScope.launch {
+
+            _isLoading.value =
+                true
+
+            val result =
+                repository.updateProviderVerification(
+
+                    providerId =
+                        providerId,
+
+                    verified =
+                        verified
+
+                )
+
+            if (result.isSuccess) {
+
+                _message.value =
+                    successMessage
+
+                loadProviders()
+
+            } else {
+
+                _message.value =
+                    result.exceptionOrNull()?.message
+                        ?: "Failed to update provider verification"
+
+            }
+
+            _isLoading.value =
+                false
         }
     }
 
@@ -593,7 +755,8 @@ class AdminViewModel : ViewModel() {
 
         viewModelScope.launch {
 
-            _isLoading.value = true
+            _isLoading.value =
+                true
 
             val result =
                 repository.getServices()
@@ -612,7 +775,8 @@ class AdminViewModel : ViewModel() {
 
             }
 
-            _isLoading.value = false
+            _isLoading.value =
+                false
         }
     }
 
@@ -626,10 +790,16 @@ class AdminViewModel : ViewModel() {
     ) {
 
         updateServiceStatus(
-            serviceId = serviceId,
-            status = "REMOVED",
+
+            serviceId =
+                serviceId,
+
+            status =
+                "REMOVED",
+
             successMessage =
                 "Service removed successfully"
+
         )
     }
 
@@ -643,10 +813,16 @@ class AdminViewModel : ViewModel() {
     ) {
 
         updateServiceStatus(
-            serviceId = serviceId,
-            status = "ACTIVE",
+
+            serviceId =
+                serviceId,
+
+            status =
+                "ACTIVE",
+
             successMessage =
                 "Service restored successfully"
+
         )
     }
 
@@ -656,19 +832,29 @@ class AdminViewModel : ViewModel() {
     // =====================================================
 
     private fun updateServiceStatus(
+
         serviceId: Long,
+
         status: String,
+
         successMessage: String
+
     ) {
 
         viewModelScope.launch {
 
-            _isLoading.value = true
+            _isLoading.value =
+                true
 
             val result =
                 repository.updateServiceStatus(
-                    serviceId = serviceId,
-                    status = status
+
+                    serviceId =
+                        serviceId,
+
+                    status =
+                        status
+
                 )
 
             if (result.isSuccess) {
@@ -686,7 +872,81 @@ class AdminViewModel : ViewModel() {
 
             }
 
-            _isLoading.value = false
+            _isLoading.value =
+                false
+        }
+    }
+
+
+    // =====================================================
+    // LOAD REVIEWS
+    // =====================================================
+
+    fun loadReviews() {
+
+        viewModelScope.launch {
+
+            _isLoading.value =
+                true
+
+            val result =
+                repository.getReviews()
+
+            if (result.isSuccess) {
+
+                _reviews.value =
+                    result.getOrNull()
+                        ?: emptyList()
+
+            } else {
+
+                _message.value =
+                    result.exceptionOrNull()?.message
+                        ?: "Failed to load reviews"
+
+            }
+
+            _isLoading.value =
+                false
+        }
+    }
+
+
+    // =====================================================
+    // DELETE REVIEW
+    // =====================================================
+
+    fun deleteReview(
+        reviewId: Long
+    ) {
+
+        viewModelScope.launch {
+
+            _isLoading.value =
+                true
+
+            val result =
+                repository.deleteReview(
+                    reviewId
+                )
+
+            if (result.isSuccess) {
+
+                _message.value =
+                    "Review deleted successfully"
+
+                loadReviews()
+
+            } else {
+
+                _message.value =
+                    result.exceptionOrNull()?.message
+                        ?: "Failed to delete review"
+
+            }
+
+            _isLoading.value =
+                false
         }
     }
 
@@ -698,6 +958,5 @@ class AdminViewModel : ViewModel() {
     fun clearMessage() {
 
         _message.value = ""
-
     }
 }

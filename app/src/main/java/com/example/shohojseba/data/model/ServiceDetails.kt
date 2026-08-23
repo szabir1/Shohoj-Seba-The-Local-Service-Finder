@@ -2,6 +2,7 @@ package com.example.shohojseba.data.model
 
 import kotlinx.serialization.Serializable
 
+
 @Serializable
 data class ServiceDetails(
 
@@ -27,6 +28,13 @@ data class ServiceDetails(
 
     val experience: Int,
 
-    val service_status: String = "ACTIVE"
+    // service_details view may currently return NULL
+    val service_status: String? = null,
+
+    // Added locally from Provider table
+    val is_verified: Boolean = false,
+
+    // Added locally from Provider table
+    val availability_status: String = "AVAILABLE"
 
 )

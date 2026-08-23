@@ -2,83 +2,163 @@ package com.example.shohojseba.ui.provider
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+
 import androidx.compose.foundation.shape.RoundedCornerShape
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.TaskAlt
+
 import androidx.compose.material3.*
+
 import androidx.compose.runtime.*
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+
 import androidx.lifecycle.viewmodel.compose.viewModel
+
 import com.example.shohojseba.ui.provider.components.ProviderBookingCard
 import com.example.shohojseba.viewmodel.BookingViewModel
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProviderBookingsScreen(
 
-    viewModel: BookingViewModel = viewModel()
+    viewModel: BookingViewModel =
+        viewModel()
 
 ) {
 
-    val bookings by viewModel.bookings
-    val isLoading by viewModel.isLoading
 
-    var dialogVisible by remember { mutableStateOf(false) }
-    var dialogTitle by remember { mutableStateOf("") }
-    var dialogMessage by remember { mutableStateOf("") }
+    val bookings by
+    viewModel.bookings
 
-    LaunchedEffect(Unit) {
-        viewModel.loadProviderBookings()
+
+    val isLoading by
+    viewModel.isLoading
+
+
+    var dialogVisible by remember {
+        mutableStateOf(false)
     }
 
-    // Success Dialog
 
-    if (dialogVisible) {
+    var dialogTitle by remember {
+        mutableStateOf("")
+    }
+
+
+    var dialogMessage by remember {
+        mutableStateOf("")
+    }
+
+
+    // =====================================================
+    // LOAD BOOKINGS
+    // =====================================================
+
+    LaunchedEffect(Unit) {
+
+        viewModel
+            .loadProviderBookings()
+
+    }
+
+
+    // =====================================================
+    // SUCCESS DIALOG
+    // =====================================================
+
+    if (
+        dialogVisible
+    ) {
 
         AlertDialog(
 
             onDismissRequest = {
-                dialogVisible = false
+
+                dialogVisible =
+                    false
+
             },
 
             icon = {
 
                 Icon(
 
-                    imageVector = when (dialogTitle) {
-                        "Booking Accepted" -> Icons.Default.CheckCircle
-                        "Job Completed" -> Icons.Default.TaskAlt
-                        else -> Icons.Default.Cancel
-                    },
+                    imageVector =
+                        when (
+                            dialogTitle
+                        ) {
 
-                    contentDescription = null,
+                            "Booking Accepted" ->
+                                Icons.Default.CheckCircle
 
-                    tint = when (dialogTitle) {
-                        "Booking Accepted" -> Color(0xFF2E7D32)
-                        "Job Completed" -> Color(0xFF1565C0)
-                        else -> Color(0xFFC62828)
-                    },
+                            "Job Completed" ->
+                                Icons.Default.TaskAlt
 
-                    modifier = Modifier.size(56.dp)
+                            else ->
+                                Icons.Default.Cancel
+
+                        },
+
+                    contentDescription =
+                        null,
+
+                    tint =
+                        when (
+                            dialogTitle
+                        ) {
+
+                            "Booking Accepted" ->
+                                Color(
+                                    0xFF2E7D32
+                                )
+
+                            "Job Completed" ->
+                                Color(
+                                    0xFF1565C0
+                                )
+
+                            else ->
+                                Color(
+                                    0xFFC62828
+                                )
+
+                        },
+
+                    modifier =
+                        Modifier.size(
+                            56.dp
+                        )
 
                 )
 
             },
 
             title = {
-                Text(dialogTitle)
+
+                Text(
+                    dialogTitle
+                )
+
             },
 
             text = {
-                Text(dialogMessage)
+
+                Text(
+                    dialogMessage
+                )
+
             },
 
             confirmButton = {
@@ -86,32 +166,56 @@ fun ProviderBookingsScreen(
                 Button(
 
                     onClick = {
-                        dialogVisible = false
+
+                        dialogVisible =
+                            false
+
                     },
 
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF007A7A)
-                    ),
+                    colors =
+                        ButtonDefaults
+                            .buttonColors(
 
-                    shape = RoundedCornerShape(14.dp)
+                                containerColor =
+                                    Color(
+                                        0xFF007A7A
+                                    )
+
+                            ),
+
+                    shape =
+                        RoundedCornerShape(
+                            14.dp
+                        )
 
                 ) {
 
-                    Text("OK")
+                    Text(
+                        "OK"
+                    )
 
                 }
 
             },
 
-            shape = RoundedCornerShape(24.dp)
+            shape =
+                RoundedCornerShape(
+                    24.dp
+                )
 
         )
 
     }
 
+
+    // =====================================================
+    // SCREEN
+    // =====================================================
+
     Scaffold(
 
-        containerColor = Color.Transparent,
+        containerColor =
+            Color.Transparent,
 
         topBar = {
 
@@ -119,15 +223,20 @@ fun ProviderBookingsScreen(
 
                 title = {
 
-                    Text("Service Requests")
+                    Text(
+                        "Service Requests"
+                    )
 
                 },
 
-                colors = TopAppBarDefaults.topAppBarColors(
+                colors =
+                    TopAppBarDefaults
+                        .topAppBarColors(
 
-                    containerColor = Color.Transparent
+                            containerColor =
+                                Color.Transparent
 
-                )
+                        )
 
             )
 
@@ -135,49 +244,61 @@ fun ProviderBookingsScreen(
 
     ) { padding ->
 
+
         Box(
 
-            modifier = Modifier
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(
 
-                .fillMaxSize()
+                        Brush.verticalGradient(
 
-                .background(
+                            listOf(
 
-                    Brush.verticalGradient(
+                                Color(
+                                    0xFFEFFFFB
+                                ),
 
-                        listOf(
+                                Color.White
 
-                            Color(0xFFEFFFFB),
-
-                            Color.White
+                            )
 
                         )
 
                     )
-
-                )
-
-                .padding(padding)
+                    .padding(
+                        padding
+                    )
 
         ) {
 
+
             when {
 
-                // Loading
+
+                // =================================================
+                // LOADING
+                // =================================================
 
                 isLoading -> {
 
                     Box(
 
-                        modifier = Modifier.fillMaxSize(),
+                        modifier =
+                            Modifier.fillMaxSize(),
 
-                        contentAlignment = Alignment.Center
+                        contentAlignment =
+                            Alignment.Center
 
                     ) {
 
                         CircularProgressIndicator(
 
-                            color = Color(0xFF007A7A)
+                            color =
+                                Color(
+                                    0xFF007A7A
+                                )
 
                         )
 
@@ -185,59 +306,97 @@ fun ProviderBookingsScreen(
 
                 }
 
-                // Empty State
+
+                // =================================================
+                // EMPTY
+                // =================================================
 
                 bookings.isEmpty() -> {
 
                     Box(
 
-                        modifier = Modifier.fillMaxSize(),
+                        modifier =
+                            Modifier.fillMaxSize(),
 
-                        contentAlignment = Alignment.Center
+                        contentAlignment =
+                            Alignment.Center
 
                     ) {
 
                         Card(
 
-                            shape = RoundedCornerShape(24.dp),
+                            shape =
+                                RoundedCornerShape(
+                                    24.dp
+                                ),
 
-                            elevation = CardDefaults.cardElevation(6.dp)
+                            elevation =
+                                CardDefaults
+                                    .cardElevation(
+                                        6.dp
+                                    )
 
                         ) {
 
                             Column(
 
-                                modifier = Modifier.padding(28.dp),
+                                modifier =
+                                    Modifier.padding(
+                                        28.dp
+                                    ),
 
-                                horizontalAlignment = Alignment.CenterHorizontally
+                                horizontalAlignment =
+                                    Alignment.CenterHorizontally
 
                             ) {
 
                                 Text(
 
-                                    "📭",
+                                    text =
+                                        "📭",
 
-                                    style = MaterialTheme.typography.headlineLarge
-
-                                )
-
-                                Spacer(Modifier.height(10.dp))
-
-                                Text(
-
-                                    "No booking requests",
-
-                                    style = MaterialTheme.typography.titleMedium
+                                    style =
+                                        MaterialTheme
+                                            .typography
+                                            .headlineLarge
 
                                 )
 
-                                Spacer(Modifier.height(4.dp))
+
+                                Spacer(
+                                    Modifier.height(
+                                        10.dp
+                                    )
+                                )
+
 
                                 Text(
 
-                                    "New customer requests will appear here.",
+                                    text =
+                                        "No booking requests",
 
-                                    color = Color.Gray
+                                    style =
+                                        MaterialTheme
+                                            .typography
+                                            .titleMedium
+
+                                )
+
+
+                                Spacer(
+                                    Modifier.height(
+                                        4.dp
+                                    )
+                                )
+
+
+                                Text(
+
+                                    text =
+                                        "New customer requests will appear here.",
+
+                                    color =
+                                        Color.Gray
 
                                 )
 
@@ -249,69 +408,117 @@ fun ProviderBookingsScreen(
 
                 }
 
-                // Booking List
+
+                // =================================================
+                // BOOKINGS
+                // =================================================
 
                 else -> {
 
                     LazyColumn(
 
-                        modifier = Modifier.fillMaxSize(),
+                        modifier =
+                            Modifier.fillMaxSize(),
 
-                        contentPadding = PaddingValues(20.dp),
+                        contentPadding =
+                            PaddingValues(
+                                20.dp
+                            ),
 
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        verticalArrangement =
+                            Arrangement
+                                .spacedBy(
+                                    16.dp
+                                )
 
                     ) {
 
-                        items(bookings) { booking ->
+
+                        items(
+                            bookings
+                        ) { booking ->
+
 
                             ProviderBookingCard(
 
-                                booking = booking,
+                                booking =
+                                    booking,
+
+
+                                // =================================
+                                // ACCEPT
+                                // =================================
 
                                 onAccept = {
 
-                                    viewModel.acceptBooking(
-                                        booking.bookingId
-                                    )
+                                    viewModel
+                                        .acceptBooking(
+                                            booking
+                                        )
 
-                                    dialogTitle = "Booking Accepted"
+
+                                    dialogTitle =
+                                        "Booking Accepted"
+
 
                                     dialogMessage =
-                                        "The customer has been notified that you accepted this booking."
+                                        "The booking has been accepted and an in-app notification was created for the customer."
 
-                                    dialogVisible = true
+
+                                    dialogVisible =
+                                        true
 
                                 },
+
+
+                                // =================================
+                                // REJECT
+                                // =================================
 
                                 onReject = {
 
-                                    viewModel.rejectBooking(
-                                        booking.bookingId
-                                    )
+                                    viewModel
+                                        .rejectBooking(
+                                            booking
+                                        )
 
-                                    dialogTitle = "Booking Rejected"
+
+                                    dialogTitle =
+                                        "Booking Rejected"
+
 
                                     dialogMessage =
-                                        "This booking request has been rejected."
+                                        "The booking has been rejected and an in-app notification was created for the customer."
 
-                                    dialogVisible = true
+
+                                    dialogVisible =
+                                        true
 
                                 },
 
+
+                                // =================================
+                                // COMPLETE
+                                // =================================
+
                                 onComplete = {
 
-                                    viewModel.updateStatus(
-                                        booking.bookingId,
-                                        "Completed"
-                                    )
+                                    viewModel
+                                        .completeBooking(
+                                            booking
+                                        )
 
-                                    dialogTitle = "Job Completed"
+
+                                    dialogTitle =
+                                        "Job Completed"
+
 
                                     dialogMessage =
-                                        "This service has been marked as completed."
+                                        "The service has been marked as completed. The customer received an in-app notification. For AC services, the next servicing reminder was also scheduled."
 
-                                    dialogVisible = true
+
+                                    dialogVisible =
+                                        true
 
                                 }
 

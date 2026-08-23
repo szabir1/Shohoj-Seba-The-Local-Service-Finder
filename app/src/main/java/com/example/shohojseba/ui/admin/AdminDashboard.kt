@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+
 @Composable
 fun AdminDashboard(
 
@@ -110,11 +111,9 @@ fun AdminDashboard(
                     contentDescription = null,
                     tint = Color(0xFF007A7A)
                 )
-
             },
 
             onClick = onCategoriesClick
-
         )
 
         Spacer(
@@ -140,11 +139,9 @@ fun AdminDashboard(
                     contentDescription = null,
                     tint = Color(0xFF007A7A)
                 )
-
             },
 
             onClick = onAreasClick
-
         )
 
         Spacer(
@@ -170,11 +167,9 @@ fun AdminDashboard(
                     contentDescription = null,
                     tint = Color(0xFF007A7A)
                 )
-
             },
 
             onClick = onCustomersClick
-
         )
 
         Spacer(
@@ -191,7 +186,7 @@ fun AdminDashboard(
             title = "Providers",
 
             subtitle =
-                "View registered service providers",
+                "View and manage service providers",
 
             icon = {
 
@@ -200,11 +195,9 @@ fun AdminDashboard(
                     contentDescription = null,
                     tint = Color(0xFF007A7A)
                 )
-
             },
 
             onClick = onProvidersClick
-
         )
 
         Spacer(
@@ -233,11 +226,9 @@ fun AdminDashboard(
 
                     tint = Color(0xFF007A7A)
                 )
-
             },
 
             onClick = onServicesClick
-
         )
 
         Spacer(
@@ -266,19 +257,15 @@ fun AdminDashboard(
 
                     tint = Color(0xFF007A7A)
                 )
-
             },
 
             onClick = onReviewsClick
-
         )
 
         Spacer(
             Modifier.height(30.dp)
         )
-
     }
-
 }
 
 
@@ -350,9 +337,7 @@ private fun AdminMenuCard(
                 ) {
 
                     icon()
-
                 }
-
             }
 
 
@@ -371,7 +356,6 @@ private fun AdminMenuCard(
                         MaterialTheme
                             .typography
                             .titleMedium
-
                 )
 
                 Spacer(
@@ -388,13 +372,8 @@ private fun AdminMenuCard(
                         MaterialTheme
                             .typography
                             .bodyMedium
-
                 )
-
             }
-
         }
-
     }
-
 }

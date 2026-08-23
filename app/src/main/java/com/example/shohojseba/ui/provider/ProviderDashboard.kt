@@ -8,11 +8,15 @@ import androidx.compose.foundation.verticalScroll
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Schedule
 
 import androidx.compose.material3.*
+
 import androidx.compose.runtime.*
 
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -27,7 +31,8 @@ import com.example.shohojseba.viewmodel.ProviderViewModel
 @Composable
 fun ProviderDashboard(
 
-    viewModel: ProviderViewModel = viewModel(),
+    viewModel: ProviderViewModel =
+        viewModel(),
 
     onAddServiceClick: () -> Unit,
 
@@ -35,26 +40,37 @@ fun ProviderDashboard(
 
 ) {
 
+
     // =====================================================
     // VIEWMODEL STATES
     // =====================================================
 
-    val provider by viewModel.provider
+    val provider by
+    viewModel.provider
 
-    val services by viewModel.services
+    val services by
+    viewModel.services
 
-    val areas by viewModel.areas
+    val areas by
+    viewModel.areas
 
-    val selectedAreaIds by viewModel.selectedAreaIds
+    val selectedAreaIds by
+    viewModel.selectedAreaIds
 
-    val message by viewModel.message
+    val message by
+    viewModel.message
 
 
     // =====================================================
-    // AREA SUCCESS DIALOG STATE
+    // DIALOG STATES
     // =====================================================
 
     var showAreaSavedDialog by remember {
+        mutableStateOf(false)
+    }
+
+
+    var showAvailabilityDialog by remember {
         mutableStateOf(false)
     }
 
@@ -65,20 +81,37 @@ fun ProviderDashboard(
 
     LaunchedEffect(Unit) {
 
-        viewModel.loadProviderProfile()
+        viewModel
+            .loadProviderProfile()
 
     }
 
 
     // =====================================================
-    // SHOW AREA SUCCESS DIALOG
+    // SUCCESS DIALOG LISTENER
     // =====================================================
 
     LaunchedEffect(message) {
 
-        if (message == "Service areas updated successfully") {
+        if (
+            message ==
+            "Service areas updated successfully"
+        ) {
 
-            showAreaSavedDialog = true
+            showAreaSavedDialog =
+                true
+
+        }
+
+
+        if (
+            message.startsWith(
+                "Availability set to"
+            )
+        ) {
+
+            showAvailabilityDialog =
+                true
 
         }
 
@@ -86,7 +119,7 @@ fun ProviderDashboard(
 
 
     // =====================================================
-    // AREA SAVED SUCCESS DIALOG
+    // AREA SUCCESS DIALOG
     // =====================================================
 
     if (showAreaSavedDialog) {
@@ -95,7 +128,10 @@ fun ProviderDashboard(
 
             onDismissRequest = {
 
-                showAreaSavedDialog = false
+                showAreaSavedDialog =
+                    false
+
+                viewModel.clearMessage()
 
             },
 
@@ -103,13 +139,21 @@ fun ProviderDashboard(
 
                 Icon(
 
-                    imageVector = Icons.Default.LocationOn,
+                    imageVector =
+                        Icons.Default.LocationOn,
 
-                    contentDescription = null,
+                    contentDescription =
+                        null,
 
-                    tint = Color(0xFF007A7A),
+                    tint =
+                        Color(
+                            0xFF007A7A
+                        ),
 
-                    modifier = Modifier.size(50.dp)
+                    modifier =
+                        Modifier.size(
+                            50.dp
+                        )
 
                 )
 
@@ -118,7 +162,7 @@ fun ProviderDashboard(
             title = {
 
                 Text(
-                    text = "Service Areas Updated"
+                    "Service Areas Updated"
                 )
 
             },
@@ -126,8 +170,9 @@ fun ProviderDashboard(
             text = {
 
                 Text(
-                    text =
-                        "Your selected service areas have been saved successfully."
+
+                    "Your selected service areas have been saved successfully."
+
                 )
 
             },
@@ -138,20 +183,28 @@ fun ProviderDashboard(
 
                     onClick = {
 
-                        showAreaSavedDialog = false
+                        showAreaSavedDialog =
+                            false
+
+                        viewModel.clearMessage()
 
                     },
 
                     colors =
-                        ButtonDefaults.buttonColors(
+                        ButtonDefaults
+                            .buttonColors(
 
-                            containerColor =
-                                Color(0xFF007A7A)
+                                containerColor =
+                                    Color(
+                                        0xFF007A7A
+                                    )
 
-                        ),
+                            ),
 
                     shape =
-                        RoundedCornerShape(14.dp)
+                        RoundedCornerShape(
+                            14.dp
+                        )
 
                 ) {
 
@@ -162,7 +215,110 @@ fun ProviderDashboard(
             },
 
             shape =
-                RoundedCornerShape(24.dp)
+                RoundedCornerShape(
+                    24.dp
+                )
+
+        )
+
+    }
+
+
+    // =====================================================
+    // AVAILABILITY SUCCESS DIALOG
+    // =====================================================
+
+    if (showAvailabilityDialog) {
+
+        AlertDialog(
+
+            onDismissRequest = {
+
+                showAvailabilityDialog =
+                    false
+
+                viewModel.clearMessage()
+
+            },
+
+            icon = {
+
+                Icon(
+
+                    imageVector =
+                        Icons.Default.CheckCircle,
+
+                    contentDescription =
+                        null,
+
+                    tint =
+                        Color(
+                            0xFF2E7D32
+                        ),
+
+                    modifier =
+                        Modifier.size(
+                            50.dp
+                        )
+
+                )
+
+            },
+
+            title = {
+
+                Text(
+                    "Availability Updated"
+                )
+
+            },
+
+            text = {
+
+                Text(
+                    message
+                )
+
+            },
+
+            confirmButton = {
+
+                Button(
+
+                    onClick = {
+
+                        showAvailabilityDialog =
+                            false
+
+                        viewModel.clearMessage()
+
+                    },
+
+                    colors =
+                        ButtonDefaults
+                            .buttonColors(
+
+                                containerColor =
+                                    Color(
+                                        0xFF007A7A
+                                    )
+
+                            )
+
+                ) {
+
+                    Text(
+                        "OK"
+                    )
+
+                }
+
+            },
+
+            shape =
+                RoundedCornerShape(
+                    24.dp
+                )
 
         )
 
@@ -175,33 +331,33 @@ fun ProviderDashboard(
 
     Column(
 
-        modifier = Modifier
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(
 
-            .fillMaxSize()
+                    Brush.verticalGradient(
 
-            .background(
+                        colors =
+                            listOf(
 
-                Brush.verticalGradient(
+                                Color(
+                                    0xFFE8FFFA
+                                ),
 
-                    colors = listOf(
+                                Color.White
 
-                        Color(0xFFE8FFFA),
-
-                        Color.White
+                            )
 
                     )
 
                 )
-
-            )
-
-            .verticalScroll(
-
-                rememberScrollState()
-
-            )
-
-            .padding(24.dp)
+                .verticalScroll(
+                    rememberScrollState()
+                )
+                .padding(
+                    24.dp
+                )
 
     ) {
 
@@ -212,16 +368,21 @@ fun ProviderDashboard(
 
         Text(
 
-            text = "Provider Dashboard",
+            text =
+                "Provider Dashboard",
 
             style =
-                MaterialTheme.typography.headlineMedium
+                MaterialTheme
+                    .typography
+                    .headlineMedium
 
         )
 
 
         Spacer(
-            Modifier.height(8.dp)
+            Modifier.height(
+                8.dp
+            )
         )
 
 
@@ -231,13 +392,17 @@ fun ProviderDashboard(
                 "Manage your services easily",
 
             style =
-                MaterialTheme.typography.bodyLarge
+                MaterialTheme
+                    .typography
+                    .bodyLarge
 
         )
 
 
         Spacer(
-            Modifier.height(25.dp)
+            Modifier.height(
+                25.dp
+            )
         )
 
 
@@ -251,27 +416,35 @@ fun ProviderDashboard(
                 Modifier.fillMaxWidth(),
 
             shape =
-                RoundedCornerShape(28.dp),
-
-            elevation =
-                CardDefaults.cardElevation(
-                    6.dp
+                RoundedCornerShape(
+                    28.dp
                 ),
 
+            elevation =
+                CardDefaults
+                    .cardElevation(
+                        6.dp
+                    ),
+
             colors =
-                CardDefaults.cardColors(
+                CardDefaults
+                    .cardColors(
 
-                    containerColor =
-                        Color(0xFFDDF7F1)
+                        containerColor =
+                            Color(
+                                0xFFDDF7F1
+                            )
 
-                )
+                    )
 
         ) {
 
             Column(
 
                 modifier =
-                    Modifier.padding(20.dp)
+                    Modifier.padding(
+                        20.dp
+                    )
 
             ) {
 
@@ -281,37 +454,64 @@ fun ProviderDashboard(
                         "👤 Provider Profile",
 
                     style =
-                        MaterialTheme.typography.titleLarge
+                        MaterialTheme
+                            .typography
+                            .titleLarge
 
                 )
 
 
                 Spacer(
-                    Modifier.height(15.dp)
+                    Modifier.height(
+                        15.dp
+                    )
                 )
 
 
-                if (provider != null) {
+                if (
+                    provider != null
+                ) {
 
                     Text(
-                        text =
-                            "Name: ${provider!!.name}"
+                        "Name: ${provider!!.name}"
                     )
 
                     Text(
-                        text =
-                            "Email: ${provider!!.email}"
+                        "Email: ${provider!!.email}"
                     )
 
                     Text(
-                        text =
-                            "Phone: ${provider!!.phone}"
+                        "Phone: ${provider!!.phone}"
                     )
 
                     Text(
-                        text =
-                            "⭐ Experience: ${provider!!.experience} years"
+                        "⭐ Experience: ${provider!!.experience} years"
                     )
+
+
+                    if (
+                        provider!!.is_verified
+                    ) {
+
+                        Spacer(
+                            Modifier.height(
+                                6.dp
+                            )
+                        )
+
+                        Text(
+
+                            text =
+                                "✓ Verified Provider",
+
+                            color =
+                                Color(
+                                    0xFF1565C0
+                                )
+
+                        )
+
+                    }
 
                 } else {
 
@@ -327,7 +527,304 @@ fun ProviderDashboard(
 
 
         Spacer(
-            Modifier.height(22.dp)
+            Modifier.height(
+                22.dp
+            )
+        )
+
+
+        // =====================================================
+        // AVAILABILITY CARD
+        // =====================================================
+
+        Card(
+
+            modifier =
+                Modifier.fillMaxWidth(),
+
+            shape =
+                RoundedCornerShape(
+                    28.dp
+                ),
+
+            elevation =
+                CardDefaults
+                    .cardElevation(
+                        5.dp
+                    )
+
+        ) {
+
+            Column(
+
+                modifier =
+                    Modifier.padding(
+                        20.dp
+                    )
+
+            ) {
+
+
+                Row(
+
+                    verticalAlignment =
+                        Alignment
+                            .CenterVertically
+
+                ) {
+
+                    Icon(
+
+                        imageVector =
+                            Icons.Default.Schedule,
+
+                        contentDescription =
+                            null,
+
+                        tint =
+                            Color(
+                                0xFF007A7A
+                            )
+
+                    )
+
+
+                    Spacer(
+                        Modifier.width(
+                            8.dp
+                        )
+                    )
+
+
+                    Text(
+
+                        text =
+                            "Availability Status",
+
+                        style =
+                            MaterialTheme
+                                .typography
+                                .titleLarge
+
+                    )
+
+                }
+
+
+                Spacer(
+                    Modifier.height(
+                        8.dp
+                    )
+                )
+
+
+                Text(
+
+                    text =
+                        "Let customers know whether you are currently accepting service requests.",
+
+                    color =
+                        Color.Gray
+
+                )
+
+
+                Spacer(
+                    Modifier.height(
+                        16.dp
+                    )
+                )
+
+
+                val currentStatus =
+                    provider
+                        ?.availability_status
+                        ?.uppercase()
+                        ?: "AVAILABLE"
+
+
+                // =================================================
+                // AVAILABLE
+                // =================================================
+
+                FilterChip(
+
+                    selected =
+                        currentStatus ==
+                                "AVAILABLE",
+
+                    onClick = {
+
+                        viewModel
+                            .updateAvailabilityStatus(
+                                "AVAILABLE"
+                            )
+
+                    },
+
+                    label = {
+
+                        Text(
+                            "Available"
+                        )
+
+                    },
+
+                    leadingIcon = {
+
+                        Text("🟢")
+
+                    }
+
+                )
+
+
+                Spacer(
+                    Modifier.height(
+                        8.dp
+                    )
+                )
+
+
+                // =================================================
+                // BUSY
+                // =================================================
+
+                FilterChip(
+
+                    selected =
+                        currentStatus ==
+                                "BUSY",
+
+                    onClick = {
+
+                        viewModel
+                            .updateAvailabilityStatus(
+                                "BUSY"
+                            )
+
+                    },
+
+                    label = {
+
+                        Text(
+                            "Busy"
+                        )
+
+                    },
+
+                    leadingIcon = {
+
+                        Text("🟡")
+
+                    }
+
+                )
+
+
+                Spacer(
+                    Modifier.height(
+                        8.dp
+                    )
+                )
+
+
+                // =================================================
+                // UNAVAILABLE
+                // =================================================
+
+                FilterChip(
+
+                    selected =
+                        currentStatus ==
+                                "UNAVAILABLE",
+
+                    onClick = {
+
+                        viewModel
+                            .updateAvailabilityStatus(
+                                "UNAVAILABLE"
+                            )
+
+                    },
+
+                    label = {
+
+                        Text(
+                            "Unavailable"
+                        )
+
+                    },
+
+                    leadingIcon = {
+
+                        Text("🔴")
+
+                    }
+
+                )
+
+
+                Spacer(
+                    Modifier.height(
+                        12.dp
+                    )
+                )
+
+
+                Text(
+
+                    text =
+                        when (currentStatus) {
+
+                            "AVAILABLE" ->
+                                "You are currently accepting service requests."
+
+                            "BUSY" ->
+                                "Customers can see that you are currently busy."
+
+                            "UNAVAILABLE" ->
+                                "Customers can see that you are currently unavailable."
+
+                            else ->
+                                currentStatus
+
+                        },
+
+                    color =
+                        when (currentStatus) {
+
+                            "AVAILABLE" ->
+                                Color(
+                                    0xFF2E7D32
+                                )
+
+                            "BUSY" ->
+                                Color(
+                                    0xFFFFA000
+                                )
+
+                            "UNAVAILABLE" ->
+                                Color(
+                                    0xFFC62828
+                                )
+
+                            else ->
+                                Color.Gray
+
+                        }
+
+                )
+
+            }
+
+        }
+
+
+        Spacer(
+            Modifier.height(
+                22.dp
+            )
         )
 
 
@@ -341,24 +838,27 @@ fun ProviderDashboard(
                 Modifier.fillMaxWidth(),
 
             shape =
-                RoundedCornerShape(28.dp),
+                RoundedCornerShape(
+                    28.dp
+                ),
 
             elevation =
-                CardDefaults.cardElevation(
-                    5.dp
-                )
+                CardDefaults
+                    .cardElevation(
+                        5.dp
+                    )
 
         ) {
 
             Column(
 
                 modifier =
-                    Modifier.padding(20.dp)
+                    Modifier.padding(
+                        20.dp
+                    )
 
             ) {
 
-
-                // ---------------- Header ----------------
 
                 Row {
 
@@ -371,13 +871,17 @@ fun ProviderDashboard(
                             null,
 
                         tint =
-                            Color(0xFF007A7A)
+                            Color(
+                                0xFF007A7A
+                            )
 
                     )
 
 
                     Spacer(
-                        Modifier.width(8.dp)
+                        Modifier.width(
+                            8.dp
+                        )
                     )
 
 
@@ -387,7 +891,9 @@ fun ProviderDashboard(
                             "Service Areas",
 
                         style =
-                            MaterialTheme.typography.titleLarge
+                            MaterialTheme
+                                .typography
+                                .titleLarge
 
                     )
 
@@ -395,7 +901,9 @@ fun ProviderDashboard(
 
 
                 Spacer(
-                    Modifier.height(8.dp)
+                    Modifier.height(
+                        8.dp
+                    )
                 )
 
 
@@ -411,19 +919,18 @@ fun ProviderDashboard(
 
 
                 Spacer(
-                    Modifier.height(16.dp)
+                    Modifier.height(
+                        16.dp
+                    )
                 )
 
 
-                // =====================================================
-                // AREA CHIPS
-                // =====================================================
-
-                if (areas.isEmpty()) {
+                if (
+                    areas.isEmpty()
+                ) {
 
                     Text(
-                        text =
-                            "No areas available"
+                        "No areas available"
                     )
 
                 } else {
@@ -431,14 +938,16 @@ fun ProviderDashboard(
                     FlowRow(
 
                         horizontalArrangement =
-                            Arrangement.spacedBy(
-                                8.dp
-                            ),
+                            Arrangement
+                                .spacedBy(
+                                    8.dp
+                                ),
 
                         verticalArrangement =
-                            Arrangement.spacedBy(
-                                8.dp
-                            )
+                            Arrangement
+                                .spacedBy(
+                                    8.dp
+                                )
 
                     ) {
 
@@ -446,10 +955,10 @@ fun ProviderDashboard(
 
 
                             val selected =
-
-                                selectedAreaIds.contains(
-                                    area.area_id
-                                )
+                                selectedAreaIds
+                                    .contains(
+                                        area.area_id
+                                    )
 
 
                             FilterChip(
@@ -459,17 +968,17 @@ fun ProviderDashboard(
 
                                 onClick = {
 
-                                    viewModel.toggleArea(
-                                        area.area_id
-                                    )
+                                    viewModel
+                                        .toggleArea(
+                                            area.area_id
+                                        )
 
                                 },
 
                                 label = {
 
                                     Text(
-                                        text =
-                                            area.area_name
+                                        area.area_name
                                     )
 
                                 },
@@ -480,7 +989,9 @@ fun ProviderDashboard(
 
                                         {
 
-                                            Text("✓")
+                                            Text(
+                                                "✓"
+                                            )
 
                                         }
 
@@ -500,13 +1011,11 @@ fun ProviderDashboard(
 
 
                 Spacer(
-                    Modifier.height(18.dp)
+                    Modifier.height(
+                        18.dp
+                    )
                 )
 
-
-                // =====================================================
-                // SAVE SERVICE AREAS BUTTON
-                // =====================================================
 
                 Button(
 
@@ -521,7 +1030,8 @@ fun ProviderDashboard(
                         areas.isNotEmpty(),
 
                     modifier =
-                        Modifier.fillMaxWidth(),
+                        Modifier
+                            .fillMaxWidth(),
 
                     shape =
                         RoundedCornerShape(
@@ -529,12 +1039,15 @@ fun ProviderDashboard(
                         ),
 
                     colors =
-                        ButtonDefaults.buttonColors(
+                        ButtonDefaults
+                            .buttonColors(
 
-                            containerColor =
-                                Color(0xFF007A7A)
+                                containerColor =
+                                    Color(
+                                        0xFF007A7A
+                                    )
 
-                        )
+                            )
 
                 ) {
 
@@ -550,7 +1063,9 @@ fun ProviderDashboard(
 
 
                     Spacer(
-                        Modifier.width(7.dp)
+                        Modifier.width(
+                            7.dp
+                        )
                     )
 
 
@@ -566,12 +1081,14 @@ fun ProviderDashboard(
 
 
         Spacer(
-            Modifier.height(25.dp)
+            Modifier.height(
+                25.dp
+            )
         )
 
 
         // =====================================================
-        // ADD SERVICE BUTTON
+        // ADD SERVICE
         // =====================================================
 
         Button(
@@ -581,13 +1098,15 @@ fun ProviderDashboard(
 
             modifier =
                 Modifier
-
                     .fillMaxWidth()
-
-                    .height(55.dp),
+                    .height(
+                        55.dp
+                    ),
 
             shape =
-                RoundedCornerShape(30.dp)
+                RoundedCornerShape(
+                    30.dp
+                )
 
         ) {
 
@@ -599,12 +1118,14 @@ fun ProviderDashboard(
 
 
         Spacer(
-            Modifier.height(14.dp)
+            Modifier.height(
+                14.dp
+            )
         )
 
 
         // =====================================================
-        // BOOKING REQUEST BUTTON
+        // BOOKING REQUESTS
         // =====================================================
 
         OutlinedButton(
@@ -614,21 +1135,26 @@ fun ProviderDashboard(
 
             modifier =
                 Modifier
-
                     .fillMaxWidth()
-
-                    .height(55.dp),
+                    .height(
+                        55.dp
+                    ),
 
             shape =
-                RoundedCornerShape(30.dp),
+                RoundedCornerShape(
+                    30.dp
+                ),
 
             colors =
-                ButtonDefaults.outlinedButtonColors(
+                ButtonDefaults
+                    .outlinedButtonColors(
 
-                    contentColor =
-                        Color(0xFF007A7A)
+                        contentColor =
+                            Color(
+                                0xFF007A7A
+                            )
 
-                )
+                    )
 
         ) {
 
@@ -644,7 +1170,9 @@ fun ProviderDashboard(
 
 
             Spacer(
-                Modifier.width(8.dp)
+                Modifier.width(
+                    8.dp
+                )
             )
 
 
@@ -656,7 +1184,9 @@ fun ProviderDashboard(
 
 
         Spacer(
-            Modifier.height(30.dp)
+            Modifier.height(
+                30.dp
+            )
         )
 
 
@@ -670,21 +1200,23 @@ fun ProviderDashboard(
                 "My Services",
 
             style =
-                MaterialTheme.typography.headlineSmall
+                MaterialTheme
+                    .typography
+                    .headlineSmall
 
         )
 
 
         Spacer(
-            Modifier.height(15.dp)
+            Modifier.height(
+                15.dp
+            )
         )
 
 
-        // =====================================================
-        // NO SERVICES
-        // =====================================================
-
-        if (services.isEmpty()) {
+        if (
+            services.isEmpty()
+        ) {
 
             Card(
 
@@ -692,7 +1224,9 @@ fun ProviderDashboard(
                     Modifier.fillMaxWidth(),
 
                 shape =
-                    RoundedCornerShape(25.dp)
+                    RoundedCornerShape(
+                        25.dp
+                    )
 
             ) {
 
@@ -702,7 +1236,9 @@ fun ProviderDashboard(
                         "No services added yet",
 
                     modifier =
-                        Modifier.padding(20.dp)
+                        Modifier.padding(
+                            20.dp
+                        )
 
                 )
 
@@ -710,96 +1246,98 @@ fun ProviderDashboard(
 
         } else {
 
+            services
+                .forEach { service ->
 
-            // =====================================================
-            // SERVICE LIST
-            // =====================================================
 
-            services.forEach { service ->
-
-                Card(
-
-                    modifier =
-                        Modifier
-
-                            .fillMaxWidth()
-
-                            .padding(
-                                vertical = 8.dp
-                            ),
-
-                    shape =
-                        RoundedCornerShape(
-                            25.dp
-                        ),
-
-                    elevation =
-                        CardDefaults.cardElevation(
-                            5.dp
-                        )
-
-                ) {
-
-                    Column(
+                    Card(
 
                         modifier =
-                            Modifier.padding(
-                                20.dp
-                            )
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    vertical =
+                                        8.dp
+                                ),
+
+                        shape =
+                            RoundedCornerShape(
+                                25.dp
+                            ),
+
+                        elevation =
+                            CardDefaults
+                                .cardElevation(
+                                    5.dp
+                                )
 
                     ) {
 
-                        Text(
+                        Column(
 
-                            text =
-                                "🛠 ${service.service_name}",
+                            modifier =
+                                Modifier.padding(
+                                    20.dp
+                                )
 
-                            style =
-                                MaterialTheme.typography.titleLarge
+                        ) {
 
-                        )
+                            Text(
+
+                                text =
+                                    "🛠 ${service.service_name}",
+
+                                style =
+                                    MaterialTheme
+                                        .typography
+                                        .titleLarge
+
+                            )
 
 
-                        Spacer(
-                            Modifier.height(10.dp)
-                        )
+                            Spacer(
+                                Modifier.height(
+                                    10.dp
+                                )
+                            )
 
 
-                        Text(
-
-                            text =
+                            Text(
                                 "💰 Price: ${service.price} taka"
+                            )
 
-                        )
 
-
-                        Text(
-
-                            text =
+                            Text(
                                 "⏱ Duration: ${service.duration}"
+                            )
 
-                        )
+                        }
 
                     }
 
                 }
 
-            }
-
         }
 
 
         Spacer(
-            Modifier.height(20.dp)
+            Modifier.height(
+                20.dp
+            )
         )
 
 
         // =====================================================
-        // MESSAGE
+        // OTHER MESSAGE
         // =====================================================
 
-        if (message.isNotEmpty() &&
-            message != "Service areas updated successfully"
+        if (
+            message.isNotEmpty() &&
+            message !=
+            "Service areas updated successfully" &&
+            !message.startsWith(
+                "Availability set to"
+            )
         ) {
 
             Text(
@@ -808,7 +1346,9 @@ fun ProviderDashboard(
                     message,
 
                 color =
-                    MaterialTheme.colorScheme.primary
+                    MaterialTheme
+                        .colorScheme
+                        .primary
 
             )
 
@@ -816,7 +1356,9 @@ fun ProviderDashboard(
 
 
         Spacer(
-            Modifier.height(30.dp)
+            Modifier.height(
+                30.dp
+            )
         )
 
     }

@@ -1,5 +1,6 @@
 package com.example.shohojseba.ui.customer
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -10,8 +11,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 
 import androidx.compose.material3.*
+
 import androidx.compose.runtime.*
 
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -20,8 +23,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 import com.example.shohojseba.ui.customer.components.ServiceCard
+
+import com.example.shohojseba.viewmodel.FavoriteViewModel
 import com.example.shohojseba.viewmodel.ReviewViewModel
 import com.example.shohojseba.viewmodel.ServiceViewModel
+
 
 @Composable
 fun ServiceScreen(
@@ -48,29 +54,63 @@ fun ServiceScreen(
         viewModel(),
 
     reviewViewModel: ReviewViewModel =
+        viewModel(),
+
+    favoriteViewModel: FavoriteViewModel =
         viewModel()
 
 ) {
 
+
     val services by
-    viewModel.services
+    viewModel
+        .services
         .collectAsState()
 
+
     val isLoading by
-    viewModel.isLoading
+    viewModel
+        .isLoading
+        .collectAsState()
+
+
+    val favoriteIds by
+    favoriteViewModel
+        .favoriteIds
         .collectAsState()
 
 
     // =====================================================
-    // LOAD FILTERED SERVICES
+    // LOAD FAVORITES
     // =====================================================
 
     LaunchedEffect(
-        categoryId,
-        areaId
+        Unit
     ) {
 
-        if (areaId > 0L) {
+        favoriteViewModel
+            .loadFavoriteIds()
+
+    }
+
+
+    // =====================================================
+    // LOAD SERVICES
+    // =====================================================
+
+    LaunchedEffect(
+
+        categoryId,
+
+        areaId
+
+    ) {
+
+
+        if (
+            areaId > 0
+        ) {
+
 
             viewModel
                 .loadServicesByCategoryAndArea(
@@ -83,11 +123,15 @@ fun ServiceScreen(
 
                 )
 
+
         } else {
+
 
             viewModel
                 .loadServicesByCategory(
+
                     categoryId
+
                 )
 
         }
@@ -96,24 +140,29 @@ fun ServiceScreen(
 
 
     // =====================================================
-    // RATINGS
+    // LOAD RATINGS
     // =====================================================
 
-    LaunchedEffect(services) {
+    LaunchedEffect(
+        services
+    ) {
+
 
         services
-
             .map {
+
                 it.provider_id
+
             }
-
             .distinct()
+            .forEach { providerId ->
 
-            .forEach {
 
                 reviewViewModel
                     .loadProviderRating(
-                        it
+
+                        providerId
+
                     )
 
             }
@@ -123,29 +172,37 @@ fun ServiceScreen(
 
     Column(
 
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(
 
-                Brush.verticalGradient(
+                    Brush.verticalGradient(
 
-                    listOf(
+                        listOf(
 
-                        Color(0xFFEFFFFB),
+                            Color(
+                                0xFFEFFFFB
+                            ),
 
-                        Color.White
+                            Color.White
+
+                        )
 
                     )
 
                 )
+                .verticalScroll(
 
-            )
-            .verticalScroll(
-                rememberScrollState()
-            )
-            .padding(20.dp)
+                    rememberScrollState()
+
+                )
+                .padding(
+                    20.dp
+                )
 
     ) {
+
 
         Text(
 
@@ -160,13 +217,25 @@ fun ServiceScreen(
         )
 
 
-        if (areaName.isNotBlank()) {
+        if (
+            areaName.isNotBlank()
+        ) {
+
 
             Spacer(
-                Modifier.height(8.dp)
+                Modifier.height(
+                    8.dp
+                )
             )
 
-            Row {
+
+            Row(
+
+                verticalAlignment =
+                    Alignment.CenterVertically
+
+            ) {
+
 
                 Icon(
 
@@ -177,13 +246,19 @@ fun ServiceScreen(
                         null,
 
                     tint =
-                        Color(0xFF007A7A)
+                        Color(
+                            0xFF007A7A
+                        )
 
                 )
+
 
                 Spacer(
-                    Modifier.width(5.dp)
+                    Modifier.width(
+                        5.dp
+                    )
                 )
+
 
                 Text(
 
@@ -191,7 +266,9 @@ fun ServiceScreen(
                         "Available in $areaName",
 
                     color =
-                        Color(0xFF007A7A)
+                        Color(
+                            0xFF007A7A
+                        )
 
                 )
 
@@ -201,13 +278,17 @@ fun ServiceScreen(
 
 
         Spacer(
-            Modifier.height(20.dp)
+            Modifier.height(
+                20.dp
+            )
         )
 
 
         when {
 
+
             isLoading -> {
+
 
                 Box(
 
@@ -216,14 +297,20 @@ fun ServiceScreen(
                             .fillMaxWidth()
                             .padding(
                                 50.dp
-                            )
+                            ),
+
+                    contentAlignment =
+                        Alignment.Center
 
                 ) {
+
 
                     CircularProgressIndicator(
 
                         color =
-                            Color(0xFF007A7A)
+                            Color(
+                                0xFF007A7A
+                            )
 
                     )
 
@@ -233,6 +320,7 @@ fun ServiceScreen(
 
 
             services.isEmpty() -> {
+
 
                 Card(
 
@@ -246,6 +334,7 @@ fun ServiceScreen(
 
                 ) {
 
+
                     Column(
 
                         modifier =
@@ -254,6 +343,7 @@ fun ServiceScreen(
                             )
 
                     ) {
+
 
                         Text(
 
@@ -267,15 +357,18 @@ fun ServiceScreen(
 
                         )
 
+
                         Spacer(
                             Modifier.height(
                                 6.dp
                             )
                         )
 
+
                         Text(
 
                             text =
+
                                 if (
                                     areaName.isNotBlank()
                                 ) {
@@ -302,8 +395,8 @@ fun ServiceScreen(
 
             else -> {
 
-                services.forEach {
-                        service ->
+
+                services.forEach { service ->
 
 
                     val averageRating =
@@ -324,39 +417,80 @@ fun ServiceScreen(
                             ?: 0
 
 
+                    val isFavorite =
+
+                        favoriteIds
+                            .contains(
+                                service.service_id
+                            )
+
+
                     ServiceCard(
+
 
                         title =
                             service.service_name,
+
 
                         description =
                             service.description
                                 ?: "Professional service for your home",
 
+
                         price =
                             service.price
                                 .toString(),
 
+
                         duration =
                             service.duration,
+
 
                         provider =
                             service.provider_name,
 
+
                         phone =
                             service.provider_phone,
+
 
                         experience =
                             service.experience
                                 .toString(),
 
+
                         averageRating =
                             averageRating,
+
 
                         reviewCount =
                             reviewCount,
 
+
+                        isVerified =
+                            service.is_verified,
+
+
+                        availabilityStatus =
+                            service.availability_status,
+
+
+                        isFavorite =
+                            isFavorite,
+
+
+                        onFavoriteClick = {
+
+                            favoriteViewModel
+                                .toggleFavorite(
+                                    service.service_id
+                                )
+
+                        },
+
+
                         onBookClick = {
+
 
                             onBookServiceClick(
 
@@ -372,7 +506,9 @@ fun ServiceScreen(
 
                         },
 
+
                         onReviewsClick = {
+
 
                             onReviewsClick(
 
@@ -395,7 +531,7 @@ fun ServiceScreen(
 
         Spacer(
             Modifier.height(
-                20.dp
+                25.dp
             )
         )
 

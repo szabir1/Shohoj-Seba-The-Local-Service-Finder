@@ -4,6 +4,7 @@ import com.example.shohojseba.data.model.Area
 import com.example.shohojseba.data.model.Category
 import com.example.shohojseba.data.model.Customer
 import com.example.shohojseba.data.model.Provider
+import com.example.shohojseba.data.model.Review
 import com.example.shohojseba.data.model.Service
 import com.example.shohojseba.data.supabase.supabase
 
@@ -24,6 +25,7 @@ class AdminRepository {
         val category_name: String
     )
 
+
     @Serializable
     private data class CategoryUpdate(
         val category_name: String
@@ -39,6 +41,7 @@ class AdminRepository {
         val area_name: String
     )
 
+
     @Serializable
     private data class AreaUpdate(
         val area_name: String
@@ -46,7 +49,7 @@ class AdminRepository {
 
 
     // =====================================================
-    // PROVIDER STATUS
+    // PROVIDER STATUS REQUEST MODEL
     // =====================================================
 
     @Serializable
@@ -56,7 +59,17 @@ class AdminRepository {
 
 
     // =====================================================
-    // SERVICE STATUS
+    // PROVIDER VERIFICATION REQUEST MODEL
+    // =====================================================
+
+    @Serializable
+    private data class ProviderVerificationUpdate(
+        val is_verified: Boolean
+    )
+
+
+    // =====================================================
+    // SERVICE STATUS REQUEST MODEL
     // =====================================================
 
     @Serializable
@@ -66,7 +79,7 @@ class AdminRepository {
 
 
     // =====================================================
-    // CATEGORIES
+    // GET CATEGORIES
     // =====================================================
 
     suspend fun getCategories(): Result<List<Category>> {
@@ -86,9 +99,12 @@ class AdminRepository {
             Result.failure(e)
 
         }
-
     }
 
+
+    // =====================================================
+    // ADD CATEGORY
+    // =====================================================
 
     suspend fun addCategory(
         categoryName: String
@@ -111,9 +127,12 @@ class AdminRepository {
             Result.failure(e)
 
         }
-
     }
 
+
+    // =====================================================
+    // UPDATE CATEGORY
+    // =====================================================
 
     suspend fun updateCategory(
         categoryId: Long,
@@ -138,7 +157,6 @@ class AdminRepository {
                         )
 
                     }
-
                 }
 
             Result.success(Unit)
@@ -148,9 +166,12 @@ class AdminRepository {
             Result.failure(e)
 
         }
-
     }
 
+
+    // =====================================================
+    // DELETE CATEGORY
+    // =====================================================
 
     suspend fun deleteCategory(
         categoryId: Long
@@ -170,7 +191,6 @@ class AdminRepository {
                         )
 
                     }
-
                 }
 
             Result.success(Unit)
@@ -180,12 +200,11 @@ class AdminRepository {
             Result.failure(e)
 
         }
-
     }
 
 
     // =====================================================
-    // AREAS
+    // GET AREAS
     // =====================================================
 
     suspend fun getAreas(): Result<List<Area>> {
@@ -205,9 +224,12 @@ class AdminRepository {
             Result.failure(e)
 
         }
-
     }
 
+
+    // =====================================================
+    // ADD AREA
+    // =====================================================
 
     suspend fun addArea(
         areaName: String
@@ -230,9 +252,12 @@ class AdminRepository {
             Result.failure(e)
 
         }
-
     }
 
+
+    // =====================================================
+    // UPDATE AREA
+    // =====================================================
 
     suspend fun updateArea(
         areaId: Long,
@@ -257,7 +282,6 @@ class AdminRepository {
                         )
 
                     }
-
                 }
 
             Result.success(Unit)
@@ -267,9 +291,12 @@ class AdminRepository {
             Result.failure(e)
 
         }
-
     }
 
+
+    // =====================================================
+    // DELETE AREA
+    // =====================================================
 
     suspend fun deleteArea(
         areaId: Long
@@ -289,7 +316,6 @@ class AdminRepository {
                         )
 
                     }
-
                 }
 
             Result.success(Unit)
@@ -299,12 +325,11 @@ class AdminRepository {
             Result.failure(e)
 
         }
-
     }
 
 
     // =====================================================
-    // CUSTOMERS
+    // GET CUSTOMERS
     // =====================================================
 
     suspend fun getCustomers(): Result<List<Customer>> {
@@ -324,12 +349,11 @@ class AdminRepository {
             Result.failure(e)
 
         }
-
     }
 
 
     // =====================================================
-    // PROVIDERS
+    // GET PROVIDERS
     // =====================================================
 
     suspend fun getProviders(): Result<List<Provider>> {
@@ -349,9 +373,12 @@ class AdminRepository {
             Result.failure(e)
 
         }
-
     }
 
+
+    // =====================================================
+    // UPDATE PROVIDER STATUS
+    // =====================================================
 
     suspend fun updateProviderStatus(
         providerId: Long,
@@ -376,7 +403,6 @@ class AdminRepository {
                         )
 
                     }
-
                 }
 
             Result.success(Unit)
@@ -386,12 +412,50 @@ class AdminRepository {
             Result.failure(e)
 
         }
-
     }
 
 
     // =====================================================
-    // SERVICES
+    // UPDATE PROVIDER VERIFICATION
+    // =====================================================
+
+    suspend fun updateProviderVerification(
+        providerId: Long,
+        verified: Boolean
+    ): Result<Unit> {
+
+        return try {
+
+            supabase
+                .from("Provider")
+                .update(
+                    ProviderVerificationUpdate(
+                        is_verified = verified
+                    )
+                ) {
+
+                    filter {
+
+                        eq(
+                            "provider_id",
+                            providerId
+                        )
+
+                    }
+                }
+
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+
+            Result.failure(e)
+
+        }
+    }
+
+
+    // =====================================================
+    // GET SERVICES
     // =====================================================
 
     suspend fun getServices(): Result<List<Service>> {
@@ -411,7 +475,6 @@ class AdminRepository {
             Result.failure(e)
 
         }
-
     }
 
 
@@ -442,7 +505,6 @@ class AdminRepository {
                         )
 
                     }
-
                 }
 
             Result.success(Unit)
@@ -452,7 +514,63 @@ class AdminRepository {
             Result.failure(e)
 
         }
-
     }
 
+
+    // =====================================================
+    // GET REVIEWS
+    // =====================================================
+
+    suspend fun getReviews(): Result<List<Review>> {
+
+        return try {
+
+            val reviews =
+                supabase
+                    .from("review")
+                    .select()
+                    .decodeList<Review>()
+
+            Result.success(reviews)
+
+        } catch (e: Exception) {
+
+            Result.failure(e)
+
+        }
+    }
+
+
+    // =====================================================
+    // DELETE REVIEW
+    // =====================================================
+
+    suspend fun deleteReview(
+        reviewId: Long
+    ): Result<Unit> {
+
+        return try {
+
+            supabase
+                .from("review")
+                .delete {
+
+                    filter {
+
+                        eq(
+                            "review_id",
+                            reviewId
+                        )
+
+                    }
+                }
+
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+
+            Result.failure(e)
+
+        }
+    }
 }

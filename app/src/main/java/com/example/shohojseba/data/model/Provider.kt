@@ -17,6 +17,10 @@ data class Provider(
 
     val experience: Int,
 
-    val account_status: String = "ACTIVE"
+    val account_status: String = "ACTIVE",
+
+    val is_verified: Boolean = false,
+
+    val availability_status: String = "AVAILABLE"
 
 )

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Verified
 
 import androidx.compose.material3.*
 
@@ -34,19 +35,19 @@ import com.example.shohojseba.viewmodel.AdminViewModel
 @Composable
 fun AdminProvidersScreen(
 
-    viewModel: AdminViewModel = viewModel()
+    viewModel: AdminViewModel =
+        viewModel()
 
 ) {
 
-    // =====================================================
-    // VIEWMODEL STATES
-    // =====================================================
+    val providers by
+    viewModel.providers
 
-    val providers by viewModel.providers
+    val isLoading by
+    viewModel.isLoading
 
-    val isLoading by viewModel.isLoading
-
-    val message by viewModel.message
+    val message by
+    viewModel.message
 
 
     // =====================================================
@@ -65,6 +66,14 @@ fun AdminProvidersScreen(
         mutableStateOf<Provider?>(null)
     }
 
+    var providerToVerify by remember {
+        mutableStateOf<Provider?>(null)
+    }
+
+    var providerToUnverify by remember {
+        mutableStateOf<Provider?>(null)
+    }
+
     var showMessageDialog by remember {
         mutableStateOf(false)
     }
@@ -77,45 +86,40 @@ fun AdminProvidersScreen(
     LaunchedEffect(Unit) {
 
         viewModel.loadProviders()
-
     }
 
-
-    // =====================================================
-    // SHOW SUCCESS / ERROR MESSAGE
-    // =====================================================
 
     LaunchedEffect(message) {
 
         if (message.isNotBlank()) {
 
-            showMessageDialog = true
-
+            showMessageDialog =
+                true
         }
-
     }
 
 
     // =====================================================
-    // SUCCESS / ERROR DIALOG
+    // SUCCESS / ERROR MESSAGE
     // =====================================================
 
     if (showMessageDialog) {
 
-        val isSuccess =
+        val success =
             message.contains(
                 "successfully",
                 ignoreCase = true
             )
 
+
         AlertDialog(
 
             onDismissRequest = {
 
-                showMessageDialog = false
+                showMessageDialog =
+                    false
 
                 viewModel.clearMessage()
-
             },
 
             icon = {
@@ -123,46 +127,43 @@ fun AdminProvidersScreen(
                 Icon(
 
                     imageVector =
-                        if (isSuccess)
+                        if (success)
                             Icons.Default.CheckCircle
                         else
                             Icons.Default.Block,
 
-                    contentDescription = null,
+                    contentDescription =
+                        null,
 
                     tint =
-                        if (isSuccess)
+                        if (success)
                             Color(0xFF2E7D32)
                         else
                             Color(0xFFC62828),
 
                     modifier =
-                        Modifier.size(48.dp)
-
+                        Modifier.size(
+                            48.dp
+                        )
                 )
-
             },
 
             title = {
 
                 Text(
 
-                    text =
-                        if (isSuccess)
-                            "Success"
-                        else
-                            "Notice"
-
+                    if (success)
+                        "Success"
+                    else
+                        "Notice"
                 )
-
             },
 
             text = {
 
                 Text(
-                    text = message
+                    message
                 )
-
             },
 
             confirmButton = {
@@ -171,10 +172,10 @@ fun AdminProvidersScreen(
 
                     onClick = {
 
-                        showMessageDialog = false
+                        showMessageDialog =
+                            false
 
                         viewModel.clearMessage()
-
                     },
 
                     colors =
@@ -182,30 +183,247 @@ fun AdminProvidersScreen(
 
                             containerColor =
                                 Color(0xFF007A7A)
-
                         ),
 
                     shape =
-                        RoundedCornerShape(14.dp)
+                        RoundedCornerShape(
+                            14.dp
+                        )
 
                 ) {
 
                     Text("OK")
-
                 }
-
             },
 
             shape =
-                RoundedCornerShape(24.dp)
-
+                RoundedCornerShape(
+                    24.dp
+                )
         )
-
     }
 
 
     // =====================================================
-    // SUSPEND CONFIRMATION
+    // VERIFY PROVIDER
+    // =====================================================
+
+    if (providerToVerify != null) {
+
+        AlertDialog(
+
+            onDismissRequest = {
+
+                providerToVerify =
+                    null
+            },
+
+            icon = {
+
+                Icon(
+
+                    imageVector =
+                        Icons.Default.Verified,
+
+                    contentDescription =
+                        null,
+
+                    tint =
+                        Color(0xFF1565C0),
+
+                    modifier =
+                        Modifier.size(
+                            48.dp
+                        )
+                )
+            },
+
+            title = {
+
+                Text(
+                    "Verify Provider?"
+                )
+            },
+
+            text = {
+
+                Text(
+
+                    "${providerToVerify?.name} will receive the Verified Provider badge."
+                )
+            },
+
+            confirmButton = {
+
+                Button(
+
+                    onClick = {
+
+                        providerToVerify
+                            ?.provider_id
+                            ?.let { providerId ->
+
+                                viewModel.verifyProvider(
+                                    providerId
+                                )
+                            }
+
+                        providerToVerify =
+                            null
+                    },
+
+                    colors =
+                        ButtonDefaults.buttonColors(
+
+                            containerColor =
+                                Color(0xFF1565C0)
+                        )
+                ) {
+
+                    Text(
+                        "Verify"
+                    )
+                }
+            },
+
+            dismissButton = {
+
+                TextButton(
+
+                    onClick = {
+
+                        providerToVerify =
+                            null
+                    }
+
+                ) {
+
+                    Text(
+                        "Cancel"
+                    )
+                }
+            },
+
+            shape =
+                RoundedCornerShape(
+                    24.dp
+                )
+        )
+    }
+
+
+    // =====================================================
+    // REMOVE VERIFICATION
+    // =====================================================
+
+    if (providerToUnverify != null) {
+
+        AlertDialog(
+
+            onDismissRequest = {
+
+                providerToUnverify =
+                    null
+            },
+
+            icon = {
+
+                Icon(
+
+                    imageVector =
+                        Icons.Default.Verified,
+
+                    contentDescription =
+                        null,
+
+                    tint =
+                        Color(0xFFFFA000),
+
+                    modifier =
+                        Modifier.size(
+                            48.dp
+                        )
+                )
+            },
+
+            title = {
+
+                Text(
+                    "Remove Verification?"
+                )
+            },
+
+            text = {
+
+                Text(
+
+                    "${providerToUnverify?.name} will lose the Verified Provider badge."
+                )
+            },
+
+            confirmButton = {
+
+                Button(
+
+                    onClick = {
+
+                        providerToUnverify
+                            ?.provider_id
+                            ?.let { providerId ->
+
+                                viewModel
+                                    .removeProviderVerification(
+                                        providerId
+                                    )
+                            }
+
+                        providerToUnverify =
+                            null
+                    },
+
+                    colors =
+                        ButtonDefaults.buttonColors(
+
+                            containerColor =
+                                Color(0xFFFFA000)
+                        )
+
+                ) {
+
+                    Text(
+                        "Remove Verification"
+                    )
+                }
+            },
+
+            dismissButton = {
+
+                TextButton(
+
+                    onClick = {
+
+                        providerToUnverify =
+                            null
+                    }
+
+                ) {
+
+                    Text(
+                        "Cancel"
+                    )
+                }
+            },
+
+            shape =
+                RoundedCornerShape(
+                    24.dp
+                )
+        )
+    }
+
+
+    // =====================================================
+    // SUSPEND PROVIDER
     // =====================================================
 
     if (providerToSuspend != null) {
@@ -214,8 +432,8 @@ fun AdminProvidersScreen(
 
             onDismissRequest = {
 
-                providerToSuspend = null
-
+                providerToSuspend =
+                    null
             },
 
             icon = {
@@ -225,16 +443,17 @@ fun AdminProvidersScreen(
                     imageVector =
                         Icons.Default.Block,
 
-                    contentDescription = null,
+                    contentDescription =
+                        null,
 
                     tint =
                         Color(0xFFFFA000),
 
                     modifier =
-                        Modifier.size(48.dp)
-
+                        Modifier.size(
+                            48.dp
+                        )
                 )
-
             },
 
             title = {
@@ -242,17 +461,14 @@ fun AdminProvidersScreen(
                 Text(
                     "Suspend Provider?"
                 )
-
             },
 
             text = {
 
                 Text(
 
-                    "${providerToSuspend?.name} will not be able to log in to the provider side until the account is reactivated."
-
+                    "${providerToSuspend?.name} will not be able to log in until reactivated."
                 )
-
             },
 
             confirmButton = {
@@ -265,16 +481,13 @@ fun AdminProvidersScreen(
                             ?.provider_id
                             ?.let { providerId ->
 
-                                viewModel
-                                    .suspendProvider(
-                                        providerId
-                                    )
-
+                                viewModel.suspendProvider(
+                                    providerId
+                                )
                             }
 
                         providerToSuspend =
                             null
-
                     },
 
                     colors =
@@ -282,20 +495,14 @@ fun AdminProvidersScreen(
 
                             containerColor =
                                 Color(0xFFFFA000)
-
-                        ),
-
-                    shape =
-                        RoundedCornerShape(14.dp)
+                        )
 
                 ) {
 
                     Text(
                         "Suspend"
                     )
-
                 }
-
             },
 
             dismissButton = {
@@ -306,7 +513,6 @@ fun AdminProvidersScreen(
 
                         providerToSuspend =
                             null
-
                     }
 
                 ) {
@@ -314,21 +520,19 @@ fun AdminProvidersScreen(
                     Text(
                         "Cancel"
                     )
-
                 }
-
             },
 
             shape =
-                RoundedCornerShape(24.dp)
-
+                RoundedCornerShape(
+                    24.dp
+                )
         )
-
     }
 
 
     // =====================================================
-    // REACTIVATE CONFIRMATION
+    // REACTIVATE PROVIDER
     // =====================================================
 
     if (providerToReactivate != null) {
@@ -339,7 +543,6 @@ fun AdminProvidersScreen(
 
                 providerToReactivate =
                     null
-
             },
 
             icon = {
@@ -349,16 +552,17 @@ fun AdminProvidersScreen(
                     imageVector =
                         Icons.Default.CheckCircle,
 
-                    contentDescription = null,
+                    contentDescription =
+                        null,
 
                     tint =
                         Color(0xFF2E7D32),
 
                     modifier =
-                        Modifier.size(48.dp)
-
+                        Modifier.size(
+                            48.dp
+                        )
                 )
-
             },
 
             title = {
@@ -366,17 +570,14 @@ fun AdminProvidersScreen(
                 Text(
                     "Reactivate Provider?"
                 )
-
             },
 
             text = {
 
                 Text(
 
-                    "${providerToReactivate?.name} will regain access to the provider account."
-
+                    "${providerToReactivate?.name} will regain provider access."
                 )
-
             },
 
             confirmButton = {
@@ -389,16 +590,13 @@ fun AdminProvidersScreen(
                             ?.provider_id
                             ?.let { providerId ->
 
-                                viewModel
-                                    .reactivateProvider(
-                                        providerId
-                                    )
-
+                                viewModel.reactivateProvider(
+                                    providerId
+                                )
                             }
 
                         providerToReactivate =
                             null
-
                     },
 
                     colors =
@@ -406,20 +604,14 @@ fun AdminProvidersScreen(
 
                             containerColor =
                                 Color(0xFF2E7D32)
-
-                        ),
-
-                    shape =
-                        RoundedCornerShape(14.dp)
+                        )
 
                 ) {
 
                     Text(
                         "Reactivate"
                     )
-
                 }
-
             },
 
             dismissButton = {
@@ -430,7 +622,6 @@ fun AdminProvidersScreen(
 
                         providerToReactivate =
                             null
-
                     }
 
                 ) {
@@ -438,21 +629,19 @@ fun AdminProvidersScreen(
                     Text(
                         "Cancel"
                     )
-
                 }
-
             },
 
             shape =
-                RoundedCornerShape(24.dp)
-
+                RoundedCornerShape(
+                    24.dp
+                )
         )
-
     }
 
 
     // =====================================================
-    // REMOVE CONFIRMATION
+    // REMOVE PROVIDER
     // =====================================================
 
     if (providerToRemove != null) {
@@ -463,7 +652,6 @@ fun AdminProvidersScreen(
 
                 providerToRemove =
                     null
-
             },
 
             icon = {
@@ -473,16 +661,17 @@ fun AdminProvidersScreen(
                     imageVector =
                         Icons.Default.Delete,
 
-                    contentDescription = null,
+                    contentDescription =
+                        null,
 
                     tint =
                         Color(0xFFC62828),
 
                     modifier =
-                        Modifier.size(48.dp)
-
+                        Modifier.size(
+                            48.dp
+                        )
                 )
-
             },
 
             title = {
@@ -490,17 +679,14 @@ fun AdminProvidersScreen(
                 Text(
                     "Remove Provider?"
                 )
-
             },
 
             text = {
 
                 Text(
 
-                    "${providerToRemove?.name} will be removed from active use of ShohojSeba. Existing booking and review history will remain stored."
-
+                    "${providerToRemove?.name} will be removed from active use. Existing history will remain."
                 )
-
             },
 
             confirmButton = {
@@ -513,16 +699,13 @@ fun AdminProvidersScreen(
                             ?.provider_id
                             ?.let { providerId ->
 
-                                viewModel
-                                    .removeProvider(
-                                        providerId
-                                    )
-
+                                viewModel.removeProvider(
+                                    providerId
+                                )
                             }
 
                         providerToRemove =
                             null
-
                     },
 
                     colors =
@@ -530,20 +713,14 @@ fun AdminProvidersScreen(
 
                             containerColor =
                                 Color(0xFFC62828)
-
-                        ),
-
-                    shape =
-                        RoundedCornerShape(14.dp)
+                        )
 
                 ) {
 
                     Text(
                         "Remove"
                     )
-
                 }
-
             },
 
             dismissButton = {
@@ -554,7 +731,6 @@ fun AdminProvidersScreen(
 
                         providerToRemove =
                             null
-
                     }
 
                 ) {
@@ -562,16 +738,14 @@ fun AdminProvidersScreen(
                     Text(
                         "Cancel"
                     )
-
                 }
-
             },
 
             shape =
-                RoundedCornerShape(24.dp)
-
+                RoundedCornerShape(
+                    24.dp
+                )
         )
-
     }
 
 
@@ -593,7 +767,6 @@ fun AdminProvidersScreen(
                     Text(
                         "Providers"
                     )
-
                 },
 
                 colors =
@@ -602,11 +775,8 @@ fun AdminProvidersScreen(
 
                             containerColor =
                                 Color.Transparent
-
                         )
-
             )
-
         }
 
     ) { padding ->
@@ -625,13 +795,12 @@ fun AdminProvidersScreen(
                             Color(0xFFEFFFFB),
 
                             Color.White
-
                         )
-
                     )
-
                 )
-                .padding(padding)
+                .padding(
+                    padding
+                )
 
         ) {
 
@@ -660,11 +829,8 @@ fun AdminProvidersScreen(
 
                             color =
                                 Color(0xFF007A7A)
-
                         )
-
                     }
-
                 }
 
 
@@ -684,74 +850,10 @@ fun AdminProvidersScreen(
 
                     ) {
 
-                        Card(
-
-                            shape =
-                                RoundedCornerShape(
-                                    24.dp
-                                ),
-
-                            elevation =
-                                CardDefaults.cardElevation(
-                                    5.dp
-                                )
-
-                        ) {
-
-                            Column(
-
-                                modifier =
-                                    Modifier.padding(
-                                        28.dp
-                                    ),
-
-                                horizontalAlignment =
-                                    Alignment.CenterHorizontally
-
-                            ) {
-
-                                Icon(
-
-                                    imageVector =
-                                        Icons.Default.People,
-
-                                    contentDescription =
-                                        null,
-
-                                    tint =
-                                        Color(0xFF007A7A),
-
-                                    modifier =
-                                        Modifier.size(
-                                            56.dp
-                                        )
-
-                                )
-
-                                Spacer(
-                                    Modifier.height(
-                                        10.dp
-                                    )
-                                )
-
-                                Text(
-
-                                    text =
-                                        "No providers found",
-
-                                    style =
-                                        MaterialTheme
-                                            .typography
-                                            .titleMedium
-
-                                )
-
-                            }
-
-                        }
-
+                        Text(
+                            "No providers found"
+                        )
                     }
-
                 }
 
 
@@ -779,9 +881,9 @@ fun AdminProvidersScreen(
                     ) {
 
 
-                        // =================================================
-                        // SUMMARY CARD
-                        // =================================================
+                        // =========================================
+                        // TOTAL PROVIDERS
+                        // =========================================
 
                         item {
 
@@ -796,18 +898,14 @@ fun AdminProvidersScreen(
                                     ),
 
                                 colors =
-                                    CardDefaults.cardColors(
+                                    CardDefaults
+                                        .cardColors(
 
-                                        containerColor =
-                                            Color(0xFFDDF8F3)
-
-                                    ),
-
-                                elevation =
-                                    CardDefaults.cardElevation(
-                                        4.dp
-                                    )
-
+                                            containerColor =
+                                                Color(
+                                                    0xFFDDF8F3
+                                                )
+                                        )
                             ) {
 
                                 Row(
@@ -820,7 +918,8 @@ fun AdminProvidersScreen(
                                             ),
 
                                     verticalAlignment =
-                                        Alignment.CenterVertically
+                                        Alignment
+                                            .CenterVertically
 
                                 ) {
 
@@ -833,8 +932,9 @@ fun AdminProvidersScreen(
                                             null,
 
                                         tint =
-                                            Color(0xFF007A7A)
-
+                                            Color(
+                                                0xFF007A7A
+                                            )
                                     )
 
                                     Spacer(
@@ -846,20 +946,14 @@ fun AdminProvidersScreen(
                                     Column {
 
                                         Text(
-
-                                            text =
-                                                "Total Providers",
-
-                                            color =
-                                                Color.Gray
-
+                                            "Total Providers"
                                         )
 
                                         Text(
 
-                                            text =
-                                                providers.size
-                                                    .toString(),
+                                            providers
+                                                .size
+                                                .toString(),
 
                                             style =
                                                 MaterialTheme
@@ -867,34 +961,30 @@ fun AdminProvidersScreen(
                                                     .headlineSmall,
 
                                             color =
-                                                Color(0xFF007A7A)
-
+                                                Color(
+                                                    0xFF007A7A
+                                                )
                                         )
-
                                     }
-
                                 }
-
                             }
-
                         }
 
 
-                        // =================================================
+                        // =========================================
                         // PROVIDER CARDS
-                        // =================================================
+                        // =========================================
 
                         items(
 
                             items =
                                 providers,
 
-                            key = { provider ->
+                            key = {
 
-                                provider.provider_id
-                                    ?: provider.auth_user_id
-                                    ?: provider.email
-
+                                it.provider_id
+                                    ?: it.auth_user_id
+                                    ?: it.email
                             }
 
                         ) { provider ->
@@ -911,27 +1001,22 @@ fun AdminProvidersScreen(
                                 when (status) {
 
                                     "ACTIVE" ->
-
                                         Color(
                                             0xFF2E7D32
                                         )
 
                                     "SUSPENDED" ->
-
                                         Color(
                                             0xFFFFA000
                                         )
 
                                     "REMOVED" ->
-
                                         Color(
                                             0xFFC62828
                                         )
 
                                     else ->
-
                                         Color.Gray
-
                                 }
 
 
@@ -946,9 +1031,10 @@ fun AdminProvidersScreen(
                                     ),
 
                                 elevation =
-                                    CardDefaults.cardElevation(
-                                        5.dp
-                                    )
+                                    CardDefaults
+                                        .cardElevation(
+                                            5.dp
+                                        )
 
                             ) {
 
@@ -962,9 +1048,9 @@ fun AdminProvidersScreen(
                                 ) {
 
 
-                                    // =================================================
-                                    // PROVIDER NAME + STATUS
-                                    // =================================================
+                                    // =====================================
+                                    // NAME + STATUS
+                                    // =====================================
 
                                     Row(
 
@@ -972,10 +1058,12 @@ fun AdminProvidersScreen(
                                             Modifier.fillMaxWidth(),
 
                                         horizontalArrangement =
-                                            Arrangement.SpaceBetween,
+                                            Arrangement
+                                                .SpaceBetween,
 
                                         verticalAlignment =
-                                            Alignment.CenterVertically
+                                            Alignment
+                                                .CenterVertically
 
                                     ) {
 
@@ -998,8 +1086,70 @@ fun AdminProvidersScreen(
                                                     MaterialTheme
                                                         .typography
                                                         .titleLarge
-
                                             )
+
+
+                                            if (
+                                                provider.is_verified
+                                            ) {
+
+                                                Spacer(
+                                                    Modifier.height(
+                                                        4.dp
+                                                    )
+                                                )
+
+
+                                                Row(
+
+                                                    verticalAlignment =
+                                                        Alignment
+                                                            .CenterVertically
+
+                                                ) {
+
+                                                    Icon(
+
+                                                        imageVector =
+                                                            Icons.Default.Verified,
+
+                                                        contentDescription =
+                                                            "Verified Provider",
+
+                                                        tint =
+                                                            Color(
+                                                                0xFF1565C0
+                                                            ),
+
+                                                        modifier =
+                                                            Modifier.size(
+                                                                18.dp
+                                                            )
+                                                    )
+
+                                                    Spacer(
+                                                        Modifier.width(
+                                                            5.dp
+                                                        )
+                                                    )
+
+                                                    Text(
+
+                                                        text =
+                                                            "Verified Provider",
+
+                                                        color =
+                                                            Color(
+                                                                0xFF1565C0
+                                                            ),
+
+                                                        style =
+                                                            MaterialTheme
+                                                                .typography
+                                                                .labelMedium
+                                                    )
+                                                }
+                                            }
 
 
                                             if (
@@ -1008,7 +1158,7 @@ fun AdminProvidersScreen(
 
                                                 Spacer(
                                                     Modifier.height(
-                                                        3.dp
+                                                        4.dp
                                                     )
                                                 )
 
@@ -1024,11 +1174,8 @@ fun AdminProvidersScreen(
                                                         MaterialTheme
                                                             .typography
                                                             .bodySmall
-
                                                 )
-
                                             }
-
                                         }
 
 
@@ -1047,16 +1194,14 @@ fun AdminProvidersScreen(
                                                         RoundedCornerShape(
                                                             30.dp
                                                         )
-
                                                     )
                                                     .padding(
 
                                                         horizontal =
-                                                            12.dp,
+                                                            10.dp,
 
                                                         vertical =
-                                                            6.dp
-
+                                                            5.dp
                                                     )
 
                                         ) {
@@ -1067,17 +1212,9 @@ fun AdminProvidersScreen(
                                                     status,
 
                                                 color =
-                                                    statusColor,
-
-                                                style =
-                                                    MaterialTheme
-                                                        .typography
-                                                        .labelMedium
-
+                                                    statusColor
                                             )
-
                                         }
-
                                     }
 
 
@@ -1098,14 +1235,15 @@ fun AdminProvidersScreen(
                                     )
 
 
-                                    // =================================================
+                                    // =====================================
                                     // EMAIL
-                                    // =================================================
+                                    // =====================================
 
                                     Row(
 
                                         verticalAlignment =
-                                            Alignment.CenterVertically
+                                            Alignment
+                                                .CenterVertically
 
                                     ) {
 
@@ -1118,13 +1256,9 @@ fun AdminProvidersScreen(
                                                 null,
 
                                             tint =
-                                                Color(0xFF007A7A),
-
-                                            modifier =
-                                                Modifier.size(
-                                                    20.dp
+                                                Color(
+                                                    0xFF007A7A
                                                 )
-
                                         )
 
                                         Spacer(
@@ -1136,25 +1270,25 @@ fun AdminProvidersScreen(
                                         Text(
                                             provider.email
                                         )
-
                                     }
 
 
                                     Spacer(
                                         Modifier.height(
-                                            10.dp
+                                            8.dp
                                         )
                                     )
 
 
-                                    // =================================================
+                                    // =====================================
                                     // PHONE
-                                    // =================================================
+                                    // =====================================
 
                                     Row(
 
                                         verticalAlignment =
-                                            Alignment.CenterVertically
+                                            Alignment
+                                                .CenterVertically
 
                                     ) {
 
@@ -1167,13 +1301,9 @@ fun AdminProvidersScreen(
                                                 null,
 
                                             tint =
-                                                Color(0xFF007A7A),
-
-                                            modifier =
-                                                Modifier.size(
-                                                    20.dp
+                                                Color(
+                                                    0xFF007A7A
                                                 )
-
                                         )
 
                                         Spacer(
@@ -1185,13 +1315,12 @@ fun AdminProvidersScreen(
                                         Text(
                                             provider.phone
                                         )
-
                                     }
 
 
                                     Spacer(
                                         Modifier.height(
-                                            10.dp
+                                            8.dp
                                         )
                                     )
 
@@ -1200,13 +1329,12 @@ fun AdminProvidersScreen(
 
                                         text =
                                             "⭐ Experience: ${provider.experience} years"
-
                                     )
 
 
-                                    // =================================================
+                                    // =====================================
                                     // OLD PROVIDER WARNING
-                                    // =================================================
+                                    // =====================================
 
                                     if (
                                         provider.auth_user_id == null
@@ -1223,19 +1351,19 @@ fun AdminProvidersScreen(
                                             modifier =
                                                 Modifier.fillMaxWidth(),
 
+                                            colors =
+                                                CardDefaults
+                                                    .cardColors(
+
+                                                        containerColor =
+                                                            Color(
+                                                                0xFFFFF8E1
+                                                            )
+                                                    ),
+
                                             shape =
                                                 RoundedCornerShape(
                                                     14.dp
-                                                ),
-
-                                            colors =
-                                                CardDefaults.cardColors(
-
-                                                    containerColor =
-                                                        Color(
-                                                            0xFFFFF8E1
-                                                        )
-
                                                 )
 
                                         ) {
@@ -1243,7 +1371,7 @@ fun AdminProvidersScreen(
                                             Text(
 
                                                 text =
-                                                    "⚠ This provider is not connected to a Supabase Auth account.",
+                                                    "⚠ Provider is not connected to a Supabase Auth account.",
 
                                                 modifier =
                                                     Modifier.padding(
@@ -1259,11 +1387,8 @@ fun AdminProvidersScreen(
                                                     MaterialTheme
                                                         .typography
                                                         .bodySmall
-
                                             )
-
                                         }
-
                                     }
 
 
@@ -1274,80 +1399,67 @@ fun AdminProvidersScreen(
                                     )
 
 
-                                    // =================================================
-                                    // ACTIVE ACTIONS
-                                    // =================================================
+                                    // =====================================
+                                    // VERIFY / UNVERIFY
+                                    // =====================================
 
                                     if (
-                                        status ==
-                                        "ACTIVE"
+                                        status != "REMOVED"
                                     ) {
 
-                                        Row(
-
-                                            modifier =
-                                                Modifier.fillMaxWidth(),
-
-                                            horizontalArrangement =
-                                                Arrangement.spacedBy(
-                                                    10.dp
-                                                )
-
+                                        if (
+                                            provider.is_verified
                                         ) {
-
 
                                             OutlinedButton(
 
                                                 onClick = {
 
-                                                    providerToSuspend =
+                                                    providerToUnverify =
                                                         provider
-
                                                 },
 
                                                 modifier =
-                                                    Modifier.weight(
-                                                        1f
-                                                    ),
-
-                                                colors =
-                                                    ButtonDefaults
-                                                        .outlinedButtonColors(
-
-                                                            contentColor =
-                                                                Color(
-                                                                    0xFFFFA000
-                                                                )
-
-                                                        ),
+                                                    Modifier.fillMaxWidth(),
 
                                                 shape =
                                                     RoundedCornerShape(
                                                         16.dp
                                                     )
-
                                             ) {
 
-                                                Text(
-                                                    "Suspend"
+                                                Icon(
+
+                                                    imageVector =
+                                                        Icons.Default.Verified,
+
+                                                    contentDescription =
+                                                        null
                                                 )
 
+                                                Spacer(
+                                                    Modifier.width(
+                                                        6.dp
+                                                    )
+                                                )
+
+                                                Text(
+                                                    "Remove Verification"
+                                                )
                                             }
 
+                                        } else {
 
                                             Button(
 
                                                 onClick = {
 
-                                                    providerToRemove =
+                                                    providerToVerify =
                                                         provider
-
                                                 },
 
                                                 modifier =
-                                                    Modifier.weight(
-                                                        1f
-                                                    ),
+                                                    Modifier.fillMaxWidth(),
 
                                                 colors =
                                                     ButtonDefaults
@@ -1355,9 +1467,8 @@ fun AdminProvidersScreen(
 
                                                             containerColor =
                                                                 Color(
-                                                                    0xFFC62828
+                                                                    0xFF1565C0
                                                                 )
-
                                                         ),
 
                                                 shape =
@@ -1367,187 +1478,259 @@ fun AdminProvidersScreen(
 
                                             ) {
 
-                                                Text(
-                                                    "Remove"
+                                                Icon(
+
+                                                    imageVector =
+                                                        Icons.Default.Verified,
+
+                                                    contentDescription =
+                                                        null
                                                 )
 
-                                            }
+                                                Spacer(
+                                                    Modifier.width(
+                                                        6.dp
+                                                    )
+                                                )
 
+                                                Text(
+                                                    "Verify Provider"
+                                                )
+                                            }
                                         }
 
+
+                                        Spacer(
+                                            Modifier.height(
+                                                10.dp
+                                            )
+                                        )
                                     }
 
 
-                                    // =================================================
-                                    // SUSPENDED ACTIONS
-                                    // =================================================
+                                    // =====================================
+                                    // ACCOUNT ACTIONS
+                                    // =====================================
 
-                                    else if (
-                                        status ==
-                                        "SUSPENDED"
-                                    ) {
-
-                                        Row(
-
-                                            modifier =
-                                                Modifier.fillMaxWidth(),
-
-                                            horizontalArrangement =
-                                                Arrangement.spacedBy(
-                                                    10.dp
-                                                )
-
-                                        ) {
+                                    when (status) {
 
 
-                                            Button(
+                                        "ACTIVE" -> {
 
-                                                onClick = {
-
-                                                    providerToReactivate =
-                                                        provider
-
-                                                },
+                                            Row(
 
                                                 modifier =
-                                                    Modifier.weight(
-                                                        1f
-                                                    ),
+                                                    Modifier.fillMaxWidth(),
 
-                                                colors =
-                                                    ButtonDefaults
-                                                        .buttonColors(
-
-                                                            containerColor =
-                                                                Color(
-                                                                    0xFF2E7D32
-                                                                )
-
-                                                        ),
-
-                                                shape =
-                                                    RoundedCornerShape(
-                                                        16.dp
-                                                    )
-
-                                            ) {
-
-                                                Text(
-                                                    "Reactivate"
-                                                )
-
-                                            }
-
-
-                                            Button(
-
-                                                onClick = {
-
-                                                    providerToRemove =
-                                                        provider
-
-                                                },
-
-                                                modifier =
-                                                    Modifier.weight(
-                                                        1f
-                                                    ),
-
-                                                colors =
-                                                    ButtonDefaults
-                                                        .buttonColors(
-
-                                                            containerColor =
-                                                                Color(
-                                                                    0xFFC62828
-                                                                )
-
-                                                        ),
-
-                                                shape =
-                                                    RoundedCornerShape(
-                                                        16.dp
-                                                    )
-
-                                            ) {
-
-                                                Text(
-                                                    "Remove"
-                                                )
-
-                                            }
-
-                                        }
-
-                                    }
-
-
-                                    // =================================================
-                                    // REMOVED
-                                    // =================================================
-
-                                    else if (
-                                        status ==
-                                        "REMOVED"
-                                    ) {
-
-                                        Card(
-
-                                            modifier =
-                                                Modifier.fillMaxWidth(),
-
-                                            shape =
-                                                RoundedCornerShape(
-                                                    16.dp
-                                                ),
-
-                                            colors =
-                                                CardDefaults.cardColors(
-
-                                                    containerColor =
-                                                        Color(
-                                                            0xFFFFEBEE
+                                                horizontalArrangement =
+                                                    Arrangement
+                                                        .spacedBy(
+                                                            10.dp
                                                         )
 
-                                                )
+                                            ) {
 
-                                        ) {
+                                                OutlinedButton(
 
-                                            Text(
+                                                    onClick = {
 
-                                                text =
-                                                    "This provider has been removed from the platform.",
+                                                        providerToSuspend =
+                                                            provider
+                                                    },
 
-                                                modifier =
-                                                    Modifier.padding(
-                                                        14.dp
-                                                    ),
+                                                    modifier =
+                                                        Modifier.weight(
+                                                            1f
+                                                        ),
 
-                                                color =
-                                                    Color(
-                                                        0xFFC62828
+                                                    shape =
+                                                        RoundedCornerShape(
+                                                            16.dp
+                                                        )
+
+                                                ) {
+
+                                                    Text(
+                                                        "Suspend"
                                                     )
+                                                }
 
-                                            )
 
+                                                Button(
+
+                                                    onClick = {
+
+                                                        providerToRemove =
+                                                            provider
+                                                    },
+
+                                                    modifier =
+                                                        Modifier.weight(
+                                                            1f
+                                                        ),
+
+                                                    colors =
+                                                        ButtonDefaults
+                                                            .buttonColors(
+
+                                                                containerColor =
+                                                                    Color(
+                                                                        0xFFC62828
+                                                                    )
+                                                            ),
+
+                                                    shape =
+                                                        RoundedCornerShape(
+                                                            16.dp
+                                                        )
+
+                                                ) {
+
+                                                    Text(
+                                                        "Remove"
+                                                    )
+                                                }
+                                            }
                                         }
 
+
+                                        "SUSPENDED" -> {
+
+                                            Row(
+
+                                                modifier =
+                                                    Modifier.fillMaxWidth(),
+
+                                                horizontalArrangement =
+                                                    Arrangement
+                                                        .spacedBy(
+                                                            10.dp
+                                                        )
+
+                                            ) {
+
+                                                Button(
+
+                                                    onClick = {
+
+                                                        providerToReactivate =
+                                                            provider
+                                                    },
+
+                                                    modifier =
+                                                        Modifier.weight(
+                                                            1f
+                                                        ),
+
+                                                    colors =
+                                                        ButtonDefaults
+                                                            .buttonColors(
+
+                                                                containerColor =
+                                                                    Color(
+                                                                        0xFF2E7D32
+                                                                    )
+                                                            ),
+
+                                                    shape =
+                                                        RoundedCornerShape(
+                                                            16.dp
+                                                        )
+
+                                                ) {
+
+                                                    Text(
+                                                        "Reactivate"
+                                                    )
+                                                }
+
+
+                                                Button(
+
+                                                    onClick = {
+
+                                                        providerToRemove =
+                                                            provider
+                                                    },
+
+                                                    modifier =
+                                                        Modifier.weight(
+                                                            1f
+                                                        ),
+
+                                                    colors =
+                                                        ButtonDefaults
+                                                            .buttonColors(
+
+                                                                containerColor =
+                                                                    Color(
+                                                                        0xFFC62828
+                                                                    )
+                                                            ),
+
+                                                    shape =
+                                                        RoundedCornerShape(
+                                                            16.dp
+                                                        )
+
+                                                ) {
+
+                                                    Text(
+                                                        "Remove"
+                                                    )
+                                                }
+                                            }
+                                        }
+
+
+                                        "REMOVED" -> {
+
+                                            Card(
+
+                                                modifier =
+                                                    Modifier.fillMaxWidth(),
+
+                                                shape =
+                                                    RoundedCornerShape(
+                                                        16.dp
+                                                    ),
+
+                                                colors =
+                                                    CardDefaults
+                                                        .cardColors(
+
+                                                            containerColor =
+                                                                Color(
+                                                                    0xFFFFEBEE
+                                                                )
+                                                        )
+
+                                            ) {
+
+                                                Text(
+
+                                                    text =
+                                                        "This provider has been removed from the platform.",
+
+                                                    modifier =
+                                                        Modifier.padding(
+                                                            14.dp
+                                                        ),
+
+                                                    color =
+                                                        Color(
+                                                            0xFFC62828
+                                                        )
+                                                )
+                                            }
+                                        }
                                     }
-
                                 }
-
                             }
-
                         }
-
                     }
-
                 }
-
             }
-
         }
-
     }
-
 }

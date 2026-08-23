@@ -10,24 +10,48 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 
+
+// =====================================================
+// AUTH
+// =====================================================
+
 import com.example.shohojseba.ui.auth.LandingScreen
 import com.example.shohojseba.ui.auth.LoginScreen
 import com.example.shohojseba.ui.auth.RegisterScreen
+
+
+// =====================================================
+// ADMIN
+// =====================================================
 
 import com.example.shohojseba.ui.admin.AdminAreaScreen
 import com.example.shohojseba.ui.admin.AdminCategoryScreen
 import com.example.shohojseba.ui.admin.AdminCustomersScreen
 import com.example.shohojseba.ui.admin.AdminDashboard
 import com.example.shohojseba.ui.admin.AdminProvidersScreen
+import com.example.shohojseba.ui.admin.AdminReviewsScreen
 import com.example.shohojseba.ui.admin.AdminServicesScreen
+
+
+// =====================================================
+// CUSTOMER
+// =====================================================
 
 import com.example.shohojseba.ui.customer.BookingScreen
 import com.example.shohojseba.ui.customer.CategoryScreen
 import com.example.shohojseba.ui.customer.CustomerBookingsScreen
+import com.example.shohojseba.ui.customer.FavoritesScreen
 import com.example.shohojseba.ui.customer.HomeScreen
+import com.example.shohojseba.ui.customer.NotificationsScreen
 import com.example.shohojseba.ui.customer.ProviderReviewsScreen
 import com.example.shohojseba.ui.customer.ReviewScreen
+import com.example.shohojseba.ui.customer.ServiceRemindersScreen
 import com.example.shohojseba.ui.customer.ServiceScreen
+
+
+// =====================================================
+// PROVIDER
+// =====================================================
 
 import com.example.shohojseba.ui.provider.AddServiceScreen
 import com.example.shohojseba.ui.provider.ProviderBookingsScreen
@@ -35,21 +59,32 @@ import com.example.shohojseba.ui.provider.ProviderDashboard
 
 
 sealed class Screen(
+
     val route: String
+
 ) {
+
 
     // =====================================================
     // AUTH
     // =====================================================
 
     object Landing :
-        Screen("landing")
+        Screen(
+            "landing"
+        )
+
 
     object Login :
-        Screen("login")
+        Screen(
+            "login"
+        )
+
 
     object Register :
-        Screen("register")
+        Screen(
+            "register"
+        )
 
 
     // =====================================================
@@ -57,34 +92,84 @@ sealed class Screen(
     // =====================================================
 
     object Home :
-        Screen("home")
+        Screen(
+            "home"
+        )
+
 
     object Category :
-        Screen("category")
+        Screen(
+            "category"
+        )
+
 
     object Service :
         Screen(
             "services/{categoryId}?areaId={areaId}&areaName={areaName}"
         )
 
+
     object Booking :
         Screen(
             "booking/{providerId}/{serviceId}/{serviceName}/{providerName}"
         )
+
 
     object CustomerBookings :
         Screen(
             "customer_bookings"
         )
 
+
     object Review :
         Screen(
             "review/{bookingId}/{providerId}/{serviceName}/{providerName}"
         )
 
+
     object ProviderReviews :
         Screen(
             "provider_reviews/{providerId}/{providerName}"
+        )
+
+
+    object ServiceReminders :
+        Screen(
+            "service_reminders"
+        )
+
+
+    object Favorites :
+        Screen(
+            "favorites"
+        )
+
+
+    object Notifications :
+        Screen(
+            "notifications"
+        )
+
+
+    // =====================================================
+    // PROVIDER
+    // =====================================================
+
+    object Provider :
+        Screen(
+            "provider"
+        )
+
+
+    object ProviderBookings :
+        Screen(
+            "provider_bookings"
+        )
+
+
+    object AddService :
+        Screen(
+            "add_service"
         )
 
 
@@ -93,45 +178,53 @@ sealed class Screen(
     // =====================================================
 
     object Admin :
-        Screen("admin")
+        Screen(
+            "admin"
+        )
+
 
     object AdminCategories :
-        Screen("admin_categories")
+        Screen(
+            "admin_categories"
+        )
+
 
     object AdminAreas :
-        Screen("admin_areas")
+        Screen(
+            "admin_areas"
+        )
+
 
     object AdminCustomers :
-        Screen("admin_customers")
+        Screen(
+            "admin_customers"
+        )
+
 
     object AdminProviders :
-        Screen("admin_providers")
+        Screen(
+            "admin_providers"
+        )
+
 
     object AdminServices :
-        Screen("admin_services")
-
-
-    // =====================================================
-    // PROVIDER
-    // =====================================================
-
-    object Provider :
-        Screen("provider")
-
-    object ProviderBookings :
         Screen(
-            "provider_bookings"
+            "admin_services"
         )
 
-    object AddService :
+
+    object AdminReviews :
         Screen(
-            "add_service"
+            "admin_reviews"
         )
+
 }
+
 
 
 @Composable
 fun NavGraph() {
+
 
     val navController =
         rememberNavController()
@@ -200,9 +293,10 @@ fun NavGraph() {
                 onLoginSuccess = { role ->
 
 
-                    // CUSTOMER
-
-                    if (role == "CUSTOMER") {
+                    if (
+                        role ==
+                        "CUSTOMER"
+                    ) {
 
                         navController.navigate(
                             Screen.Home.route
@@ -212,19 +306,16 @@ fun NavGraph() {
                                 Screen.Login.route
                             ) {
 
-                                inclusive = true
+                                inclusive =
+                                    true
 
                             }
 
                         }
 
-                    }
-
-
-                    // PROVIDER
-
-                    else if (
-                        role == "PROVIDER"
+                    } else if (
+                        role ==
+                        "PROVIDER"
                     ) {
 
                         navController.navigate(
@@ -235,19 +326,16 @@ fun NavGraph() {
                                 Screen.Login.route
                             ) {
 
-                                inclusive = true
+                                inclusive =
+                                    true
 
                             }
 
                         }
 
-                    }
-
-
-                    // ADMIN
-
-                    else if (
-                        role == "ADMIN"
+                    } else if (
+                        role ==
+                        "ADMIN"
                     ) {
 
                         navController.navigate(
@@ -258,7 +346,8 @@ fun NavGraph() {
                                 Screen.Login.route
                             ) {
 
-                                inclusive = true
+                                inclusive =
+                                    true
 
                             }
 
@@ -344,16 +433,20 @@ fun NavGraph() {
                         Screen.AdminServices.route
                     )
 
+                },
+
+                onReviewsClick = {
+
+                    navController.navigate(
+                        Screen.AdminReviews.route
+                    )
+
                 }
 
             )
 
         }
 
-
-        // =====================================================
-        // ADMIN CATEGORIES
-        // =====================================================
 
         composable(
             Screen.AdminCategories.route
@@ -364,10 +457,6 @@ fun NavGraph() {
         }
 
 
-        // =====================================================
-        // ADMIN AREAS
-        // =====================================================
-
         composable(
             Screen.AdminAreas.route
         ) {
@@ -376,10 +465,6 @@ fun NavGraph() {
 
         }
 
-
-        // =====================================================
-        // ADMIN CUSTOMERS
-        // =====================================================
 
         composable(
             Screen.AdminCustomers.route
@@ -390,10 +475,6 @@ fun NavGraph() {
         }
 
 
-        // =====================================================
-        // ADMIN PROVIDERS
-        // =====================================================
-
         composable(
             Screen.AdminProviders.route
         ) {
@@ -402,10 +483,6 @@ fun NavGraph() {
 
         }
 
-
-        // =====================================================
-        // ADMIN SERVICES
-        // =====================================================
 
         composable(
             Screen.AdminServices.route
@@ -416,8 +493,17 @@ fun NavGraph() {
         }
 
 
+        composable(
+            Screen.AdminReviews.route
+        ) {
+
+            AdminReviewsScreen()
+
+        }
+
+
         // =====================================================
-        // CUSTOMER HOME
+        // HOME
         // =====================================================
 
         composable(
@@ -430,6 +516,85 @@ fun NavGraph() {
                     navController
 
             )
+
+        }
+
+
+        // =====================================================
+        // NOTIFICATIONS
+        // =====================================================
+
+        composable(
+            Screen.Notifications.route
+        ) {
+
+            NotificationsScreen()
+
+        }
+
+
+        // =====================================================
+        // FAVORITES
+        // =====================================================
+
+        composable(
+            Screen.Favorites.route
+        ) {
+
+            FavoritesScreen(
+
+                onBookServiceClick = {
+                        providerId,
+                        serviceId,
+                        serviceName,
+                        providerName ->
+
+
+                    navController.navigate(
+
+                        "booking/" +
+                                "$providerId/" +
+                                "$serviceId/" +
+                                "${Uri.encode(serviceName)}/" +
+                                Uri.encode(
+                                    providerName
+                                )
+
+                    )
+
+                },
+
+                onReviewsClick = {
+                        providerId,
+                        providerName ->
+
+
+                    navController.navigate(
+
+                        "provider_reviews/" +
+                                "$providerId/" +
+                                Uri.encode(
+                                    providerName
+                                )
+
+                    )
+
+                }
+
+            )
+
+        }
+
+
+        // =====================================================
+        // SERVICE REMINDERS
+        // =====================================================
+
+        composable(
+            Screen.ServiceReminders.route
+        ) {
+
+            ServiceRemindersScreen()
 
         }
 
@@ -457,7 +622,9 @@ fun NavGraph() {
                                 "$bookingId/" +
                                 "$providerId/" +
                                 "${Uri.encode(serviceName)}/" +
-                                Uri.encode(providerName)
+                                Uri.encode(
+                                    providerName
+                                )
 
                     )
 
@@ -735,7 +902,9 @@ fun NavGraph() {
                                 "$providerId/" +
                                 "$serviceId/" +
                                 "${Uri.encode(serviceName)}/" +
-                                Uri.encode(providerName)
+                                Uri.encode(
+                                    providerName
+                                )
 
                     )
 

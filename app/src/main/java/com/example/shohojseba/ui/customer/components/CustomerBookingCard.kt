@@ -3,68 +3,115 @@ package com.example.shohojseba.ui.customer.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Work
+
 import androidx.compose.material3.*
+
 import androidx.compose.runtime.Composable
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+
 import com.example.shohojseba.data.model.Booking
+
 
 @Composable
 fun CustomerBookingCard(
 
     booking: Booking,
 
-    onReviewClick: () -> Unit = {}
+    onReviewClick: () -> Unit = {},
+
+    isFavorite: Boolean = false,
+
+    onFavoriteClick: () -> Unit = {}
 
 ) {
 
+
+    // =====================================================
+    // STATUS COLOR
+    // =====================================================
+
     val statusColor =
-        when (booking.status) {
+        when (
+            booking.status
+        ) {
 
             "Accepted" ->
-                Color(0xFF2E7D32)
+                Color(
+                    0xFF2E7D32
+                )
 
             "Rejected" ->
-                Color(0xFFC62828)
+                Color(
+                    0xFFC62828
+                )
 
             "Completed" ->
-                Color(0xFF1565C0)
+                Color(
+                    0xFF1565C0
+                )
 
             else ->
-                Color(0xFFFFA000)
+                Color(
+                    0xFFFFA000
+                )
+
         }
+
+
+    // =====================================================
+    // MAIN CARD
+    // =====================================================
 
     Card(
 
-        modifier = Modifier.fillMaxWidth(),
+        modifier =
+            Modifier.fillMaxWidth(),
 
-        shape = RoundedCornerShape(24.dp),
+        shape =
+            RoundedCornerShape(
+                24.dp
+            ),
 
-        elevation = CardDefaults.cardElevation(
-            6.dp
-        )
+        elevation =
+            CardDefaults
+                .cardElevation(
+                    6.dp
+                )
 
     ) {
 
         Column(
 
-            modifier = Modifier.padding(18.dp),
+            modifier =
+                Modifier.padding(
+                    18.dp
+                ),
 
             verticalArrangement =
-                Arrangement.spacedBy(12.dp)
+                Arrangement.spacedBy(
+                    12.dp
+                )
 
         ) {
 
-            // ================= HEADER =================
+
+            // =================================================
+            // HEADER
+            // =================================================
 
             Row(
 
@@ -79,10 +126,13 @@ fun CustomerBookingCard(
 
             ) {
 
+
                 Column(
 
                     modifier =
-                        Modifier.weight(1f)
+                        Modifier.weight(
+                            1f
+                        )
 
                 ) {
 
@@ -100,9 +150,13 @@ fun CustomerBookingCard(
 
                     )
 
+
                     Spacer(
-                        Modifier.height(3.dp)
+                        Modifier.height(
+                            3.dp
+                        )
                     )
+
 
                     Text(
 
@@ -113,40 +167,50 @@ fun CustomerBookingCard(
                                     ?: "Unknown"
                             }",
 
-                        color = Color.Gray
+                        color =
+                            Color.Gray
 
                     )
 
                 }
 
+
                 Box(
 
-                    modifier = Modifier
+                    modifier =
+                        Modifier
+                            .background(
 
-                        .background(
+                                statusColor
+                                    .copy(
+                                        alpha =
+                                            0.15f
+                                    ),
 
-                            statusColor.copy(
-                                alpha = 0.15f
-                            ),
+                                RoundedCornerShape(
+                                    30.dp
+                                )
 
-                            RoundedCornerShape(
-                                30.dp
                             )
+                            .padding(
 
-                        )
+                                horizontal =
+                                    12.dp,
 
-                        .padding(
-                            horizontal = 12.dp,
-                            vertical = 6.dp
-                        )
+                                vertical =
+                                    6.dp
+
+                            )
 
                 ) {
 
                     Text(
 
-                        text = booking.status,
+                        text =
+                            booking.status,
 
-                        color = statusColor
+                        color =
+                            statusColor
 
                     )
 
@@ -154,9 +218,13 @@ fun CustomerBookingCard(
 
             }
 
+
             HorizontalDivider()
 
-            // ================= DATE =================
+
+            // =================================================
+            // DATE
+            // =================================================
 
             Row(
 
@@ -166,13 +234,22 @@ fun CustomerBookingCard(
             ) {
 
                 Icon(
-                    Icons.Default.CalendarMonth,
-                    null
+
+                    imageVector =
+                        Icons.Default.CalendarMonth,
+
+                    contentDescription =
+                        null
+
                 )
 
+
                 Spacer(
-                    Modifier.width(8.dp)
+                    Modifier.width(
+                        8.dp
+                    )
                 )
+
 
                 Text(
                     booking.bookingDate
@@ -180,7 +257,10 @@ fun CustomerBookingCard(
 
             }
 
-            // ================= TIME =================
+
+            // =================================================
+            // TIME
+            // =================================================
 
             Row(
 
@@ -190,13 +270,22 @@ fun CustomerBookingCard(
             ) {
 
                 Icon(
-                    Icons.Default.Schedule,
-                    null
+
+                    imageVector =
+                        Icons.Default.Schedule,
+
+                    contentDescription =
+                        null
+
                 )
 
+
                 Spacer(
-                    Modifier.width(8.dp)
+                    Modifier.width(
+                        8.dp
+                    )
                 )
+
 
                 Text(
                     booking.bookingTime
@@ -204,7 +293,10 @@ fun CustomerBookingCard(
 
             }
 
-            // ================= ADDRESS =================
+
+            // =================================================
+            // ADDRESS
+            // =================================================
 
             Row(
 
@@ -214,13 +306,22 @@ fun CustomerBookingCard(
             ) {
 
                 Icon(
-                    Icons.Default.LocationOn,
-                    null
+
+                    imageVector =
+                        Icons.Default.LocationOn,
+
+                    contentDescription =
+                        null
+
                 )
 
+
                 Spacer(
-                    Modifier.width(8.dp)
+                    Modifier.width(
+                        8.dp
+                    )
                 )
+
 
                 Text(
                     booking.address
@@ -228,7 +329,10 @@ fun CustomerBookingCard(
 
             }
 
-            // ================= PROVIDER PHONE =================
+
+            // =================================================
+            // PROVIDER PHONE
+            // =================================================
 
             Row(
 
@@ -238,25 +342,38 @@ fun CustomerBookingCard(
             ) {
 
                 Icon(
-                    Icons.Default.Person,
-                    null
+
+                    imageVector =
+                        Icons.Default.Person,
+
+                    contentDescription =
+                        null
+
                 )
 
+
                 Spacer(
-                    Modifier.width(8.dp)
+                    Modifier.width(
+                        8.dp
+                    )
                 )
+
 
                 Text(
 
-                    booking.provider
-                        ?.phone
-                        ?: "No phone available"
+                    text =
+                        booking.provider
+                            ?.phone
+                            ?: "No phone available"
 
                 )
 
             }
 
-            // ================= PROBLEM =================
+
+            // =================================================
+            // PROBLEM DESCRIPTION
+            // =================================================
 
             Row(
 
@@ -266,13 +383,22 @@ fun CustomerBookingCard(
             ) {
 
                 Icon(
-                    Icons.Default.Work,
-                    null
+
+                    imageVector =
+                        Icons.Default.Work,
+
+                    contentDescription =
+                        null
+
                 )
 
+
                 Spacer(
-                    Modifier.width(8.dp)
+                    Modifier.width(
+                        8.dp
+                    )
                 )
+
 
                 Text(
                     booking.problemDescription
@@ -280,13 +406,27 @@ fun CustomerBookingCard(
 
             }
 
-            // ================= COMPLETED =================
 
-            if (booking.status == "Completed") {
+            // =================================================
+            // COMPLETED BOOKING
+            // =================================================
+
+            if (
+                booking.status ==
+                "Completed"
+            ) {
+
 
                 Spacer(
-                    Modifier.height(4.dp)
+                    Modifier.height(
+                        4.dp
+                    )
                 )
+
+
+                // =============================================
+                // COMPLETED MESSAGE
+                // =============================================
 
                 Card(
 
@@ -294,15 +434,20 @@ fun CustomerBookingCard(
                         Modifier.fillMaxWidth(),
 
                     shape =
-                        RoundedCornerShape(18.dp),
+                        RoundedCornerShape(
+                            18.dp
+                        ),
 
                     colors =
-                        CardDefaults.cardColors(
+                        CardDefaults
+                            .cardColors(
 
-                            containerColor =
-                                Color(0xFFE8F5E9)
+                                containerColor =
+                                    Color(
+                                        0xFFE8F5E9
+                                    )
 
-                        )
+                            )
 
                 ) {
 
@@ -312,37 +457,170 @@ fun CustomerBookingCard(
                             "✅ Service completed successfully",
 
                         modifier =
-                            Modifier.padding(14.dp),
+                            Modifier.padding(
+                                14.dp
+                            ),
 
                         color =
-                            Color(0xFF2E7D32)
+                            Color(
+                                0xFF2E7D32
+                            )
 
                     )
 
                 }
 
-                // ================= REVIEW BUTTON =================
+
+                // =============================================
+                // FAVORITE BUTTON
+                // =============================================
+
+                OutlinedButton(
+
+                    onClick =
+                        onFavoriteClick,
+
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(
+                                52.dp
+                            ),
+
+                    shape =
+                        RoundedCornerShape(
+                            18.dp
+                        ),
+
+                    colors =
+                        ButtonDefaults
+                            .outlinedButtonColors(
+
+                                contentColor =
+
+                                    if (
+                                        isFavorite
+                                    ) {
+
+                                        Color(
+                                            0xFFE53935
+                                        )
+
+                                    } else {
+
+                                        Color(
+                                            0xFF007A7A
+                                        )
+
+                                    }
+
+                            )
+
+                ) {
+
+
+                    Icon(
+
+                        imageVector =
+
+                            if (
+                                isFavorite
+                            ) {
+
+                                Icons.Default.Favorite
+
+                            } else {
+
+                                Icons.Default.FavoriteBorder
+
+                            },
+
+                        contentDescription =
+                            null,
+
+                        tint =
+
+                            if (
+                                isFavorite
+                            ) {
+
+                                Color(
+                                    0xFFE53935
+                                )
+
+                            } else {
+
+                                Color(
+                                    0xFF007A7A
+                                )
+
+                            }
+
+                    )
+
+
+                    Spacer(
+                        Modifier.width(
+                            8.dp
+                        )
+                    )
+
+
+                    Text(
+
+                        text =
+
+                            if (
+                                isFavorite
+                            ) {
+
+                                "Saved to Favorites"
+
+                            } else {
+
+                                "Save to Favorites"
+
+                            }
+
+                    )
+
+                }
+
+
+                // =============================================
+                // REVIEW BUTTON
+                // =============================================
 
                 Button(
 
-                    onClick = onReviewClick,
+                    onClick =
+                        onReviewClick,
 
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(
+                                52.dp
+                            ),
 
                     shape =
-                        RoundedCornerShape(18.dp),
+                        RoundedCornerShape(
+                            18.dp
+                        ),
 
                     colors =
-                        ButtonDefaults.buttonColors(
+                        ButtonDefaults
+                            .buttonColors(
 
-                            containerColor =
-                                Color(0xFF007A7A)
+                                containerColor =
+                                    Color(
+                                        0xFF007A7A
+                                    )
 
-                        )
+                            )
 
                 ) {
+
 
                     Icon(
 
@@ -353,13 +631,19 @@ fun CustomerBookingCard(
                             null,
 
                         tint =
-                            Color(0xFFFFC107)
+                            Color(
+                                0xFFFFC107
+                            )
 
                     )
+
 
                     Spacer(
-                        Modifier.width(8.dp)
+                        Modifier.width(
+                            8.dp
+                        )
                     )
+
 
                     Text(
                         "Leave Review"
@@ -369,9 +653,15 @@ fun CustomerBookingCard(
 
             }
 
-            // ================= REJECTED =================
 
-            if (booking.status == "Rejected") {
+            // =================================================
+            // REJECTED
+            // =================================================
+
+            if (
+                booking.status ==
+                "Rejected"
+            ) {
 
                 Card(
 
@@ -379,15 +669,20 @@ fun CustomerBookingCard(
                         Modifier.fillMaxWidth(),
 
                     shape =
-                        RoundedCornerShape(18.dp),
+                        RoundedCornerShape(
+                            18.dp
+                        ),
 
                     colors =
-                        CardDefaults.cardColors(
+                        CardDefaults
+                            .cardColors(
 
-                            containerColor =
-                                Color(0xFFFFEBEE)
+                                containerColor =
+                                    Color(
+                                        0xFFFFEBEE
+                                    )
 
-                        )
+                            )
 
                 ) {
 
@@ -397,10 +692,14 @@ fun CustomerBookingCard(
                             "❌ This booking was rejected",
 
                         modifier =
-                            Modifier.padding(14.dp),
+                            Modifier.padding(
+                                14.dp
+                            ),
 
                         color =
-                            Color(0xFFC62828)
+                            Color(
+                                0xFFC62828
+                            )
 
                     )
 
