@@ -1,955 +1,1171 @@
-ShohojSeba
+# 🛠️ ShohojSeba
 
-ShohojSeba is an Android-based local service marketplace designed to connect customers with nearby service providers and give administrators tools to manage the platform. The application supports three user roles—Customer, Provider, and Admin—with role-based navigation, booking management, quotation workflows, notifications, reviews, favorites, service reminders, provider availability, service-area filtering, promotions, and administrative moderation.
+**ShohojSeba** is an Android-based local service marketplace designed to connect customers with nearby service providers while giving administrators tools to manage the platform.
 
-The application is implemented in Kotlin using Jetpack Compose for the UI and Supabase for authentication and backend data storage.
+The application supports three user roles:
 
-1. Project Overview
+- 👤 **Customer**
+- 🧑‍🔧 **Provider**
+- 🛡️ **Admin**
 
-Finding a trusted local service provider can be difficult when service information, pricing, availability, location coverage, and communication are scattered across different sources. ShohojSeba provides a single mobile application where customers can discover services, select providers who serve their area, create bookings or request quotations, track service progress, receive notifications, save favorite services, and submit reviews.
+ShohojSeba includes role-based navigation, service discovery, area filtering, booking management, quotation workflows, promotional pricing, notifications, favorites, reviews, service reminders, provider availability, service-area management, and administrative moderation.
 
-Providers can manage their services, service areas, availability, booking requests, quotations, job completion, and notifications. Administrators can manage categories and service areas, view users, verify or restrict providers, moderate services, and remove inappropriate reviews.
+The application is developed using **Kotlin** and **Jetpack Compose**, with **Supabase** providing authentication and backend data storage.
 
-2. Main Objectives
+---
 
-The project aims to:
+## 📌 Table of Contents
 
-Provide a simple mobile platform for finding local services.
+- [Project Overview](#-project-overview)
+- [Main Objectives](#-main-objectives)
+- [User Roles](#-user-roles)
+- [Core Features](#-core-features)
+- [Booking Workflow](#-booking-workflow)
+- [Quotation Workflow](#-custom-quotation-workflow)
+- [Promotional Booking](#-promotional-booking)
+- [Notifications](#-notifications)
+- [Technology Stack](#-technology-stack)
+- [Architecture](#-architecture)
+- [Main Data Entities](#-main-data-entities)
+- [Navigation](#-application-navigation)
+- [UI Design](#-ui-design)
+- [Setup](#-setup-instructions)
+- [Supabase Configuration](#-supabase-configuration)
+- [Demo Workflows](#-demo-workflows)
+- [Testing Checklist](#-testing-checklist)
+- [Known Limitations](#-known-scope--limitations)
+- [Security Notes](#-security-notes)
+- [Repository Structure](#-repository-structure)
+- [AI Usage](#-ai-usage-declaration)
 
-Support separate workflows for customers, providers, and administrators.
+---
 
-Allow customers to filter services according to their selected service area.
+# 📱 Project Overview
 
-Support both direct booking and custom quotation requests.
+Finding a trusted local service provider can be difficult when information about services, pricing, availability, location coverage, and communication is scattered across different sources.
 
-Keep customers and providers informed through in-app notifications.
+**ShohojSeba** provides a centralized mobile platform where customers can:
 
-Allow providers to control their availability and service coverage.
+- Discover local services
+- Select providers serving their area
+- Create service bookings
+- Request custom quotations
+- Track booking progress
+- Receive notifications
+- Save favorite services
+- Submit provider reviews
 
-Allow customers to save favorite services and review completed jobs.
+Providers can manage their:
 
-Provide administrative control over platform content, providers, services, areas, categories, and reviews.
+- Services
+- Availability
+- Service areas
+- Booking requests
+- Quotations
+- Job completion
+- Notifications
 
-Provide a modern, readable, mobile-friendly user interface using Jetpack Compose.
+Administrators can manage:
 
-3. User Roles
+- Service categories
+- Service areas
+- Customers
+- Providers
+- Provider verification
+- Provider account status
+- Services
+- Reviews
 
-3.1 Customer
+---
+
+# 🎯 Main Objectives
+
+The main objectives of ShohojSeba are to:
+
+1. Provide a simple mobile platform for finding local services.
+2. Support separate workflows for customers, providers, and administrators.
+3. Allow customers to discover providers according to their selected service area.
+4. Support both direct booking and custom quotation requests.
+5. Keep customers and providers informed through in-app notifications.
+6. Allow providers to control their availability and service coverage.
+7. Allow customers to save favorite services and review completed jobs.
+8. Provide administrative control over providers, services, categories, areas, and reviews.
+9. Provide a modern and mobile-friendly interface using Jetpack Compose.
+
+---
+
+# 👥 User Roles
+
+## 👤 Customer
 
 A customer can:
 
-Register and log in.
+- Register and log in
+- Select a service area
+- Browse service categories
+- Search categories from the home screen
+- View providers/services available in the selected area
+- View provider experience, verification, and availability
+- Book a service
+- Select preferred booking date and time
+- Enter service address and problem description
+- Request a custom quotation
+- Receive provider quotations
+- Accept or reject quotations
+- Track booking status
+- View booking history
+- Filter bookings according to status
+- Receive booking notifications
+- Open relevant booking pages from notifications
+- Save completed services to favorites
+- Rebook saved services
+- Submit reviews after service completion
+- View provider reviews
+- View service reminders
+- Receive promotional pricing where applicable
+- Log out safely
 
-Select a service area.
+---
 
-Browse service categories.
-
-Search categories from the home screen.
-
-View providers/services available in the selected area.
-
-See provider information such as experience, verification, and availability.
-
-Book a service using a preferred date, time, address, and problem description.
-
-Request a custom quotation instead of accepting the listed price.
-
-Receive a provider quotation and accept or reject it.
-
-Track booking status.
-
-View booking history using status filters.
-
-Receive in-app notifications for important booking events.
-
-Open relevant booking pages from notifications.
-
-Save completed services to favorites.
-
-Rebook a saved service.
-
-Submit reviews after service completion.
-
-View provider reviews.
-
-View service reminders.
-
-Use promotional pricing where an active in-app promotion applies.
-
-Log out safely.
-
-3.2 Provider
+## 🧑‍🔧 Provider
 
 A provider can:
 
-Register and log in.
+- Register and log in
+- Maintain a provider profile
+- Set availability status
+- Select service areas
+- Add new services
+- Set service price and duration
+- Add service descriptions
+- View incoming service requests
+- Accept normal bookings
+- Reject bookings
+- Receive quotation requests
+- Send custom quotation prices
+- Send quotation messages
+- Track quotation status
+- Complete accepted jobs
+- Receive provider notifications
+- Open service requests from notifications
+- View currently offered services
+- Navigate using a persistent provider navigation bar
+- Log out safely
 
-Maintain a provider profile.
+### Provider Availability States
 
-Set availability to Available, Busy, or Unavailable.
+Providers can set their status to:
 
-Select and save the areas in which services are offered.
+```text
+AVAILABLE
+BUSY
+UNAVAILABLE
+```
 
-Add services with price, duration, category, and description.
+---
 
-View all incoming customer service requests.
-
-Accept or reject normal bookings.
-
-Receive custom quotation requests.
-
-Send a quotation price and message to the customer.
-
-See whether a quotation is waiting for customer response.
-
-Complete accepted jobs.
-
-Receive provider-side notifications.
-
-Open service requests directly from notifications.
-
-View the provider's currently offered services.
-
-Use persistent provider navigation between Home, Requests, Add Service, and Alerts.
-
-Log out safely.
-
-3.3 Admin
+## 🛡️ Admin
 
 An administrator can:
 
-Log in using an Admin account.
+- Log in using an Admin account
+- Manage service categories
+- Add service areas
+- Edit service areas
+- Delete service areas
+- View registered customers
+- View providers
+- Verify providers
+- Remove provider verification
+- Suspend providers
+- Reactivate providers
+- Remove providers from active platform use
+- View provider services
+- Remove services
+- Restore services
+- View customer reviews
+- Delete inappropriate reviews
+- Log out safely
 
-Manage service categories.
+---
 
-Add, edit, and delete service areas.
+# 🚀 Core Features
 
-View registered customers.
+## 🔐 Authentication and Role-Based Access
 
-View and manage providers.
+ShohojSeba uses **Supabase Authentication** for email/password authentication.
 
-Verify or remove provider verification.
+After login, the application determines whether the authenticated account belongs to a:
 
-Suspend, reactivate, or remove provider accounts from active platform use.
+```text
+CUSTOMER
+PROVIDER
+ADMIN
+```
 
-View provider services.
+The user is then redirected to the appropriate dashboard.
 
-Remove or restore services.
+The application also maintains the currently resolved Customer or Provider ID through an in-memory session.
 
-View customer reviews.
+During logout:
 
-Delete inappropriate reviews.
+1. The user is signed out from Supabase.
+2. Local session information is cleared.
+3. The navigation back stack is cleared.
+4. The user is redirected to the Login screen.
 
-Log out safely.
+This prevents users from reopening protected screens using the Android Back button after logout.
 
-4. Core Features
+---
 
-Authentication and Role-Based Access
+# 📍 Area-Based Service Discovery
 
-Supabase Authentication is used for email/password authentication. After login, the application checks whether the authenticated user is a Customer, Provider, or Admin and routes the user to the correct dashboard.
+Customers select a service area before browsing available services.
 
-The application stores the currently resolved Customer or Provider ID in an in-memory UserSession. Logout signs out from Supabase, clears local session IDs, clears the active navigation stack, and returns the user to Login.
+The selected area is passed into the service-discovery workflow so the application can display providers who serve that location.
 
-Area-Based Service Discovery
+Providers can separately configure the areas where they offer their services.
 
-Customers select a service area before browsing services. The application uses the selected area when navigating to the service listing so only providers associated with that service area can be shown.
+This creates the relationship:
 
-Providers can manage the set of areas where they provide services from their dashboard.
+```text
+Customer selects area
+        ↓
+Customer selects category
+        ↓
+Application finds providers/services
+        ↓
+Only relevant service-area results are displayed
+```
 
-Service Categories and Services
+---
 
-Services are grouped by categories. Customers browse categories and then open the available services within a selected category and area.
+# 🗂️ Service Categories and Services
 
-Providers can add new services. Administrators can manage categories and can remove or restore provider services.
+Services are organized into categories.
 
-Provider Availability
+Example workflow:
 
-Providers can set their availability status to:
+```text
+Home
+  ↓
+Select Area
+  ↓
+Select Category
+  ↓
+Available Services
+  ↓
+Select Provider
+  ↓
+Booking
+```
 
-AVAILABLE
+Providers can create services containing information such as:
 
-BUSY
+- Service name
+- Category
+- Price
+- Duration
+- Description
 
-UNAVAILABLE
+Administrators can manage categories and moderate provider services.
 
-This availability information is shown to customers when choosing a provider/service.
+---
 
-Provider Verification
+# 🟢 Provider Availability
 
-Administrators can verify providers. Verified providers receive a verified status that can be shown to customers during service discovery.
+Providers can control whether they are currently available for work.
 
-Booking Workflow
+Available states are:
+
+| Status | Meaning |
+|---|---|
+| `AVAILABLE` | Provider is currently available |
+| `BUSY` | Provider is occupied |
+| `UNAVAILABLE` | Provider is currently not accepting work |
+
+Availability information is shown to customers while selecting providers.
+
+---
+
+# ✅ Provider Verification
+
+Administrators can verify service providers.
+
+Verified providers receive a verification status that can be displayed to customers during service discovery.
+
+Admin can also remove provider verification when required.
+
+---
+
+# 📅 Booking Workflow
 
 A customer booking contains information such as:
 
-Booking date
+- Booking date
+- Booking time
+- Address
+- Problem description
+- Customer ID
+- Provider ID
+- Service ID
+- Booking status
 
-Booking time
+A normal booking follows the workflow:
 
-Address
+```text
+                  ┌────────────┐
+                  │  Pending   │
+                  └─────┬──────┘
+                        │
+              ┌─────────┴─────────┐
+              │                   │
+              ▼                   ▼
+        ┌──────────┐        ┌──────────┐
+        │ Accepted │        │ Rejected │
+        └────┬─────┘        └──────────┘
+             │
+             ▼
+        ┌───────────┐
+        │ Completed │
+        └───────────┘
+```
 
-Problem description
+The provider can accept or reject a Pending booking.
 
-Customer ID
+After completing an Accepted job, the provider marks the booking as **Completed**.
 
-Provider ID
+---
 
-Service ID
+# 💰 Custom Quotation Workflow
 
-Booking status
+Customers are not always required to accept the listed service price.
 
-A normal booking generally follows this lifecycle:
+They can request a **custom quotation** from the provider.
 
-Pending
-   |
-   +--> Accepted --> Completed
-   |
-   +--> Rejected
+The workflow is:
 
-The provider can accept or reject a Pending booking. After an Accepted job is completed, the provider marks it as Completed.
-
-Custom Quotation Workflow
-
-Customers can request a custom quotation instead of using the normal listed price.
-
-The quotation workflow is:
-
+```text
 Quotation Requested
-        |
-        v
-Provider enters quoted price + quotation message
-        |
-        v
+        │
+        ▼
+Provider reviews request
+        │
+        ▼
+Provider enters:
+- Quoted Price
+- Quotation Message
+        │
+        ▼
 Quotation Sent
-        |
-        +--> Customer Accepts --> Accepted --> Completed
-        |
-        +--> Customer Rejects --> Rejected
+        │
+        ├───────────────┐
+        │               │
+        ▼               ▼
+Customer Accepts   Customer Rejects
+        │               │
+        ▼               ▼
+    Accepted          Rejected
+        │
+        ▼
+    Completed
+```
 
-Quotation-related information is stored with the booking, including quoted price, quotation message, and quotation-request state.
+Quotation information includes:
 
-Promotional Booking
+- Whether quotation was requested
+- Quoted price
+- Quotation message
+- Booking status
 
-The application includes a lightweight demonstration promotion flow. An active Cleaning promotion can provide a percentage discount to the customer. The booking flow can carry:
+---
 
-Original price
+# 🏷️ Promotional Booking
 
-Discount percentage
+ShohojSeba includes a lightweight promotional booking feature for demonstration purposes.
 
-Final promotional price
+An active Cleaning promotion can provide a percentage discount.
 
-The provider can see when a booking contains an applied promotion and the agreed discounted price.
+The booking workflow can carry:
 
-This promotion is intentionally implemented as an application-side demonstration feature rather than a full admin-managed promotion engine.
+```text
+Original Price
+      ↓
+Discount Percentage
+      ↓
+Final Promotional Price
+```
 
-Notifications
+For example:
 
-ShohojSeba includes separate notification flows for customers and providers.
+```text
+Original Price: ৳2000
+Discount:       20%
+Final Price:    ৳1600
+```
+
+The provider can see that a promotion was applied and view the agreed discounted price.
+
+> **Note:** The current promotion is implemented as an application-side demonstration feature rather than a complete admin-managed promotion engine.
+
+---
+
+# 🔔 Notifications
+
+ShohojSeba provides separate notification systems for Customers and Providers.
+
+## Customer Notifications
 
 Customer notifications may be generated when:
 
-A booking is accepted.
+- A booking is accepted
+- A booking is rejected
+- A quotation is received
+- A service is completed
 
-A booking is rejected.
-
-A quotation is received.
-
-A service is completed.
+## Provider Notifications
 
 Provider notifications may be generated when:
 
-A new booking/request is received.
+- A new booking is received
+- A quotation is requested
+- A quotation is accepted
+- A quotation is rejected
 
-A quotation is requested.
+Notifications support:
 
-A quotation is accepted.
+- Read/unread states
+- Notification badges
+- Mark as read
+- Mark all as read
+- Navigation to relevant booking/request screens
 
-A quotation is rejected.
+---
 
-Notifications can be marked as read. Unread counts are displayed as badges in navigation/header elements. Notification cards can redirect users to the relevant booking/request screen.
+# ❤️ Favorites
 
-Favorites
+Customers can save services to **Favorites**.
 
-Customers can save services to Favorites, particularly after completing a service. The Favorites screen allows users to return to saved services and start another booking.
+This allows customers to:
 
-Reviews
+- Return to previously saved services
+- View saved providers/services
+- Start another booking
+- Rebook services more quickly
 
-After a booking is completed, a customer can leave a review for the provider. Reviews can be displayed on provider review screens. Administrators can view and delete reviews when moderation is required.
+---
 
-Service Reminders
+# ⭐ Reviews
 
-The project includes a service reminder flow. When applicable, completing a service can create a future servicing reminder, allowing the customer to view upcoming maintenance information later.
+After a service has been completed, customers can submit reviews for providers.
 
-Persistent Navigation
+Reviews can contain customer feedback and ratings.
 
-Customer main navigation:
+Customers can view provider reviews before selecting a provider.
 
+Administrators can moderate reviews and delete inappropriate content when required.
+
+---
+
+# ⏰ Service Reminders
+
+ShohojSeba includes a service-reminder workflow.
+
+Where applicable, completing a service can create a future servicing reminder.
+
+Customers can later view upcoming maintenance/service information from the reminder screen.
+
+---
+
+# 🧭 Persistent Navigation
+
+## Customer Navigation
+
+```text
 Home | Bookings | Saved | Alerts
+```
 
-Provider main navigation:
+## Provider Navigation
 
+```text
 Home | Requests | Add | Alerts
+```
 
-Focused task screens such as the booking form or review screen are intentionally kept outside the persistent customer bottom navigation.
+Focused screens such as the booking form and review form are intentionally kept outside the persistent bottom navigation.
 
-5. Technology Stack
+---
 
-Android Application
+# 🛠️ Technology Stack
 
-Language: Kotlin
+## Android Application
 
-UI: Jetpack Compose
+| Technology | Usage |
+|---|---|
+| Kotlin | Main programming language |
+| Jetpack Compose | UI development |
+| Material 3 | Design system |
+| Navigation Compose | Screen navigation |
+| Kotlin Coroutines | Asynchronous operations |
+| ViewModel | UI state management |
 
-Design system: Material 3
+## Backend
 
-Architecture: MVVM-style layered structure
+| Technology | Usage |
+|---|---|
+| Supabase | Backend platform |
+| Supabase Auth | Authentication |
+| PostgREST | Database operations |
+| Retrofit | REST communication where required |
 
-Navigation: Android Navigation Compose
+## Additional Technologies
 
-Async work: Kotlin Coroutines / viewModelScope
+- Gson serialization annotations
+- Kotlin Serialization
+- Material Icons
+- Compose State
+- MVVM-style architecture
 
-Backend
+---
 
-Backend platform: Supabase
+# 🏗️ Architecture
 
-Authentication: Supabase Auth
+ShohojSeba follows an **MVVM-style layered architecture**.
 
-Database access: Supabase PostgREST / Kotlin client
+```text
+┌─────────────────────────────────┐
+│          Compose UI             │
+│ Screens + Reusable Components   │
+└────────────────┬────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────┐
+│           ViewModels            │
+│    UI State + User Actions      │
+└────────────────┬────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────┐
+│          Repositories           │
+│   Data / Business Operations    │
+└──────────┬───────────┬──────────┘
+           │           │
+           ▼           ▼
+┌─────────────────┐ ┌─────────────────┐
+│    Supabase     │ │  Retrofit APIs  │
+│ Auth/PostgREST  │ │ where required  │
+└─────────────────┘ └─────────────────┘
+```
 
-REST communication: Retrofit is also used in parts of the data layer, particularly booking-related API access.
+## UI Layer
 
-Additional Android Libraries / Concepts
+Contains Jetpack Compose screens and reusable components for:
 
-Gson serialization annotations for selected API models
+- Authentication
+- Customer
+- Provider
+- Admin
+- Booking cards
+- Notification cards
+- Bottom navigation
+- Dialogs and forms
 
-Kotlin serialization for Supabase models
+## ViewModel Layer
 
-Material Icons
+Important ViewModels include:
 
-Compose state management
-
-6. Architecture
-
-The application follows an MVVM-style layered architecture:
-
-+-------------------------------+
-|         Compose UI            |
-| Screens / reusable components |
-+---------------+---------------+
-                |
-                v
-+-------------------------------+
-|          ViewModels           |
-| UI state + user actions       |
-+---------------+---------------+
-                |
-                v
-+-------------------------------+
-|         Repositories          |
-| Data/business operations      |
-+----------+----------+---------+
-           |          |
-           v          v
-+---------------+  +----------------+
-|   Supabase    |  | Retrofit APIs  |
-| Auth/PostgREST|  | where required |
-+---------------+  +----------------+
-
-UI Layer
-
-Contains Jetpack Compose screens and reusable UI components for Customer, Provider, Admin, authentication, navigation, booking cards, notification cards, and bottom navigation bars.
-
-ViewModel Layer
-
-ViewModels expose observable Compose state and coordinate UI actions with repositories. Examples include:
-
+```text
 AuthViewModel
-
 BookingViewModel
-
 CategoryViewModel
-
 AreaViewModel
-
 ProviderViewModel
-
 NotificationViewModel
-
 ProviderNotificationViewModel
-
 FavoriteViewModel
-
 AdminViewModel
+```
 
-Repository Layer
+## Repository Layer
 
-Repositories isolate backend/data operations from UI code. Examples include:
+Important repositories include:
 
+```text
 AuthRepository
-
 BookingRepository
-
 NotificationRepository
-
 FavoriteRepository
-
 ServiceReminderRepository
-
 AdminRepository
+```
 
-7. Main Data Entities
+Repositories isolate backend/data operations from the UI layer.
 
-The project uses data entities/tables centered around the following structure.
+---
 
-Category
+# 🗄️ Main Data Entities
 
-Represents service categories.
+## Category
 
-Typical fields:
+Represents a service category.
 
+```text
 category_id
-
 category_name
+```
 
-Customer
+## Customer
 
-Represents customer profiles connected to Supabase Auth.
+Represents a customer account linked with Supabase Auth.
 
-Typical fields:
-
+```text
 customer_id
-
 auth_user_id
-
 name
-
 phone
-
 email
+```
 
-Provider
+## Provider
 
-Represents service providers.
+Represents a service provider.
 
-Typical fields:
-
+```text
 provider_id
-
 auth_user_id
-
 name
-
 phone
-
 email
-
 experience
-
 is_verified
-
 availability_status
-
 account_status
+```
 
-Service
+## Service
 
 Represents a service offered by a provider.
 
-Typical fields:
-
+```text
 service_id
-
 category_id
-
 provider_id
-
 service_name
-
 price
-
 duration
-
 description
-
 service_status
+```
 
-Booking
+## Booking
 
 Represents a customer service request.
 
-Typical fields include:
-
+```text
 booking_id
-
 created_at
-
 booking_date
-
 booking_time
-
 address
-
 problem_description
-
 status
-
 customer_id
-
 provider_id
-
 service_id
-
 quotation_requested
-
 quoted_price
-
 quotation_message
+```
 
-promotional price fields where applicable
+Promotional price information may also be associated with the booking workflow.
 
-Area
+## Area
 
-Represents supported service locations.
+Represents a supported service location.
 
-Typical fields:
-
+```text
 area_id
-
 area_name
+```
 
-Notification
+## Notification
 
-Stores in-app notifications for booking and quotation events.
+Stores in-app notifications.
 
-Typical fields include:
+Typical information includes:
 
-notification ID
-
-customer/provider target ID as applicable
-
-booking ID
-
+```text
+notification_id
+customer/provider target
+booking_id
 title
-
 message
+notification_type
+is_read
+created_at
+```
 
-notification type
+## Review
 
-read state
+Stores customer feedback.
 
-creation time
+Typical information includes:
 
-Review
-
-Stores customer feedback for completed services/providers.
-
-Typical fields include:
-
-review ID
-
-booking ID
-
-customer ID
-
-provider ID
-
+```text
+review_id
+booking_id
+customer_id
+provider_id
 rating
-
 comment
+created_at
+```
 
-created time
+---
 
-8. Important Booking Statuses
+# 🔄 Important Booking Statuses
 
-The application uses status strings to drive UI and workflow logic. Important statuses include:
+ShohojSeba uses the following booking statuses:
 
+```text
 Pending
 Accepted
 Rejected
 Completed
 Quotation Requested
 Quotation Sent
+```
 
-These values should remain consistent between the application and database because multiple screens use them to determine available actions and visual status indicators.
+> These status values should remain consistent between the Android application and the database because multiple screens use them to determine available actions and UI states.
 
-9. Project Navigation
+---
 
-The central Navigation Compose graph contains routes for:
+# 🗺️ Application Navigation
 
-Authentication
+## Authentication Routes
 
+```text
 Landing
-
 Login
-
 Register
+```
 
-Customer
+## Customer Routes
 
+```text
 Home
-
 Category
-
 Services
-
 Booking
-
 Customer Bookings
-
 Review
-
 Provider Reviews
-
 Service Reminders
-
 Favorites
-
 Notifications
+```
 
-Provider
+## Provider Routes
 
+```text
 Provider Dashboard
-
 Provider Bookings / Service Requests
-
 Provider Notifications
-
 Add Service
+```
 
-Admin
+## Admin Routes
 
+```text
 Admin Dashboard
-
 Manage Categories
-
 Manage Areas
-
 Customers
-
 Providers
-
 Services
-
 Reviews
+```
 
-The navigation graph also handles role-based login routing, customer/provider unread notification badges, and logout navigation with back-stack clearing. fileciteturn41file0
+The central Navigation Compose graph also manages:
 
-10. UI Design
+- Role-based login routing
+- Customer notification badges
+- Provider notification badges
+- Customer persistent navigation
+- Provider persistent navigation
+- Logout navigation
+- Back-stack clearing
 
-The final interface uses a consistent ShohojSeba visual language:
+---
 
-Teal/green primary colors
+# 🎨 UI Design
 
-Light mint backgrounds
+ShohojSeba uses a consistent visual design based around:
 
-White elevated cards
+- Teal/green primary colors
+- Light mint backgrounds
+- White elevated cards
+- Rounded corners
+- Material 3 components
+- Status chips
+- Clear information hierarchy
+- Persistent navigation
+- Readable loading states
+- Empty states
+- Confirmation dialogs
 
-Rounded corners
+The UI was progressively refined to reduce:
 
-Material 3 components
+- Overly tall cards
+- Confusing layouts
+- Keyboard obstruction
+- Inconsistent navigation
+- Unclear error/status messages
 
-Compact status chips
+---
 
-Clear hierarchy for booking and provider information
+# ⚙️ Setup Instructions
 
-Persistent navigation for Customer and Provider main sections
-
-Readable empty/loading states
-
-Confirmation dialogs for destructive or important actions
-
-The UI was progressively refined to reduce overly tall cards, confusing layouts, keyboard obstruction, and inconsistent navigation.
-
-11. Setup Instructions
-
-Prerequisites
+## Prerequisites
 
 Install:
 
-Android Studio
+- Android Studio
+- Android SDK
+- Compatible JDK
+- Git
 
-Android SDK required by the project
+You can run the application using:
 
-JDK version compatible with the Gradle configuration
+- Android Emulator
+- Physical Android device
 
-Git
+---
 
-A physical Android device or Android Emulator can be used to run the application.
+## Clone the Repository
 
-Clone the Repository
-
+```bash
 git clone <YOUR_GITHUB_REPOSITORY_URL>
 cd <YOUR_PROJECT_FOLDER>
+```
 
-Open in Android Studio
+---
 
-Open Android Studio.
+## Open in Android Studio
 
-Select Open.
+1. Open **Android Studio**.
+2. Select **Open**.
+3. Select the ShohojSeba project folder.
+4. Wait for Gradle synchronization to complete.
+5. Configure required backend values.
+6. Select an emulator or Android device.
+7. Run the application.
 
-Select the project root folder.
+---
 
-Allow Gradle synchronization to complete.
+# ☁️ Supabase Configuration
 
-Configure any required local backend values.
+The project requires a configured **Supabase** backend.
 
-Run the application on an emulator or Android device.
+The backend must support the entities required by the application, including:
 
-12. Supabase Configuration
+- Customer
+- Provider
+- Category
+- Service
+- Booking
+- Area
+- Notification
+- Review
+- Provider-area relationships
+- Favorites
+- Service reminders
 
-The project requires a configured Supabase project containing the corresponding authentication setup, tables, foreign-key relationships, and permissions/policies used by the application.
+Appropriate database relationships and permissions must also be configured.
 
-At minimum, the backend must support the entities required by the code, including Customer, Provider, Category, Service, Booking, Area, Notification, Review, provider-area relationships, favorites, and service reminders where implemented.
+> ⚠️ **Never commit Supabase service-role keys or other private credentials to GitHub.**
 
-Do not commit private secrets such as Supabase service-role keys to GitHub.
+---
 
-local.properties and other machine-specific/private configuration should remain ignored by Git.
+# 🎬 Demo Workflows
 
-13. Running the Application
+## 👤 Customer Demo
 
-Start the app.
-
-Choose Login or Registration.
-
-Register as a Customer or Provider, or use an existing account.
-
-After authentication, the app detects the role and sends the user to the appropriate dashboard.
-
-Customer Demo Flow
-
+```text
 Login
- -> Select Area
- -> Select Category
- -> Select Service/Provider
- -> Book Service OR Request Quotation
- -> View My Bookings
- -> Receive/Accept Quotation if applicable
- -> Provider completes service
- -> Review / Favorite / Reminder
+  ↓
+Select Area
+  ↓
+Select Category
+  ↓
+Select Service / Provider
+  ↓
+Book Service
+       OR
+Request Quotation
+  ↓
+View My Bookings
+  ↓
+Receive / Accept Quotation
+  ↓
+Provider Completes Service
+  ↓
+Review / Favorite / Reminder
+```
 
-Provider Demo Flow
+---
 
+## 🧑‍🔧 Provider Demo
+
+```text
 Login
- -> Set Availability
- -> Configure Service Areas
- -> Add Service
- -> Receive Booking / Quotation Request
- -> Accept / Reject / Send Quotation
- -> Complete Job
- -> View Notifications
+  ↓
+Set Availability
+  ↓
+Configure Service Areas
+  ↓
+Add Service
+  ↓
+Receive Booking / Quotation Request
+  ↓
+Accept / Reject / Send Quotation
+  ↓
+Complete Job
+  ↓
+View Notifications
+```
 
-Admin Demo Flow
+---
 
+## 🛡️ Admin Demo
+
+```text
 Login
- -> Manage Categories / Areas
- -> View Customers
- -> Verify / Suspend / Reactivate / Remove Providers
- -> Remove / Restore Services
- -> Moderate Reviews
+  ↓
+Admin Dashboard
+  ↓
+Manage Categories / Areas
+  ↓
+View Customers
+  ↓
+Verify / Suspend / Reactivate Providers
+  ↓
+Remove / Restore Services
+  ↓
+Moderate Reviews
+```
+
+---
+
+# 🧪 Testing Checklist
+
+## Authentication
+
+- [ ] Customer registration succeeds
+- [ ] Provider registration succeeds
+- [ ] Correct role is detected after login
+- [ ] Invalid credentials produce readable errors
+- [ ] Customer logout clears the session
+- [ ] Provider logout clears the session
+- [ ] Admin logout clears the session
+- [ ] Android Back does not reopen a protected screen after logout
+
+## Customer
+
+- [ ] Areas load correctly
+- [ ] Category navigation works
+- [ ] Area-based providers/services are displayed correctly
+- [ ] Normal booking can be created
+- [ ] Date selection works
+- [ ] Time selection works
+- [ ] Booking form remains usable with keyboard open
+- [ ] Custom quotation can be requested
+- [ ] Quotation notification is received
+- [ ] Quotation can be accepted
+- [ ] Quotation can be rejected
+- [ ] Booking statuses update correctly
+- [ ] Promotional booking applies the intended discount
+- [ ] Booking filters work
+- [ ] Favorites can be added/removed
+- [ ] Completed jobs can be reviewed
+- [ ] Service reminders can be viewed
+- [ ] Notification click opens the relevant workflow
+
+## Provider
+
+- [ ] Provider profile loads
+- [ ] Availability can be changed
+- [ ] Service areas can be selected
+- [ ] Service areas can be saved
+- [ ] New service can be added
+- [ ] Booking requests load
+- [ ] Pending booking can be accepted
+- [ ] Pending booking can be rejected
+- [ ] Quotation request form works
+- [ ] Quotation can be sent
+- [ ] Accepted booking can be completed
+- [ ] Provider notifications load
+- [ ] Notifications can be marked as read
+- [ ] Provider navigation works correctly
+
+## Admin
+
+- [ ] Categories can be added
+- [ ] Categories can be edited
+- [ ] Categories can be deleted
+- [ ] Areas can be added
+- [ ] Areas can be edited
+- [ ] Areas can be deleted
+- [ ] Customers load
+- [ ] Providers load
+- [ ] Provider verification works
+- [ ] Provider unverification works
+- [ ] Provider suspension works
+- [ ] Provider reactivation works
+- [ ] Provider removal works
+- [ ] Services load
+- [ ] Services can be removed
+- [ ] Services can be restored
+- [ ] Reviews load
+- [ ] Reviews can be deleted
+- [ ] Admin logout works correctly
+
+---
+
+# ⚠️ Known Scope / Limitations
+
+- The current promotion is a demonstration-level application-side promotion rather than a complete admin-managed promotion system.
+- Google Maps/location-map visualization was considered but is not included in the final implementation.
+- The application currently focuses on in-app notifications rather than a complete production push-notification infrastructure.
+- Some administrative actions use soft-status changes so historical records can remain available.
+- Production deployment would require a complete review of Supabase Row Level Security policies and credential handling.
+
+---
+
+# 🔒 Security Notes
 
-14. Testing Checklist
+Before publishing this repository:
 
-The following areas should be tested before submission/demo.
+- ❌ Do not commit Supabase service-role keys
+- ❌ Do not commit passwords
+- ❌ Do not commit private API tokens
+- ❌ Do not commit sensitive credentials
+- ✅ Keep `local.properties` ignored
+- ✅ Review API configuration files before publishing
+- ✅ Configure appropriate Supabase Row Level Security policies
+- ✅ Keep sensitive production configuration outside source control
 
-Authentication
+---
 
-Customer registration succeeds.
+# 📁 Repository Structure
 
-Provider registration succeeds.
+A simplified project structure is:
 
-Correct role is detected after login.
-
-Invalid credentials produce readable errors.
-
-Customer logout clears session and prevents Back from reopening Home.
-
-Provider logout clears session and prevents Back from reopening Dashboard.
-
-Admin logout clears session and prevents Back from reopening Admin.
-
-Customer
-
-Areas load correctly.
-
-Service category navigation works.
-
-Area-based services/providers are shown correctly.
-
-Normal booking can be created.
-
-Date/time selection works.
-
-Booking screen remains usable when the keyboard is visible.
-
-Custom quotation can be requested.
-
-Customer receives quotation notification.
-
-Customer can accept/reject quotation.
-
-Booking status updates correctly.
-
-Promotional Cleaning booking applies the intended discount.
-
-Booking history filters work.
-
-Favorites can be added/removed.
-
-Completed job can be reviewed.
-
-Service reminders can be viewed.
-
-Notification click opens the relevant workflow.
-
-Provider
-
-Provider profile loads.
-
-Availability can be changed.
-
-Service areas can be selected and saved.
-
-New service can be added.
-
-Booking requests load.
-
-Pending booking can be accepted/rejected.
-
-Quotation request form works.
-
-Quotation can be sent.
-
-Accepted booking can be completed.
-
-Provider notifications load and can be marked as read.
-
-Provider navigation works between Home, Requests, Add, and Alerts.
-
-Admin
-
-Categories can be added, edited, and deleted.
-
-Areas can be added, edited, and deleted.
-
-Customers load.
-
-Providers load.
-
-Provider verification/unverification works.
-
-Provider suspension/reactivation works.
-
-Provider removal works as designed.
-
-Services load.
-
-Services can be removed/restored.
-
-Reviews load.
-
-Review deletion works.
-
-15. Known Scope / Limitations
-
-The current promotion is a demonstration-level in-app promotion rather than a complete admin-managed promotion system.
-
-Google Maps/location-map visualization was considered but is not part of the final implemented workflow.
-
-The app currently focuses on in-app notifications rather than a complete production push-notification infrastructure.
-
-Some administrative actions use soft-status changes so historical records can remain available.
-
-Production deployment would require a full security review of Supabase Row Level Security policies and credential handling.
-
-16. Security Notes
-
-Before publishing the repository:
-
-Do not commit Supabase service-role keys.
-
-Do not commit passwords or private tokens.
-
-Keep local.properties ignored.
-
-Review all API configuration files before pushing publicly.
-
-Use Supabase Row Level Security policies appropriate to Customer, Provider, and Admin access.
-
-17. Recommended Repository Structure
-
-A simplified project layout is:
-
+```text
 ShohojSeba/
-|
-|-- app/
-|   |-- src/main/java/com/example/shohojseba/
-|   |   |-- data/
-|   |   |   |-- api/
-|   |   |   |-- model/
-|   |   |   |-- repository/
-|   |   |   `-- supabase/
-|   |   |
-|   |   |-- navigation/
-|   |   |
-|   |   |-- notification/
-|   |   |
-|   |   |-- ui/
-|   |   |   |-- auth/
-|   |   |   |-- customer/
-|   |   |   |-- provider/
-|   |   |   `-- admin/
-|   |   |
-|   |   `-- viewmodel/
-|   |
-|   `-- src/main/res/
-|
-|-- gradle/
-|-- build.gradle.kts
-|-- settings.gradle.kts
-|-- README.md
-|-- AI_DECLARATION.md
-`-- .gitignore
+│
+├── app/
+│   └── src/main/
+│       ├── java/com/example/shohojseba/
+│       │   │
+│       │   ├── data/
+│       │   │   ├── api/
+│       │   │   ├── model/
+│       │   │   ├── repository/
+│       │   │   └── supabase/
+│       │   │
+│       │   ├── navigation/
+│       │   │
+│       │   ├── notification/
+│       │   │
+│       │   ├── ui/
+│       │   │   ├── auth/
+│       │   │   ├── customer/
+│       │   │   ├── provider/
+│       │   │   └── admin/
+│       │   │
+│       │   └── viewmodel/
+│       │
+│       └── res/
+│
+├── gradle/
+├── build.gradle.kts
+├── settings.gradle.kts
+├── README.md
+├── AI_DECLARATION.md
+└── .gitignore
+```
 
-The exact repository may contain additional files/classes as the implementation evolves.
+> The exact repository may contain additional files and classes as the implementation evolves.
 
-18. Development Notes
+---
+
+# 📝 Development Notes
 
 During development, particular attention was given to:
 
-Correct Customer/Provider foreign-key relationships in bookings.
+- Correct Customer/Provider foreign-key relationships in bookings
+- Role-based Supabase authentication mapping
+- Provider service-area filtering
+- Quotation status transitions
+- Customer/provider notification targeting
+- Maintaining booking state after quotation actions
+- Avoiding navigation dead ends
+- Clearing navigation state after logout
+- Making forms scroll correctly when the keyboard is visible
+- Improving Customer and Provider dashboards while preserving functionality
+- Providing clear Admin management actions
+- Confirmation dialogs for destructive actions
+- Consistent UI across all three roles
 
-Role-based Supabase Auth mapping.
+---
 
-Provider service-area filtering.
+# 🤖 AI Usage Declaration
 
-Quotation status transitions.
+Generative AI assistance was used during development for:
 
-Customer/provider notification targeting.
+- Code drafting
+- Debugging
+- Code explanation
+- UI refinement
+- Architecture discussions
+- Workflow planning
+- Testing guidance
+- Documentation support
 
-Maintaining booking state after quotation actions.
+A detailed disclosure is available in:
 
-Avoiding navigation dead ends.
+**`AI_DECLARATION.md`**
 
-Clearing navigation state after logout.
+AI-generated suggestions were adapted to the project's actual codebase, database schema, requirements, and workflows. The application was iteratively built and tested in Android Studio.
 
-Making forms scroll correctly when the software keyboard is visible.
+---
 
-Polishing Customer and Provider dashboards while preserving existing functionality.
+# 🎓 Academic Use
 
-Making Admin management actions explicit with confirmation dialogs.
+This repository was developed as an academic software-development project.
 
-19. AI Usage Declaration
+A formal open-source license should only be added if redistribution or reuse terms are required by the project owner or course.
 
-Generative AI assistance was used during development for code drafting, debugging, explanation, UI refinement, architecture discussion, testing guidance, and documentation support. The detailed disclosure is provided in:
+---
 
-AI_DECLARATION.md
+# 📌 Final Summary
 
-The project was iteratively reviewed and tested in Android Studio, and AI-produced suggestions were adapted to the application's actual database schema, existing codebase, and required workflows.
+**ShohojSeba** demonstrates a complete multi-role Android local-service marketplace connecting **Customers, Service Providers, and Administrators**.
 
-20. License / Academic Use
+The project combines:
 
-This repository was created as an academic/software-development project. Add a formal license only if redistribution or reuse terms are required by the project owner or course.
+- 🔐 Authentication
+- 📍 Area-based service discovery
+- 🛠️ Service management
+- 📅 Booking management
+- 💰 Custom quotations
+- 🏷️ Promotional pricing
+- 🔔 Notifications
+- ❤️ Favorites
+- ⭐ Reviews
+- ⏰ Service reminders
+- 🟢 Provider availability
+- ✅ Provider verification
+- 🛡️ Administrative moderation
 
-21. Final Summary
-
-ShohojSeba demonstrates a multi-role Android service marketplace with a working Customer–Provider–Admin flow. It combines authentication, service discovery, area-based provider selection, booking management, quotations, promotional pricing, notifications, favorites, reviews, service reminders, provider availability, provider verification, and administrative moderation in a single Jetpack Compose application backed by Supabase.
+All of these features are integrated into a single **Jetpack Compose Android application backed by Supabase**.
