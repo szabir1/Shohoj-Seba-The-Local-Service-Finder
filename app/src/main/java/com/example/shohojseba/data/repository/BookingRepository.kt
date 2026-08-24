@@ -5,6 +5,7 @@ import android.util.Log
 import com.example.shohojseba.data.api.RetrofitClient
 import com.example.shohojseba.data.model.Booking
 import com.example.shohojseba.data.model.BookingRequest
+import com.example.shohojseba.data.model.QuotationUpdate
 
 import retrofit2.HttpException
 
@@ -17,7 +18,7 @@ class BookingRepository {
 
 
     // =====================================================
-    // CREATE BOOKING
+    // CREATE BOOKING / QUOTATION REQUEST
     // =====================================================
 
     suspend fun createBooking(
@@ -27,7 +28,6 @@ class BookingRepository {
     ): Booking? {
 
         return try {
-
 
             Log.d(
                 "BOOKING_TEST",
@@ -44,7 +44,6 @@ class BookingRepository {
 
         } catch (e: HttpException) {
 
-
             Log.e(
                 "BOOKING_TEST",
                 "HTTP ${e.code()} -> ${
@@ -59,7 +58,6 @@ class BookingRepository {
 
 
         } catch (e: Exception) {
-
 
             Log.e(
                 "BOOKING_TEST",
@@ -86,16 +84,11 @@ class BookingRepository {
 
         return try {
 
-
             api.getBookingsByProvider(
-
                 "eq.$providerId"
-
             )
 
-
         } catch (e: Exception) {
-
 
             Log.e(
                 "BOOKING_TEST",
@@ -122,16 +115,11 @@ class BookingRepository {
 
         return try {
 
-
             api.getBookingsByCustomer(
-
                 "eq.$customerId"
-
             )
 
-
         } catch (e: Exception) {
-
 
             Log.e(
                 "BOOKING_TEST",
@@ -147,7 +135,7 @@ class BookingRepository {
 
 
     // =====================================================
-    // UPDATE BOOKING STATUS
+    // UPDATE STATUS
     // =====================================================
 
     suspend fun updateBookingStatus(
@@ -159,7 +147,6 @@ class BookingRepository {
     ): Boolean {
 
         return try {
-
 
             api.updateBookingStatus(
 
@@ -176,13 +163,78 @@ class BookingRepository {
 
             true
 
-
         } catch (e: Exception) {
-
 
             Log.e(
                 "BOOKING_TEST",
-                "STATUS UPDATE ERROR = ${e.message}"
+                "STATUS UPDATE ERROR = ${e.message}",
+                e
+            )
+
+
+            false
+
+        }
+
+    }
+
+
+    // =====================================================
+    // SEND QUOTATION
+    // =====================================================
+
+    suspend fun sendQuotation(
+
+        bookingId: Long,
+
+        quotedPrice: Double,
+
+        message: String
+
+    ): Boolean {
+
+        return try {
+
+            val quotation =
+                QuotationUpdate(
+
+                    quoted_price =
+                        quotedPrice,
+
+                    quotation_message =
+                        message,
+
+                    status =
+                        "Quotation Sent"
+
+                )
+
+
+            api.sendQuotation(
+
+                bookingId =
+                    "eq.$bookingId",
+
+                quotation =
+                    quotation
+
+            )
+
+
+            Log.d(
+                "QUOTATION_TEST",
+                "Quotation sent for booking $bookingId: $quotedPrice"
+            )
+
+
+            true
+
+        } catch (e: Exception) {
+
+            Log.e(
+                "QUOTATION_TEST",
+                "SEND QUOTATION ERROR = ${e.message}",
+                e
             )
 
 

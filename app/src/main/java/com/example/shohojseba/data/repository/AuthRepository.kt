@@ -5,11 +5,14 @@ import com.example.shohojseba.data.model.Admin
 import com.example.shohojseba.data.model.Customer
 import com.example.shohojseba.data.model.Provider
 import com.example.shohojseba.data.supabase.supabase
+
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.postgrest.from
 
+
 class AuthRepository {
+
 
     // =====================================================
     // REGISTER
@@ -33,15 +36,18 @@ class AuthRepository {
 
         return try {
 
+
             // -------------------------------------------------
             // CREATE SUPABASE AUTH ACCOUNT
             // -------------------------------------------------
 
             supabase.auth.signUpWith(Email) {
 
-                this.email = email
+                this.email =
+                    email
 
-                this.password = password
+                this.password =
+                    password
 
             }
 
@@ -59,7 +65,10 @@ class AuthRepository {
             // CUSTOMER
             // =================================================
 
-            if (role == "CUSTOMER") {
+            if (
+                role == "CUSTOMER"
+            ) {
+
 
                 val customer =
                     Customer(
@@ -81,7 +90,9 @@ class AuthRepository {
 
                 supabase
                     .from("Customer")
-                    .insert(customer)
+                    .insert(
+                        customer
+                    )
 
             }
 
@@ -90,7 +101,10 @@ class AuthRepository {
             // PROVIDER
             // =================================================
 
-            else if (role == "PROVIDER") {
+            else if (
+                role == "PROVIDER"
+            ) {
+
 
                 val provider =
                     Provider(
@@ -118,7 +132,9 @@ class AuthRepository {
 
                 supabase
                     .from("Provider")
-                    .insert(provider)
+                    .insert(
+                        provider
+                    )
 
             }
 
@@ -129,6 +145,7 @@ class AuthRepository {
 
             else {
 
+
                 throw Exception(
                     "Invalid role"
                 )
@@ -136,11 +153,19 @@ class AuthRepository {
             }
 
 
-            Result.success(Unit)
+            Result.success(
+                Unit
+            )
 
-        } catch (e: Exception) {
 
-            Result.failure(e)
+        } catch (
+            e: Exception
+        ) {
+
+
+            Result.failure(
+                e
+            )
 
         }
 
@@ -161,15 +186,18 @@ class AuthRepository {
 
         return try {
 
+
             // -------------------------------------------------
             // SUPABASE AUTHENTICATION
             // -------------------------------------------------
 
             supabase.auth.signInWith(Email) {
 
-                this.email = email
+                this.email =
+                    email
 
-                this.password = password
+                this.password =
+                    password
 
             }
 
@@ -205,13 +233,18 @@ class AuthRepository {
                     .decodeSingleOrNull<Customer>()
 
 
-            if (customer != null) {
+            if (
+                customer != null
+            ) {
+
 
                 UserSession.customerId =
                     customer.customer_id
 
+
                 UserSession.providerId =
                     null
+
 
                 return Result.success(
                     "CUSTOMER"
@@ -242,11 +275,15 @@ class AuthRepository {
                     .decodeSingleOrNull<Provider>()
 
 
-            if (provider != null) {
+            if (
+                provider != null
+            ) {
+
 
                 when (
                     provider.account_status.uppercase()
                 ) {
+
 
                     // -----------------------------------------
                     // ACTIVE PROVIDER
@@ -254,11 +291,14 @@ class AuthRepository {
 
                     "ACTIVE" -> {
 
+
                         UserSession.providerId =
                             provider.provider_id
 
+
                         UserSession.customerId =
                             null
+
 
                         return Result.success(
                             "PROVIDER"
@@ -273,19 +313,17 @@ class AuthRepository {
 
                     "SUSPENDED" -> {
 
-                        // Clear session IDs
 
                         UserSession.providerId =
                             null
+
 
                         UserSession.customerId =
                             null
 
 
-                        // Sign out from Supabase
-                        // so suspended user does not retain session
-
-                        supabase.auth.signOut()
+                        supabase.auth
+                            .signOut()
 
 
                         return Result.failure(
@@ -305,14 +343,17 @@ class AuthRepository {
 
                     "REMOVED" -> {
 
+
                         UserSession.providerId =
                             null
+
 
                         UserSession.customerId =
                             null
 
 
-                        supabase.auth.signOut()
+                        supabase.auth
+                            .signOut()
 
 
                         return Result.failure(
@@ -332,14 +373,17 @@ class AuthRepository {
 
                     else -> {
 
+
                         UserSession.providerId =
                             null
+
 
                         UserSession.customerId =
                             null
 
 
-                        supabase.auth.signOut()
+                        supabase.auth
+                            .signOut()
 
 
                         return Result.failure(
@@ -379,13 +423,18 @@ class AuthRepository {
                     .decodeSingleOrNull<Admin>()
 
 
-            if (admin != null) {
+            if (
+                admin != null
+            ) {
+
 
                 UserSession.customerId =
                     null
 
+
                 UserSession.providerId =
                     null
+
 
                 return Result.success(
                     "ADMIN"
@@ -398,10 +447,13 @@ class AuthRepository {
             // NO PROFILE FOUND
             // =================================================
 
-            supabase.auth.signOut()
+            supabase.auth
+                .signOut()
+
 
             UserSession.customerId =
                 null
+
 
             UserSession.providerId =
                 null
@@ -415,9 +467,15 @@ class AuthRepository {
 
             )
 
-        } catch (e: Exception) {
 
-            Result.failure(e)
+        } catch (
+            e: Exception
+        ) {
+
+
+            Result.failure(
+                e
+            )
 
         }
 
@@ -428,15 +486,58 @@ class AuthRepository {
     // LOGOUT
     // =====================================================
 
-    suspend fun logout() {
+    suspend fun logout():
+            Result<Unit> {
 
-        supabase.auth.signOut()
+        return try {
 
-        UserSession.customerId =
-            null
 
-        UserSession.providerId =
-            null
+            // -------------------------------------------------
+            // SIGN OUT FROM SUPABASE
+            // -------------------------------------------------
+
+            supabase.auth
+                .signOut()
+
+
+            // -------------------------------------------------
+            // CLEAR LOCAL SESSION
+            // -------------------------------------------------
+
+            UserSession.customerId =
+                null
+
+
+            UserSession.providerId =
+                null
+
+
+            Result.success(
+                Unit
+            )
+
+
+        } catch (
+            e: Exception
+        ) {
+
+
+            // Even if remote logout fails,
+            // clear local IDs for safety
+
+            UserSession.customerId =
+                null
+
+
+            UserSession.providerId =
+                null
+
+
+            Result.failure(
+                e
+            )
+
+        }
 
     }
 

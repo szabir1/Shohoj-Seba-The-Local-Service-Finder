@@ -1,4 +1,4 @@
-package com.example.shohojseba.ui.customer
+package com.example.shohojseba.ui.provider
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,31 +21,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 import com.example.shohojseba.data.model.AppNotification
-import com.example.shohojseba.viewmodel.NotificationViewModel
-
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
+import com.example.shohojseba.viewmodel.ProviderNotificationViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationsScreen(
+fun ProviderNotificationsScreen(
 
-    // =====================================================
-    // NAVIGATION CALLBACKS
-    // =====================================================
+    onServiceRequestsClick: () -> Unit,
 
-    onBookingsClick: () -> Unit = {},
-
-    onRemindersClick: () -> Unit = {},
-
-    viewModel: NotificationViewModel =
+    viewModel: ProviderNotificationViewModel =
         viewModel()
 
 ) {
@@ -59,8 +50,16 @@ fun NotificationsScreen(
     viewModel.isLoading
 
 
+    val unreadCount =
+        notifications.count {
+
+            !it.is_read
+
+        }
+
+
     // =====================================================
-    // LOAD NOTIFICATIONS
+    // LOAD
     // =====================================================
 
     LaunchedEffect(Unit) {
@@ -82,20 +81,63 @@ fun NotificationsScreen(
 
                 title = {
 
-                    Text(
-                        "Notifications"
-                    )
+                    Column {
+
+                        Text(
+
+                            text =
+                                "Notifications",
+
+                            fontWeight =
+                                FontWeight.Bold
+
+                        )
+
+
+                        Text(
+
+                            text =
+
+                                if (
+                                    unreadCount > 0
+                                ) {
+
+                                    "$unreadCount unread update${
+                                        if (
+                                            unreadCount == 1
+                                        ) {
+                                            ""
+                                        } else {
+                                            "s"
+                                        }
+                                    }"
+
+                                } else {
+
+                                    "You're all caught up"
+
+                                },
+
+                            style =
+                                MaterialTheme
+                                    .typography
+                                    .bodySmall,
+
+                            color =
+                                Color(
+                                    0xFF66706D
+                                )
+
+                        )
+
+                    }
 
                 },
 
                 actions = {
 
                     if (
-                        notifications.any {
-
-                            !it.is_read
-
-                        }
+                        unreadCount > 0
                     ) {
 
                         TextButton(
@@ -147,7 +189,11 @@ fun NotificationsScreen(
                             listOf(
 
                                 Color(
-                                    0xFFEFFFFB
+                                    0xFFE8FAF6
+                                ),
+
+                                Color(
+                                    0xFFF7FBFA
                                 ),
 
                                 Color.White
@@ -167,10 +213,6 @@ fun NotificationsScreen(
             when {
 
 
-                // =================================================
-                // LOADING
-                // =================================================
-
                 isLoading -> {
 
                     Box(
@@ -183,23 +225,48 @@ fun NotificationsScreen(
 
                     ) {
 
-                        CircularProgressIndicator(
+                        Column(
 
-                            color =
-                                Color(
-                                    0xFF007A7A
+                            horizontalAlignment =
+                                Alignment.CenterHorizontally
+
+                        ) {
+
+                            CircularProgressIndicator(
+
+                                color =
+                                    Color(
+                                        0xFF00897B
+                                    )
+
+                            )
+
+
+                            Spacer(
+                                Modifier.height(
+                                    12.dp
                                 )
+                            )
 
-                        )
+
+                            Text(
+
+                                text =
+                                    "Loading notifications...",
+
+                                color =
+                                    Color(
+                                        0xFF66706D
+                                    )
+
+                            )
+
+                        }
 
                     }
 
                 }
 
-
-                // =================================================
-                // EMPTY
-                // =================================================
 
                 notifications.isEmpty() -> {
 
@@ -209,7 +276,7 @@ fun NotificationsScreen(
                             Modifier
                                 .fillMaxSize()
                                 .padding(
-                                    24.dp
+                                    20.dp
                                 ),
 
                         contentAlignment =
@@ -219,55 +286,95 @@ fun NotificationsScreen(
 
                         Card(
 
+                            modifier =
+                                Modifier.fillMaxWidth(),
+
                             shape =
                                 RoundedCornerShape(
                                     26.dp
                                 ),
 
+                            colors =
+                                CardDefaults.cardColors(
+
+                                    containerColor =
+                                        Color.White
+
+                                ),
+
                             elevation =
-                                CardDefaults
-                                    .cardElevation(
-                                        5.dp
-                                    )
+                                CardDefaults.cardElevation(
+                                    3.dp
+                                )
 
                         ) {
 
                             Column(
 
                                 modifier =
-                                    Modifier.padding(
-                                        30.dp
-                                    ),
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(
+                                            30.dp
+                                        ),
 
                                 horizontalAlignment =
                                     Alignment.CenterHorizontally
 
                             ) {
 
-                                Icon(
-
-                                    imageVector =
-                                        Icons.Default.NotificationsNone,
-
-                                    contentDescription =
-                                        null,
+                                Surface(
 
                                     modifier =
                                         Modifier.size(
-                                            60.dp
+                                            74.dp
                                         ),
 
-                                    tint =
+                                    shape =
+                                        CircleShape,
+
+                                    color =
                                         Color(
-                                            0xFF007A7A
+                                            0xFFE3F5F1
                                         )
 
-                                )
+                                ) {
+
+                                    Box(
+
+                                        contentAlignment =
+                                            Alignment.Center
+
+                                    ) {
+
+                                        Icon(
+
+                                            imageVector =
+                                                Icons.Default.NotificationsNone,
+
+                                            contentDescription =
+                                                null,
+
+                                            modifier =
+                                                Modifier.size(
+                                                    36.dp
+                                                ),
+
+                                            tint =
+                                                Color(
+                                                    0xFF00897B
+                                                )
+
+                                        )
+
+                                    }
+
+                                }
 
 
                                 Spacer(
                                     Modifier.height(
-                                        12.dp
+                                        15.dp
                                     )
                                 )
 
@@ -280,7 +387,10 @@ fun NotificationsScreen(
                                     style =
                                         MaterialTheme
                                             .typography
-                                            .titleLarge
+                                            .titleLarge,
+
+                                    fontWeight =
+                                        FontWeight.Bold
 
                                 )
 
@@ -295,10 +405,12 @@ fun NotificationsScreen(
                                 Text(
 
                                     text =
-                                        "Your booking and service updates will appear here.",
+                                        "Booking and quotation updates will appear here.",
 
                                     color =
-                                        Color.Gray
+                                        Color(
+                                            0xFF66706D
+                                        )
 
                                 )
 
@@ -311,10 +423,6 @@ fun NotificationsScreen(
                 }
 
 
-                // =================================================
-                // NOTIFICATION LIST
-                // =================================================
-
                 else -> {
 
                     LazyColumn(
@@ -324,7 +432,19 @@ fun NotificationsScreen(
 
                         contentPadding =
                             PaddingValues(
-                                16.dp
+
+                                start =
+                                    18.dp,
+
+                                end =
+                                    18.dp,
+
+                                top =
+                                    8.dp,
+
+                                bottom =
+                                    24.dp
+
                             ),
 
                         verticalArrangement =
@@ -340,27 +460,23 @@ fun NotificationsScreen(
                             items =
                                 notifications,
 
-                            key = { notification ->
+                            key = {
 
-                                notification.notification_id
-                                    ?: notification.hashCode()
+                                it.notification_id
+                                    ?: it.hashCode()
 
                             }
 
                         ) { notification ->
 
 
-                            NotificationCard(
+                            ProviderNotificationCard(
 
                                 notification =
                                     notification,
 
                                 onClick = {
 
-
-                                    // =================================
-                                    // MARK AS READ
-                                    // =================================
 
                                     notification
                                         .notification_id
@@ -374,58 +490,7 @@ fun NotificationsScreen(
                                         }
 
 
-                                    // =================================
-                                    // NAVIGATE BASED ON TYPE
-                                    // =================================
-
-                                    when (
-
-                                        notification
-                                            .notification_type
-                                            .uppercase()
-
-                                    ) {
-
-
-                                        // -----------------------------
-                                        // BOOKING RELATED
-                                        // -----------------------------
-
-                                        "ACCEPTED",
-                                        "REJECTED",
-                                        "COMPLETED",
-                                        "QUOTATION",
-                                        "QUOTATION_SENT",
-                                        "QUOTATION RECEIVED" -> {
-
-                                            onBookingsClick()
-
-                                        }
-
-
-                                        // -----------------------------
-                                        // SERVICE REMINDER
-                                        // -----------------------------
-
-                                        "REMINDER" -> {
-
-                                            onRemindersClick()
-
-                                        }
-
-
-                                        // -----------------------------
-                                        // DEFAULT
-                                        // -----------------------------
-
-                                        else -> {
-
-                                            // Unknown notification type.
-                                            // It is still marked as read.
-
-                                        }
-
-                                    }
+                                    onServiceRequestsClick()
 
                                 }
 
@@ -446,12 +511,8 @@ fun NotificationsScreen(
 }
 
 
-// =====================================================
-// NOTIFICATION CARD
-// =====================================================
-
 @Composable
-private fun NotificationCard(
+private fun ProviderNotificationCard(
 
     notification: AppNotification,
 
@@ -462,35 +523,22 @@ private fun NotificationCard(
 
     val icon =
         when (
-
             notification
                 .notification_type
                 .uppercase()
-
         ) {
 
+            "NEW_BOOKING" ->
+                "📩"
 
-            "ACCEPTED" ->
-                "✅"
-
-
-            "REJECTED" ->
-                "❌"
-
-
-            "COMPLETED" ->
-                "🎉"
-
-
-            "QUOTATION",
-            "QUOTATION_SENT",
-            "QUOTATION RECEIVED" ->
+            "QUOTATION_REQUEST" ->
                 "💰"
 
+            "QUOTATION_ACCEPTED" ->
+                "✅"
 
-            "REMINDER" ->
-                "🔔"
-
+            "QUOTATION_REJECTED" ->
+                "❌"
 
             else ->
                 "🔔"
@@ -515,35 +563,32 @@ private fun NotificationCard(
             ),
 
         colors =
-            CardDefaults
-                .cardColors(
+            CardDefaults.cardColors(
 
-                    containerColor =
+                containerColor =
 
-                        if (
-                            notification.is_read
-                        ) {
+                    if (
+                        notification.is_read
+                    ) {
 
-                            Color.White
+                        Color.White
 
-                        } else {
+                    } else {
 
-                            Color(
-                                0xFFDDF8F3
-                            )
+                        Color(
+                            0xFFE3F5F1
+                        )
 
-                        }
+                    }
 
-                ),
+            ),
 
         elevation =
-            CardDefaults
-                .cardElevation(
-                    4.dp
-                )
+            CardDefaults.cardElevation(
+                2.dp
+            )
 
     ) {
-
 
         Row(
 
@@ -558,22 +603,50 @@ private fun NotificationCard(
         ) {
 
 
-            Text(
+            Surface(
 
-                text =
-                    icon,
+                modifier =
+                    Modifier.size(
+                        48.dp
+                    ),
 
-                style =
-                    MaterialTheme
-                        .typography
-                        .headlineMedium
+                shape =
+                    RoundedCornerShape(
+                        15.dp
+                    ),
 
-            )
+                color =
+                    Color.White
+
+            ) {
+
+                Box(
+
+                    contentAlignment =
+                        Alignment.Center
+
+                ) {
+
+                    Text(
+
+                        text =
+                            icon,
+
+                        style =
+                            MaterialTheme
+                                .typography
+                                .headlineSmall
+
+                    )
+
+                }
+
+            }
 
 
             Spacer(
                 Modifier.width(
-                    14.dp
+                    13.dp
                 )
             )
 
@@ -610,7 +683,10 @@ private fun NotificationCard(
                         style =
                             MaterialTheme
                                 .typography
-                                .titleMedium
+                                .titleMedium,
+
+                        fontWeight =
+                            FontWeight.Bold
 
                     )
 
@@ -624,12 +700,12 @@ private fun NotificationCard(
                             modifier =
                                 Modifier
                                     .size(
-                                        10.dp
+                                        9.dp
                                     )
                                     .background(
 
                                         Color(
-                                            0xFF007A7A
+                                            0xFF00897B
                                         ),
 
                                         CircleShape
@@ -656,116 +732,48 @@ private fun NotificationCard(
                         notification.message,
 
                     color =
-                        Color.DarkGray
+                        Color(
+                            0xFF56605D
+                        ),
+
+                    style =
+                        MaterialTheme
+                            .typography
+                            .bodyMedium
 
                 )
 
 
-                notification.created_at
-                    ?.let { createdAt ->
+                Spacer(
+                    Modifier.height(
+                        7.dp
+                    )
+                )
 
 
-                        Spacer(
-                            Modifier.height(
-                                8.dp
-                            )
-                        )
+                Text(
 
+                    text =
+                        "Tap to view service request",
 
-                        Text(
+                    style =
+                        MaterialTheme
+                            .typography
+                            .labelSmall,
 
-                            text =
-                                formatNotificationDate(
-                                    createdAt
-                                ),
+                    color =
+                        Color(
+                            0xFF00897B
+                        ),
 
-                            style =
-                                MaterialTheme
-                                    .typography
-                                    .bodySmall,
+                    fontWeight =
+                        FontWeight.SemiBold
 
-                            color =
-                                Color.Gray
-
-                        )
-
-                    }
+                )
 
             }
 
         }
-
-    }
-
-}
-
-
-// =====================================================
-// DATE FORMATTER
-// =====================================================
-
-private fun formatNotificationDate(
-
-    date: String
-
-): String {
-
-    return try {
-
-        val cleanDate =
-            date
-                .substringBefore(".")
-
-
-        val input =
-            SimpleDateFormat(
-
-                "yyyy-MM-dd'T'HH:mm:ss",
-
-                Locale.getDefault()
-
-            )
-
-
-        input.timeZone =
-            TimeZone.getTimeZone(
-                "UTC"
-            )
-
-
-        val parsed =
-            input.parse(
-                cleanDate
-            )
-
-
-        val output =
-            SimpleDateFormat(
-
-                "dd MMM yyyy, hh:mm a",
-
-                Locale.getDefault()
-
-            )
-
-
-        if (
-            parsed != null
-        ) {
-
-            output.format(
-                parsed
-            )
-
-        } else {
-
-            date
-
-        }
-
-    } catch (e: Exception) {
-
-        date
 
     }
 

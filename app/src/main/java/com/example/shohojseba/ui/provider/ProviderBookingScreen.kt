@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -48,17 +49,23 @@ fun ProviderBookingsScreen(
 
 
     var dialogVisible by remember {
+
         mutableStateOf(false)
+
     }
 
 
     var dialogTitle by remember {
+
         mutableStateOf("")
+
     }
 
 
     var dialogMessage by remember {
+
         mutableStateOf("")
+
     }
 
 
@@ -106,6 +113,9 @@ fun ProviderBookingsScreen(
                             "Job Completed" ->
                                 Icons.Default.TaskAlt
 
+                            "Quotation Sent" ->
+                                Icons.Default.CheckCircle
+
                             else ->
                                 Icons.Default.Cancel
 
@@ -120,19 +130,16 @@ fun ProviderBookingsScreen(
                         ) {
 
                             "Booking Accepted" ->
-                                Color(
-                                    0xFF2E7D32
-                                )
+                                Color(0xFF2E7D32)
 
                             "Job Completed" ->
-                                Color(
-                                    0xFF1565C0
-                                )
+                                Color(0xFF1565C0)
+
+                            "Quotation Sent" ->
+                                Color(0xFFFF8F00)
 
                             else ->
-                                Color(
-                                    0xFFC62828
-                                )
+                                Color(0xFFC62828)
 
                         },
 
@@ -173,15 +180,12 @@ fun ProviderBookingsScreen(
                     },
 
                     colors =
-                        ButtonDefaults
-                            .buttonColors(
+                        ButtonDefaults.buttonColors(
 
-                                containerColor =
-                                    Color(
-                                        0xFF007A7A
-                                    )
+                            containerColor =
+                                Color(0xFF00897B)
 
-                            ),
+                        ),
 
                     shape =
                         RoundedCornerShape(
@@ -223,20 +227,47 @@ fun ProviderBookingsScreen(
 
                 title = {
 
-                    Text(
-                        "Service Requests"
-                    )
+                    Column {
+
+                        Text(
+
+                            text =
+                                "Service Requests",
+
+                            fontWeight =
+                                FontWeight.Bold
+
+                        )
+
+
+                        Text(
+
+                            text =
+                                "Manage customer bookings",
+
+                            style =
+                                MaterialTheme
+                                    .typography
+                                    .bodySmall,
+
+                            color =
+                                Color(
+                                    0xFF66706D
+                                )
+
+                        )
+
+                    }
 
                 },
 
                 colors =
-                    TopAppBarDefaults
-                        .topAppBarColors(
+                    TopAppBarDefaults.topAppBarColors(
 
-                            containerColor =
-                                Color.Transparent
+                        containerColor =
+                            Color.Transparent
 
-                        )
+                    )
 
             )
 
@@ -257,7 +288,11 @@ fun ProviderBookingsScreen(
                             listOf(
 
                                 Color(
-                                    0xFFEFFFFB
+                                    0xFFE8FAF6
+                                ),
+
+                                Color(
+                                    0xFFF7FBFA
                                 ),
 
                                 Color.White
@@ -293,14 +328,43 @@ fun ProviderBookingsScreen(
 
                     ) {
 
-                        CircularProgressIndicator(
+                        Column(
 
-                            color =
-                                Color(
-                                    0xFF007A7A
+                            horizontalAlignment =
+                                Alignment.CenterHorizontally
+
+                        ) {
+
+                            CircularProgressIndicator(
+
+                                color =
+                                    Color(
+                                        0xFF00897B
+                                    )
+
+                            )
+
+
+                            Spacer(
+                                Modifier.height(
+                                    12.dp
                                 )
+                            )
 
-                        )
+
+                            Text(
+
+                                text =
+                                    "Loading service requests...",
+
+                                color =
+                                    Color(
+                                        0xFF66706D
+                                    )
+
+                            )
+
+                        }
 
                     }
 
@@ -316,7 +380,11 @@ fun ProviderBookingsScreen(
                     Box(
 
                         modifier =
-                            Modifier.fillMaxSize(),
+                            Modifier
+                                .fillMaxSize()
+                                .padding(
+                                    20.dp
+                                ),
 
                         contentAlignment =
                             Alignment.Center
@@ -325,25 +393,37 @@ fun ProviderBookingsScreen(
 
                         Card(
 
+                            modifier =
+                                Modifier.fillMaxWidth(),
+
                             shape =
                                 RoundedCornerShape(
-                                    24.dp
+                                    26.dp
+                                ),
+
+                            colors =
+                                CardDefaults.cardColors(
+
+                                    containerColor =
+                                        Color.White
+
                                 ),
 
                             elevation =
-                                CardDefaults
-                                    .cardElevation(
-                                        6.dp
-                                    )
+                                CardDefaults.cardElevation(
+                                    3.dp
+                                )
 
                         ) {
 
                             Column(
 
                                 modifier =
-                                    Modifier.padding(
-                                        28.dp
-                                    ),
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(
+                                            30.dp
+                                        ),
 
                                 horizontalAlignment =
                                     Alignment.CenterHorizontally
@@ -378,14 +458,17 @@ fun ProviderBookingsScreen(
                                     style =
                                         MaterialTheme
                                             .typography
-                                            .titleMedium
+                                            .titleLarge,
+
+                                    fontWeight =
+                                        FontWeight.Bold
 
                                 )
 
 
                                 Spacer(
                                     Modifier.height(
-                                        4.dp
+                                        5.dp
                                     )
                                 )
 
@@ -396,7 +479,9 @@ fun ProviderBookingsScreen(
                                         "New customer requests will appear here.",
 
                                     color =
-                                        Color.Gray
+                                        Color(
+                                            0xFF66706D
+                                        )
 
                                 )
 
@@ -422,20 +507,40 @@ fun ProviderBookingsScreen(
 
                         contentPadding =
                             PaddingValues(
-                                20.dp
+
+                                start =
+                                    20.dp,
+
+                                end =
+                                    20.dp,
+
+                                top =
+                                    8.dp,
+
+                                bottom =
+                                    24.dp
+
                             ),
 
                         verticalArrangement =
-                            Arrangement
-                                .spacedBy(
-                                    16.dp
-                                )
+                            Arrangement.spacedBy(
+                                16.dp
+                            )
 
                     ) {
 
 
                         items(
-                            bookings
+
+                            items =
+                                bookings,
+
+                            key = {
+
+                                it.bookingId
+
+                            }
+
                         ) { booking ->
 
 
@@ -515,6 +620,44 @@ fun ProviderBookingsScreen(
 
                                     dialogMessage =
                                         "The service has been marked as completed. The customer received an in-app notification. For AC services, the next servicing reminder was also scheduled."
+
+
+                                    dialogVisible =
+                                        true
+
+                                },
+
+
+                                // =================================
+                                // SEND QUOTATION
+                                // =================================
+
+                                onSendQuotation = {
+                                        price,
+                                        message ->
+
+
+                                    viewModel
+                                        .sendQuotation(
+
+                                            booking =
+                                                booking,
+
+                                            quotedPrice =
+                                                price,
+
+                                            message =
+                                                message
+
+                                        )
+
+
+                                    dialogTitle =
+                                        "Quotation Sent"
+
+
+                                    dialogMessage =
+                                        "The quotation has been sent to the customer and an in-app notification was created."
 
 
                                     dialogVisible =

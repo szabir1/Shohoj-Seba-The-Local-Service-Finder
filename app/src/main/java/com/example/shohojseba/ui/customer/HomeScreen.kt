@@ -1,19 +1,23 @@
 package com.example.shohojseba.ui.customer
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.HomeRepairService
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.Search
 
 import androidx.compose.material3.*
 
@@ -23,17 +27,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 import androidx.lifecycle.viewmodel.compose.viewModel
+
 import androidx.navigation.NavController
 
 import com.example.shohojseba.data.model.Area
 import com.example.shohojseba.navigation.Screen
-import com.example.shohojseba.ui.customer.components.CategoryChip
-import com.example.shohojseba.viewmodel.AreaViewModel
-import com.example.shohojseba.viewmodel.CategoryViewModel
 
+import com.example.shohojseba.viewmodel.AreaViewModel
+import com.example.shohojseba.viewmodel.AuthViewModel
+import com.example.shohojseba.viewmodel.CategoryViewModel
+import com.example.shohojseba.viewmodel.NotificationViewModel
+
+
+// =====================================================
+// CUSTOMER HOME
+// =====================================================
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,43 +59,156 @@ fun HomeScreen(
         viewModel(),
 
     areaViewModel: AreaViewModel =
+        viewModel(),
+
+    notificationViewModel: NotificationViewModel =
+        viewModel(),
+
+    authViewModel: AuthViewModel =
         viewModel()
 
 ) {
 
 
+    // =====================================================
+    // COLORS
+    // =====================================================
+
+    val primary =
+        Color(0xFF00897B)
+
+    val darkPrimary =
+        Color(0xFF00695C)
+
+    val background =
+        Color(0xFFF7FBFA)
+
+    val softMint =
+        Color(0xFFE2F5F1)
+
+    val textSecondary =
+        Color(0xFF66706D)
+
+
+    // =====================================================
+    // DATA
+    // =====================================================
+
     val categories by
     viewModel.categories
-
 
     val areas by
     areaViewModel.areas
 
+    val notifications by
+    notificationViewModel.notifications
+
+    val isLoggingOut by
+    authViewModel.isLoading
+
+
+    // =====================================================
+    // UNREAD NOTIFICATIONS
+    // =====================================================
+
+    val unreadNotificationCount =
+        notifications.count {
+            !it.is_read
+        }
+
+
+    // =====================================================
+    // STATES
+    // =====================================================
 
     var selectedArea by remember {
-        mutableStateOf<Area?>(null)
+
+        mutableStateOf<Area?>(
+            null
+        )
+
     }
 
 
     var areaExpanded by remember {
-        mutableStateOf(false)
+
+        mutableStateOf(
+            false
+        )
+
     }
 
 
     var showSelectAreaDialog by remember {
-        mutableStateOf(false)
+
+        mutableStateOf(
+            false
+        )
+
+    }
+
+
+    var searchText by remember {
+
+        mutableStateOf(
+            ""
+        )
+
+    }
+
+
+    var showLogoutDialog by remember {
+
+        mutableStateOf(
+            false
+        )
+
     }
 
 
     // =====================================================
-    // LOAD DATA
+    // FILTERED CATEGORIES
+    // =====================================================
+
+    val filteredCategories =
+
+        if (
+            searchText.isBlank()
+        ) {
+
+            categories
+
+        } else {
+
+            categories.filter { category ->
+
+                category.category_name
+                    .contains(
+                        searchText,
+                        ignoreCase = true
+                    )
+
+            }
+
+        }
+
+
+    // =====================================================
+    // LOAD
     // =====================================================
 
     LaunchedEffect(Unit) {
 
-        viewModel.loadCategories()
+        viewModel
+            .loadCategories()
 
-        areaViewModel.loadAreas()
+
+        areaViewModel
+            .loadAreas()
+
+
+        notificationViewModel
+            .loadNotifications()
 
     }
 
@@ -114,9 +241,7 @@ fun HomeScreen(
                         null,
 
                     tint =
-                        Color(
-                            0xFF007A7A
-                        ),
+                        primary,
 
                     modifier =
                         Modifier.size(
@@ -130,7 +255,7 @@ fun HomeScreen(
             title = {
 
                 Text(
-                    "Select Your Area"
+                    "Choose your service area"
                 )
 
             },
@@ -138,7 +263,7 @@ fun HomeScreen(
             text = {
 
                 Text(
-                    "Please select your area first so we can show providers who serve your location."
+                    "Select your area first so ShohojSeba can show providers who actually serve your location."
                 )
 
             },
@@ -158,15 +283,195 @@ fun HomeScreen(
                     },
 
                     colors =
-                        ButtonDefaults
-                            .buttonColors(
+                        ButtonDefaults.buttonColors(
+                            containerColor = primary
+                        ),
 
-                                containerColor =
-                                    Color(
-                                        0xFF007A7A
-                                    )
+                    shape =
+                        RoundedCornerShape(14.dp)
 
-                            ),
+                ) {
+
+                    Text(
+                        "Select Area"
+                    )
+
+                }
+
+            },
+
+            shape =
+                RoundedCornerShape(24.dp)
+
+        )
+
+    }
+
+
+    // =====================================================
+    // LOGOUT DIALOG
+    // =====================================================
+
+    if (
+        showLogoutDialog
+    ) {
+
+        AlertDialog(
+
+            onDismissRequest = {
+
+                if (
+                    !isLoggingOut
+                ) {
+
+                    showLogoutDialog =
+                        false
+
+                }
+
+            },
+
+            icon = {
+
+                Surface(
+
+                    modifier =
+                        Modifier.size(
+                            60.dp
+                        ),
+
+                    shape =
+                        CircleShape,
+
+                    color =
+                        Color(
+                            0xFFFFEBEE
+                        )
+
+                ) {
+
+                    Box(
+
+                        contentAlignment =
+                            Alignment.Center
+
+                    ) {
+
+                        Icon(
+
+                            imageVector =
+                                Icons.Default.Logout,
+
+                            contentDescription =
+                                null,
+
+                            tint =
+                                Color(
+                                    0xFFC62828
+                                ),
+
+                            modifier =
+                                Modifier.size(
+                                    28.dp
+                                )
+
+                        )
+
+                    }
+
+                }
+
+            },
+
+            title = {
+
+                Text(
+                    "Log out?"
+                )
+
+            },
+
+            text = {
+
+                Text(
+                    "Are you sure you want to log out of ShohojSeba?"
+                )
+
+            },
+
+            dismissButton = {
+
+                TextButton(
+
+                    enabled =
+                        !isLoggingOut,
+
+                    onClick = {
+
+                        showLogoutDialog =
+                            false
+
+                    }
+
+                ) {
+
+                    Text(
+                        "Cancel"
+                    )
+
+                }
+
+            },
+
+            confirmButton = {
+
+                Button(
+
+                    enabled =
+                        !isLoggingOut,
+
+                    onClick = {
+
+                        authViewModel.logout {
+
+
+                            showLogoutDialog =
+                                false
+
+
+                            navController.navigate(
+                                Screen.Login.route
+                            ) {
+
+
+                                popUpTo(
+                                    0
+                                ) {
+
+                                    inclusive =
+                                        true
+
+                                }
+
+
+                                launchSingleTop =
+                                    true
+
+                            }
+
+                        }
+
+                    },
+
+                    colors =
+                        ButtonDefaults.buttonColors(
+
+                            containerColor =
+                                Color(
+                                    0xFFC62828
+                                )
+
+                        ),
 
                     shape =
                         RoundedCornerShape(
@@ -175,9 +480,51 @@ fun HomeScreen(
 
                 ) {
 
-                    Text(
-                        "Select Area"
-                    )
+
+                    if (
+                        isLoggingOut
+                    ) {
+
+                        CircularProgressIndicator(
+
+                            modifier =
+                                Modifier.size(
+                                    20.dp
+                                ),
+
+                            color =
+                                Color.White,
+
+                            strokeWidth =
+                                2.dp
+
+                        )
+
+                    } else {
+
+                        Icon(
+
+                            imageVector =
+                                Icons.Default.Logout,
+
+                            contentDescription =
+                                null
+
+                        )
+
+
+                        Spacer(
+                            Modifier.width(
+                                7.dp
+                            )
+                        )
+
+
+                        Text(
+                            "Log Out"
+                        )
+
+                    }
 
                 }
 
@@ -194,997 +541,237 @@ fun HomeScreen(
 
 
     // =====================================================
-    // MAIN SCREEN
+    // SCREEN
     // =====================================================
 
-    Column(
+    Scaffold(
 
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(
+        containerColor =
+            background,
 
-                    Brush.verticalGradient(
+        bottomBar = {
 
-                        listOf(
+            NavigationBar(
 
-                            Color(
-                                0xFFE9FFFA
-                            ),
+                containerColor =
+                    Color.White,
 
-                            Color.White
-
-                        )
-
-                    )
-
-                )
-                .verticalScroll(
-                    rememberScrollState()
-                )
-                .padding(
-                    24.dp
-                )
-
-    ) {
-
-
-        Text(
-
-            text =
-                "Good Morning 👋",
-
-            style =
-                MaterialTheme
-                    .typography
-                    .headlineMedium
-
-        )
-
-
-        Text(
-
-            text =
-                "Find services near you",
-
-            style =
-                MaterialTheme
-                    .typography
-                    .titleMedium
-
-        )
-
-
-        Spacer(
-            Modifier.height(
-                22.dp
-            )
-        )
-
-
-        // =====================================================
-        // AREA
-        // =====================================================
-
-        Text(
-
-            text =
-                "Your Area",
-
-            style =
-                MaterialTheme
-                    .typography
-                    .titleMedium
-
-        )
-
-
-        Spacer(
-            Modifier.height(
-                8.dp
-            )
-        )
-
-
-        ExposedDropdownMenuBox(
-
-            expanded =
-                areaExpanded,
-
-            onExpandedChange = {
-
-                areaExpanded =
-                    !areaExpanded
-
-            }
-
-        ) {
-
-
-            OutlinedTextField(
-
-                value =
-                    selectedArea
-                        ?.area_name
-                        ?: "",
-
-                onValueChange = {},
-
-                readOnly =
-                    true,
-
-                label = {
-
-                    Text(
-                        "Select Area"
-                    )
-
-                },
-
-                placeholder = {
-
-                    Text(
-                        "Choose your location"
-                    )
-
-                },
-
-                leadingIcon = {
-
-                    Icon(
-
-                        imageVector =
-                            Icons.Default.LocationOn,
-
-                        contentDescription =
-                            null,
-
-                        tint =
-                            Color(
-                                0xFF007A7A
-                            )
-
-                    )
-
-                },
-
-                trailingIcon = {
-
-                    ExposedDropdownMenuDefaults
-                        .TrailingIcon(
-
-                            expanded =
-                                areaExpanded
-
-                        )
-
-                },
-
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(),
-
-                shape =
-                    RoundedCornerShape(
-                        22.dp
-                    )
-
-            )
-
-
-            ExposedDropdownMenu(
-
-                expanded =
-                    areaExpanded,
-
-                onDismissRequest = {
-
-                    areaExpanded =
-                        false
-
-                }
+                tonalElevation =
+                    8.dp
 
             ) {
 
 
-                areas.forEach { area ->
+                NavigationBarItem(
+
+                    selected =
+                        true,
+
+                    onClick = {},
+
+                    icon = {
+
+                        Icon(
+
+                            imageVector =
+                                Icons.Default.Home,
+
+                            contentDescription =
+                                "Home"
+
+                        )
+
+                    },
+
+                    label = {
+
+                        Text(
+                            "Home"
+                        )
+
+                    }
+
+                )
 
 
-                    DropdownMenuItem(
+                NavigationBarItem(
 
-                        text = {
+                    selected =
+                        false,
 
-                            Text(
-                                area.area_name
-                            )
+                    onClick = {
 
-                        },
+                        navController.navigate(
+                            Screen.CustomerBookings.route
+                        )
 
-                        leadingIcon = {
+                    },
+
+                    icon = {
+
+                        Icon(
+
+                            imageVector =
+                                Icons.Default.Book,
+
+                            contentDescription =
+                                "Bookings"
+
+                        )
+
+                    },
+
+                    label = {
+
+                        Text(
+                            "Bookings"
+                        )
+
+                    }
+
+                )
+
+
+                NavigationBarItem(
+
+                    selected =
+                        false,
+
+                    onClick = {
+
+                        navController.navigate(
+                            Screen.Favorites.route
+                        )
+
+                    },
+
+                    icon = {
+
+                        Icon(
+
+                            imageVector =
+                                Icons.Default.Favorite,
+
+                            contentDescription =
+                                "Saved"
+
+                        )
+
+                    },
+
+                    label = {
+
+                        Text(
+                            "Saved"
+                        )
+
+                    }
+
+                )
+
+
+                NavigationBarItem(
+
+                    selected =
+                        false,
+
+                    onClick = {
+
+                        navController.navigate(
+                            Screen.Notifications.route
+                        )
+
+                    },
+
+                    icon = {
+
+                        Box {
 
                             Icon(
 
                                 imageVector =
-                                    Icons.Default.LocationOn,
+                                    Icons.Default.Notifications,
 
                                 contentDescription =
-                                    null
+                                    "Notifications"
 
                             )
 
-                        },
 
-                        onClick = {
+                            if (
+                                unreadNotificationCount > 0
+                            ) {
 
-                            selectedArea =
-                                area
+                                Box(
 
-                            areaExpanded =
-                                false
-
-                        }
-
-                    )
-
-                }
-
-            }
-
-        }
-
-
-        // =====================================================
-        // SELECTED AREA
-        // =====================================================
-
-        if (
-            selectedArea != null
-        ) {
-
-            Spacer(
-                Modifier.height(
-                    10.dp
-                )
-            )
-
-
-            Card(
-
-                colors =
-                    CardDefaults
-                        .cardColors(
-
-                            containerColor =
-                                Color(
-                                    0xFFDDF8F3
-                                )
-
-                        ),
-
-                shape =
-                    RoundedCornerShape(
-                        18.dp
-                    )
-
-            ) {
-
-                Row(
-
-                    modifier =
-                        Modifier.padding(
-
-                            horizontal =
-                                14.dp,
-
-                            vertical =
-                                10.dp
-
-                        ),
-
-                    verticalAlignment =
-                        Alignment.CenterVertically
-
-                ) {
-
-                    Icon(
-
-                        imageVector =
-                            Icons.Default.LocationOn,
-
-                        contentDescription =
-                            null,
-
-                        tint =
-                            Color(
-                                0xFF007A7A
-                            )
-
-                    )
-
-
-                    Spacer(
-                        Modifier.width(
-                            6.dp
-                        )
-                    )
-
-
-                    Text(
-
-                        text =
-                            "Showing services in ${selectedArea!!.area_name}",
-
-                        color =
-                            Color(
-                                0xFF007A7A
-                            )
-
-                    )
-
-                }
-
-            }
-
-        }
-
-
-        Spacer(
-            Modifier.height(
-                22.dp
-            )
-        )
-
-
-        // =====================================================
-        // SEARCH
-        // =====================================================
-
-        OutlinedTextField(
-
-            value =
-                "",
-
-            onValueChange = {},
-
-            placeholder = {
-
-                Text(
-                    "Search services..."
-                )
-
-            },
-
-            modifier =
-                Modifier.fillMaxWidth(),
-
-            shape =
-                RoundedCornerShape(
-                    30.dp
-                )
-
-        )
-
-
-        Spacer(
-            Modifier.height(
-                25.dp
-            )
-        )
-
-
-        // =====================================================
-        // QUICK ACTIONS
-        // =====================================================
-
-        Row(
-
-            modifier =
-                Modifier.fillMaxWidth(),
-
-            horizontalArrangement =
-                Arrangement.spacedBy(
-                    14.dp
-                )
-
-        ) {
-
-
-            Card(
-
-                modifier =
-                    Modifier.weight(
-                        1f
-                    ),
-
-                shape =
-                    RoundedCornerShape(
-                        24.dp
-                    ),
-
-                colors =
-                    CardDefaults.cardColors(
-
-                        containerColor =
-                            Color(
-                                0xFF007A7A
-                            )
-
-                    ),
-
-                onClick = {
-
-                    navController.navigate(
-                        Screen.CustomerBookings.route
-                    )
-
-                }
-
-            ) {
-
-                Column(
-
-                    modifier =
-                        Modifier.padding(
-                            18.dp
-                        ),
-
-                    horizontalAlignment =
-                        Alignment.CenterHorizontally
-
-                ) {
-
-                    Icon(
-
-                        imageVector =
-                            Icons.Default.Book,
-
-                        contentDescription =
-                            null,
-
-                        tint =
-                            Color.White
-
-                    )
-
-
-                    Spacer(
-                        Modifier.height(
-                            8.dp
-                        )
-                    )
-
-
-                    Text(
-
-                        text =
-                            "My Bookings",
-
-                        color =
-                            Color.White
-
-                    )
-
-                }
-
-            }
-
-
-            Card(
-
-                modifier =
-                    Modifier.weight(
-                        1f
-                    ),
-
-                shape =
-                    RoundedCornerShape(
-                        24.dp
-                    ),
-
-                colors =
-                    CardDefaults.cardColors(
-
-                        containerColor =
-                            Color(
-                                0xFFDDF8F3
-                            )
-
-                    )
-
-            ) {
-
-                Column(
-
-                    modifier =
-                        Modifier.padding(
-                            18.dp
-                        ),
-
-                    horizontalAlignment =
-                        Alignment.CenterHorizontally
-
-                ) {
-
-                    Icon(
-
-                        imageVector =
-                            Icons.Default.HomeRepairService,
-
-                        contentDescription =
-                            null,
-
-                        tint =
-                            Color(
-                                0xFF007A7A
-                            )
-
-                    )
-
-
-                    Spacer(
-                        Modifier.height(
-                            8.dp
-                        )
-                    )
-
-
-                    Text(
-
-                        text =
-                            "Services",
-
-                        color =
-                            Color(
-                                0xFF007A7A
-                            )
-
-                    )
-
-                }
-
-            }
-
-        }
-
-
-        Spacer(
-            Modifier.height(
-                14.dp
-            )
-        )
-
-
-        // =====================================================
-        // FAVORITES
-        // =====================================================
-
-        Card(
-
-            modifier =
-                Modifier.fillMaxWidth(),
-
-            shape =
-                RoundedCornerShape(
-                    24.dp
-                ),
-
-            colors =
-                CardDefaults.cardColors(
-
-                    containerColor =
-                        Color(
-                            0xFFFFEBEE
-                        )
-
-                ),
-
-            onClick = {
-
-                navController.navigate(
-                    Screen.Favorites.route
-                )
-
-            }
-
-        ) {
-
-            Row(
-
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            18.dp
-                        ),
-
-                verticalAlignment =
-                    Alignment.CenterVertically
-
-            ) {
-
-                Icon(
-
-                    imageVector =
-                        Icons.Default.Favorite,
-
-                    contentDescription =
-                        null,
-
-                    tint =
-                        Color(
-                            0xFFE53935
-                        )
-
-                )
-
-
-                Spacer(
-                    Modifier.width(
-                        12.dp
-                    )
-                )
-
-
-                Column {
-
-                    Text(
-
-                        text =
-                            "My Favorites",
-
-                        style =
-                            MaterialTheme
-                                .typography
-                                .titleMedium
-
-                    )
-
-
-                    Text(
-
-                        text =
-                            "View your saved services",
-
-                        color =
-                            Color.Gray
-
-                    )
-
-                }
-
-            }
-
-        }
-
-
-        Spacer(
-            Modifier.height(
-                14.dp
-            )
-        )
-
-
-        // =====================================================
-        // NOTIFICATIONS
-        // =====================================================
-
-        Card(
-
-            modifier =
-                Modifier.fillMaxWidth(),
-
-            shape =
-                RoundedCornerShape(
-                    24.dp
-                ),
-
-            colors =
-                CardDefaults.cardColors(
-
-                    containerColor =
-                        Color(
-                            0xFFE3F2FD
-                        )
-
-                ),
-
-            onClick = {
-
-                navController.navigate(
-                    Screen.Notifications.route
-                )
-
-            }
-
-        ) {
-
-            Row(
-
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            18.dp
-                        ),
-
-                verticalAlignment =
-                    Alignment.CenterVertically
-
-            ) {
-
-                Icon(
-
-                    imageVector =
-                        Icons.Default.Notifications,
-
-                    contentDescription =
-                        null,
-
-                    tint =
-                        Color(
-                            0xFF1565C0
-                        )
-
-                )
-
-
-                Spacer(
-                    Modifier.width(
-                        12.dp
-                    )
-                )
-
-
-                Column {
-
-                    Text(
-
-                        text =
-                            "Notifications",
-
-                        style =
-                            MaterialTheme
-                                .typography
-                                .titleMedium
-
-                    )
-
-
-                    Text(
-
-                        text =
-                            "View booking and service updates",
-
-                        color =
-                            Color.Gray
-
-                    )
-
-                }
-
-            }
-
-        }
-
-
-        Spacer(
-            Modifier.height(
-                14.dp
-            )
-        )
-
-
-        // =====================================================
-        // SERVICE REMINDERS
-        // =====================================================
-
-        Card(
-
-            modifier =
-                Modifier.fillMaxWidth(),
-
-            shape =
-                RoundedCornerShape(
-                    24.dp
-                ),
-
-            colors =
-                CardDefaults.cardColors(
-
-                    containerColor =
-                        Color(
-                            0xFFFFF3E0
-                        )
-
-                ),
-
-            onClick = {
-
-                navController.navigate(
-                    Screen.ServiceReminders.route
-                )
-
-            }
-
-        ) {
-
-            Row(
-
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            18.dp
-                        ),
-
-                verticalAlignment =
-                    Alignment.CenterVertically
-
-            ) {
-
-                Icon(
-
-                    imageVector =
-                        Icons.Default.NotificationsActive,
-
-                    contentDescription =
-                        null,
-
-                    tint =
-                        Color(
-                            0xFFFF8F00
-                        )
-
-                )
-
-
-                Spacer(
-                    Modifier.width(
-                        12.dp
-                    )
-                )
-
-
-                Column {
-
-                    Text(
-
-                        text =
-                            "Service Reminders",
-
-                        style =
-                            MaterialTheme
-                                .typography
-                                .titleMedium
-
-                    )
-
-
-                    Text(
-
-                        text =
-                            "View upcoming servicing dates",
-
-                        color =
-                            Color.Gray
-
-                    )
-
-                }
-
-            }
-
-        }
-
-
-        Spacer(
-            Modifier.height(
-                30.dp
-            )
-        )
-
-
-        // =====================================================
-        // CATEGORIES
-        // =====================================================
-
-        Text(
-
-            text =
-                "Categories",
-
-            style =
-                MaterialTheme
-                    .typography
-                    .titleLarge
-
-        )
-
-
-        Spacer(
-            Modifier.height(
-                15.dp
-            )
-        )
-
-
-        Row(
-
-            modifier =
-                Modifier.horizontalScroll(
-
-                    rememberScrollState()
-
-                ),
-
-            horizontalArrangement =
-                Arrangement.spacedBy(
-                    14.dp
-                )
-
-        ) {
-
-
-            categories.forEach { category ->
-
-
-                CategoryChip(
-
-                    icon =
-                        when (
-                            category.category_name
-                        ) {
-
-                            "Cleaning" ->
-                                "🧹"
-
-                            "AC Service" ->
-                                "❄️"
-
-                            "Plumbing" ->
-                                "🚰"
-
-                            "Electrician" ->
-                                "⚡"
-
-                            else ->
-                                "🔧"
-
-                        },
-
-                    name =
-                        category.category_name,
-
-                    onClick = {
-
-                        val area =
-                            selectedArea
-
-
-                        if (
-                            area == null
-                        ) {
-
-                            showSelectAreaDialog =
-                                true
-
-                        } else {
-
-                            navController.navigate(
-
-                                "services/" +
-                                        "${category.category_id}" +
-                                        "?areaId=${area.area_id}" +
-                                        "&areaName=${
-                                            android.net.Uri.encode(
-                                                area.area_name
+                                    modifier =
+                                        Modifier
+                                            .align(
+                                                Alignment.TopEnd
                                             )
-                                        }"
+                                            .offset(
+                                                x = 7.dp,
+                                                y = (-5).dp
+                                            )
+                                            .size(
+                                                17.dp
+                                            )
+                                            .background(
 
-                            )
+                                                Color(
+                                                    0xFFD32F2F
+                                                ),
+
+                                                CircleShape
+
+                                            ),
+
+                                    contentAlignment =
+                                        Alignment.Center
+
+                                ) {
+
+                                    Text(
+
+                                        text =
+
+                                            if (
+                                                unreadNotificationCount > 9
+                                            ) {
+
+                                                "9+"
+
+                                            } else {
+
+                                                unreadNotificationCount
+                                                    .toString()
+
+                                            },
+
+                                        color =
+                                            Color.White,
+
+                                        fontSize =
+                                            9.sp,
+
+                                        fontWeight =
+                                            FontWeight.Bold
+
+                                    )
+
+                                }
+
+                            }
 
                         }
+
+                    },
+
+                    label = {
+
+                        Text(
+                            "Alerts"
+                        )
 
                     }
 
@@ -1194,71 +781,705 @@ fun HomeScreen(
 
         }
 
-
-        Spacer(
-            Modifier.height(
-                35.dp
-            )
-        )
+    ) { paddingValues ->
 
 
-        // =====================================================
-        // PROMOTIONAL CARD
-        // =====================================================
-
-        Card(
+        Column(
 
             modifier =
-                Modifier.fillMaxWidth(),
+                Modifier
+                    .fillMaxSize()
+                    .background(
 
-            shape =
-                RoundedCornerShape(
-                    30.dp
-                ),
+                        Brush.verticalGradient(
 
-            colors =
-                CardDefaults.cardColors(
+                            colors =
+                                listOf(
 
-                    containerColor =
-                        Color(
-                            0xFFDDF8F3
+                                    Color(
+                                        0xFFE8FAF6
+                                    ),
+
+                                    background,
+
+                                    Color.White
+
+                                )
+
                         )
 
-                )
+                    )
+                    .verticalScroll(
+                        rememberScrollState()
+                    )
+                    .padding(
+                        paddingValues
+                    )
+                    .padding(
+                        horizontal = 20.dp
+                    )
 
         ) {
 
-            Column(
+
+            Spacer(
+                Modifier.height(
+                    22.dp
+                )
+            )
+
+
+            // =================================================
+            // HEADER
+            // =================================================
+
+            Row(
 
                 modifier =
-                    Modifier.padding(
-                        25.dp
+                    Modifier.fillMaxWidth(),
+
+                horizontalArrangement =
+                    Arrangement.SpaceBetween,
+
+                verticalAlignment =
+                    Alignment.CenterVertically
+
+            ) {
+
+
+                Column(
+
+                    modifier =
+                        Modifier.weight(1f)
+
+                ) {
+
+                    Text(
+
+                        text =
+                            "Good Morning 👋",
+
+                        style =
+                            MaterialTheme
+                                .typography
+                                .headlineMedium,
+
+                        fontWeight =
+                            FontWeight.Bold
+
                     )
+
+
+                    Spacer(
+                        Modifier.height(4.dp)
+                    )
+
+
+                    Text(
+
+                        text =
+                            "What service do you need today?",
+
+                        style =
+                            MaterialTheme
+                                .typography
+                                .bodyLarge,
+
+                        color =
+                            textSecondary
+
+                    )
+
+                }
+
+
+                // =================================================
+                // HEADER ACTIONS
+                // =================================================
+
+                Row(
+
+                    horizontalArrangement =
+                        Arrangement.spacedBy(
+                            8.dp
+                        ),
+
+                    verticalAlignment =
+                        Alignment.CenterVertically
+
+                ) {
+
+
+                    // =============================================
+                    // NOTIFICATION
+                    // =============================================
+
+                    Box {
+
+
+                        Surface(
+
+                            modifier =
+                                Modifier
+                                    .size(48.dp)
+                                    .clickable {
+
+                                        navController.navigate(
+                                            Screen.Notifications.route
+                                        )
+
+                                    },
+
+                            shape =
+                                CircleShape,
+
+                            color =
+                                Color.White,
+
+                            shadowElevation =
+                                4.dp
+
+                        ) {
+
+                            Box(
+
+                                contentAlignment =
+                                    Alignment.Center
+
+                            ) {
+
+                                Icon(
+
+                                    imageVector =
+                                        Icons.Default.Notifications,
+
+                                    contentDescription =
+                                        "Notifications",
+
+                                    tint =
+                                        darkPrimary
+
+                                )
+
+                            }
+
+                        }
+
+
+                        if (
+                            unreadNotificationCount > 0
+                        ) {
+
+                            Box(
+
+                                modifier =
+                                    Modifier
+                                        .align(
+                                            Alignment.TopEnd
+                                        )
+                                        .size(
+                                            20.dp
+                                        )
+                                        .background(
+
+                                            Color(
+                                                0xFFD32F2F
+                                            ),
+
+                                            CircleShape
+
+                                        ),
+
+                                contentAlignment =
+                                    Alignment.Center
+
+                            ) {
+
+                                Text(
+
+                                    text =
+
+                                        if (
+                                            unreadNotificationCount > 9
+                                        ) {
+
+                                            "9+"
+
+                                        } else {
+
+                                            unreadNotificationCount
+                                                .toString()
+
+                                        },
+
+                                    color =
+                                        Color.White,
+
+                                    fontSize =
+                                        10.sp,
+
+                                    fontWeight =
+                                        FontWeight.Bold
+
+                                )
+
+                            }
+
+                        }
+
+                    }
+
+
+                    // =============================================
+                    // LOGOUT
+                    // =============================================
+
+                    Surface(
+
+                        modifier =
+                            Modifier
+                                .size(
+                                    48.dp
+                                )
+                                .clickable {
+
+                                    showLogoutDialog =
+                                        true
+
+                                },
+
+                        shape =
+                            CircleShape,
+
+                        color =
+                            Color.White,
+
+                        shadowElevation =
+                            4.dp
+
+                    ) {
+
+                        Box(
+
+                            contentAlignment =
+                                Alignment.Center
+
+                        ) {
+
+                            Icon(
+
+                                imageVector =
+                                    Icons.Default.Logout,
+
+                                contentDescription =
+                                    "Log out",
+
+                                tint =
+                                    Color(
+                                        0xFFC62828
+                                    )
+
+                            )
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+
+            Spacer(
+                Modifier.height(
+                    24.dp
+                )
+            )
+
+
+            // =================================================
+            // SEARCH
+            // =================================================
+
+            OutlinedTextField(
+
+                value =
+                    searchText,
+
+                onValueChange = {
+
+                    searchText =
+                        it
+
+                },
+
+                leadingIcon = {
+
+                    Icon(
+
+                        imageVector =
+                            Icons.Default.Search,
+
+                        contentDescription =
+                            null,
+
+                        tint =
+                            primary
+
+                    )
+
+                },
+
+                placeholder = {
+
+                    Text(
+                        "Search cleaning, AC, plumbing..."
+                    )
+
+                },
+
+                singleLine =
+                    true,
+
+                modifier =
+                    Modifier.fillMaxWidth(),
+
+                shape =
+                    RoundedCornerShape(
+                        20.dp
+                    ),
+
+                colors =
+                    OutlinedTextFieldDefaults.colors(
+
+                        focusedContainerColor =
+                            Color.White,
+
+                        unfocusedContainerColor =
+                            Color.White,
+
+                        focusedBorderColor =
+                            primary,
+
+                        unfocusedBorderColor =
+                            Color(
+                                0xFFD6E2DF
+                            )
+
+                    )
+
+            )
+
+
+            Spacer(
+                Modifier.height(
+                    18.dp
+                )
+            )
+
+
+            // =================================================
+            // LOCATION
+            // =================================================
+
+            Card(
+
+                modifier =
+                    Modifier.fillMaxWidth(),
+
+                shape =
+                    RoundedCornerShape(
+                        22.dp
+                    ),
+
+                colors =
+                    CardDefaults.cardColors(
+
+                        containerColor =
+                            Color.White
+
+                    ),
+
+                elevation =
+                    CardDefaults.cardElevation(
+                        2.dp
+                    )
+
+            ) {
+
+                Column(
+
+                    modifier =
+                        Modifier.padding(
+                            16.dp
+                        )
+
+                ) {
+
+
+                    Row(
+
+                        verticalAlignment =
+                            Alignment.CenterVertically
+
+                    ) {
+
+                        Surface(
+
+                            modifier =
+                                Modifier.size(
+                                    40.dp
+                                ),
+
+                            shape =
+                                CircleShape,
+
+                            color =
+                                softMint
+
+                        ) {
+
+                            Box(
+
+                                contentAlignment =
+                                    Alignment.Center
+
+                            ) {
+
+                                Icon(
+
+                                    imageVector =
+                                        Icons.Default.LocationOn,
+
+                                    contentDescription =
+                                        null,
+
+                                    tint =
+                                        primary
+
+                                )
+
+                            }
+
+                        }
+
+
+                        Spacer(
+                            Modifier.width(
+                                12.dp
+                            )
+                        )
+
+
+                        Column {
+
+                            Text(
+
+                                text =
+                                    "Your service area",
+
+                                style =
+                                    MaterialTheme
+                                        .typography
+                                        .labelMedium,
+
+                                color =
+                                    textSecondary
+
+                            )
+
+
+                            Text(
+
+                                text =
+                                    selectedArea
+                                        ?.area_name
+                                        ?: "Select where you need service",
+
+                                style =
+                                    MaterialTheme
+                                        .typography
+                                        .titleMedium,
+
+                                fontWeight =
+                                    FontWeight.SemiBold
+
+                            )
+
+                        }
+
+                    }
+
+
+                    Spacer(
+                        Modifier.height(
+                            12.dp
+                        )
+                    )
+
+
+                    ExposedDropdownMenuBox(
+
+                        expanded =
+                            areaExpanded,
+
+                        onExpandedChange = {
+
+                            areaExpanded =
+                                !areaExpanded
+
+                        }
+
+                    ) {
+
+
+                        OutlinedTextField(
+
+                            value =
+                                selectedArea
+                                    ?.area_name
+                                    ?: "",
+
+                            onValueChange = {},
+
+                            readOnly =
+                                true,
+
+                            placeholder = {
+
+                                Text(
+                                    "Choose area"
+                                )
+
+                            },
+
+                            trailingIcon = {
+
+                                ExposedDropdownMenuDefaults
+                                    .TrailingIcon(
+
+                                        expanded =
+                                            areaExpanded
+
+                                    )
+
+                            },
+
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .menuAnchor(),
+
+                            shape =
+                                RoundedCornerShape(
+                                    16.dp
+                                )
+
+                        )
+
+
+                        ExposedDropdownMenu(
+
+                            expanded =
+                                areaExpanded,
+
+                            onDismissRequest = {
+
+                                areaExpanded =
+                                    false
+
+                            }
+
+                        ) {
+
+
+                            areas.forEach { area ->
+
+
+                                DropdownMenuItem(
+
+                                    text = {
+
+                                        Text(
+                                            area.area_name
+                                        )
+
+                                    },
+
+                                    leadingIcon = {
+
+                                        Icon(
+
+                                            imageVector =
+                                                Icons.Default.LocationOn,
+
+                                            contentDescription =
+                                                null
+
+                                        )
+
+                                    },
+
+                                    onClick = {
+
+                                        selectedArea =
+                                            area
+
+
+                                        areaExpanded =
+                                            false
+
+                                    }
+
+                                )
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+
+            Spacer(
+                Modifier.height(
+                    28.dp
+                )
+            )
+
+
+            // =================================================
+            // SERVICES HEADER
+            // =================================================
+
+            Row(
+
+                modifier =
+                    Modifier.fillMaxWidth(),
+
+                horizontalArrangement =
+                    Arrangement.SpaceBetween,
+
+                verticalAlignment =
+                    Alignment.CenterVertically
 
             ) {
 
                 Text(
 
                     text =
-                        "20% OFF",
-
-                    color =
-                        Color(
-                            0xFF00897B
-                        )
-
-                )
-
-
-                Text(
-
-                    text =
-                        "Home Cleaning",
+                        "Services",
 
                     style =
                         MaterialTheme
                             .typography
-                            .headlineSmall
+                            .titleLarge,
+
+                    fontWeight =
+                        FontWeight.Bold
 
                 )
 
@@ -1266,86 +1487,1036 @@ fun HomeScreen(
                 Text(
 
                     text =
-                        "Professional cleaning at your doorstep"
+                        "${filteredCategories.size} available",
+
+                    style =
+                        MaterialTheme
+                            .typography
+                            .bodySmall,
+
+                    color =
+                        primary
 
                 )
 
+            }
 
-                Spacer(
-                    Modifier.height(
-                        15.dp
+
+            Spacer(
+                Modifier.height(
+                    14.dp
+                )
+            )
+
+
+            // =================================================
+            // CATEGORY SEARCH EMPTY
+            // =================================================
+
+            if (
+                filteredCategories.isEmpty()
+            ) {
+
+                Card(
+
+                    modifier =
+                        Modifier.fillMaxWidth(),
+
+                    shape =
+                        RoundedCornerShape(
+                            20.dp
+                        ),
+
+                    colors =
+                        CardDefaults.cardColors(
+
+                            containerColor =
+                                Color.White
+
+                        )
+
+                ) {
+
+                    Column(
+
+                        modifier =
+                            Modifier.padding(
+                                24.dp
+                            ),
+
+                        horizontalAlignment =
+                            Alignment.CenterHorizontally
+
+                    ) {
+
+                        Text(
+
+                            text =
+                                "🔎",
+
+                            fontSize =
+                                36.sp
+
+                        )
+
+
+                        Spacer(
+                            Modifier.height(
+                                8.dp
+                            )
+                        )
+
+
+                        Text(
+
+                            text =
+                                "No service found",
+
+                            fontWeight =
+                                FontWeight.Bold
+
+                        )
+
+
+                        Text(
+
+                            text =
+                                "Try another search term.",
+
+                            color =
+                                textSecondary
+
+                        )
+
+                    }
+
+                }
+
+            } else {
+
+
+                filteredCategories
+                    .chunked(
+                        2
                     )
-                )
+                    .forEach { rowCategories ->
 
 
-                Button(
+                        Row(
 
-                    onClick = {
+                            modifier =
+                                Modifier.fillMaxWidth(),
 
-                        val area =
-                            selectedArea
+                            horizontalArrangement =
+                                Arrangement.spacedBy(
+                                    12.dp
+                                )
 
-
-                        if (
-                            area == null
                         ) {
 
-                            showSelectAreaDialog =
-                                true
 
-                        } else {
+                            rowCategories
+                                .forEach { category ->
 
-                            categories
-                                .firstOrNull {
 
-                                    it.category_name ==
-                                            "Cleaning"
+                                    ServiceCategoryCard(
 
-                                }
-                                ?.let { category ->
+                                        modifier =
+                                            Modifier.weight(
+                                                1f
+                                            ),
 
-                                    navController.navigate(
+                                        title =
+                                            category.category_name,
 
-                                        "services/" +
-                                                "${category.category_id}" +
-                                                "?areaId=${area.area_id}" +
-                                                "&areaName=${
-                                                    android.net.Uri.encode(
-                                                        area.area_name
-                                                    )
-                                                }"
+                                        emoji =
+                                            categoryEmoji(
+                                                category.category_name
+                                            ),
+
+                                        primary =
+                                            primary,
+
+                                        onClick = {
+
+
+                                            val area =
+                                                selectedArea
+
+
+                                            if (
+                                                area == null
+                                            ) {
+
+                                                showSelectAreaDialog =
+                                                    true
+
+                                            } else {
+
+
+                                                navController.navigate(
+
+                                                    "services/" +
+                                                            "${category.category_id}" +
+                                                            "?areaId=${area.area_id}" +
+                                                            "&areaName=${
+                                                                android.net.Uri.encode(
+                                                                    area.area_name
+                                                                )
+                                                            }" +
+                                                            "&promo=false"
+
+                                                )
+
+                                            }
+
+                                        }
 
                                     )
 
                                 }
 
+
+                            if (
+                                rowCategories.size == 1
+                            ) {
+
+                                Spacer(
+
+                                    modifier =
+                                        Modifier.weight(
+                                            1f
+                                        )
+
+                                )
+
+                            }
+
                         }
 
-                    },
 
-                    shape =
-                        RoundedCornerShape(
-                            30.dp
+                        Spacer(
+                            Modifier.height(
+                                12.dp
+                            )
                         )
+
+                    }
+
+            }
+
+
+            Spacer(
+                Modifier.height(
+                    16.dp
+                )
+            )
+
+
+            // =================================================
+            // SERVICE REMINDER
+            // =================================================
+
+            Text(
+
+                text =
+                    "Keep your home cared for",
+
+                style =
+                    MaterialTheme
+                        .typography
+                        .titleLarge,
+
+                fontWeight =
+                    FontWeight.Bold
+
+            )
+
+
+            Spacer(
+                Modifier.height(
+                    12.dp
+                )
+            )
+
+
+            Card(
+
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable {
+
+                            navController.navigate(
+                                Screen.ServiceReminders.route
+                            )
+
+                        },
+
+                shape =
+                    RoundedCornerShape(
+                        22.dp
+                    ),
+
+                colors =
+                    CardDefaults.cardColors(
+
+                        containerColor =
+                            Color(
+                                0xFFFFF4DE
+                            )
+
+                    )
+
+            ) {
+
+                Row(
+
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                18.dp
+                            ),
+
+                    verticalAlignment =
+                        Alignment.CenterVertically
 
                 ) {
 
-                    Text(
-                        "Book Now"
+
+                    Surface(
+
+                        modifier =
+                            Modifier.size(
+                                46.dp
+                            ),
+
+                        shape =
+                            CircleShape,
+
+                        color =
+                            Color(
+                                0xFFFFE7B5
+                            )
+
+                    ) {
+
+                        Box(
+
+                            contentAlignment =
+                                Alignment.Center
+
+                        ) {
+
+                            Icon(
+
+                                imageVector =
+                                    Icons.Default.NotificationsActive,
+
+                                contentDescription =
+                                    null,
+
+                                tint =
+                                    Color(
+                                        0xFFFF8F00
+                                    )
+
+                            )
+
+                        }
+
+                    }
+
+
+                    Spacer(
+                        Modifier.width(
+                            14.dp
+                        )
+                    )
+
+
+                    Column(
+
+                        modifier =
+                            Modifier.weight(
+                                1f
+                            )
+
+                    ) {
+
+                        Text(
+
+                            text =
+                                "Service Reminders",
+
+                            style =
+                                MaterialTheme
+                                    .typography
+                                    .titleMedium,
+
+                            fontWeight =
+                                FontWeight.SemiBold
+
+                        )
+
+
+                        Text(
+
+                            text =
+                                "Check your upcoming servicing dates",
+
+                            style =
+                                MaterialTheme
+                                    .typography
+                                    .bodyMedium,
+
+                            color =
+                                textSecondary
+
+                        )
+
+                    }
+
+
+                    Icon(
+
+                        imageVector =
+                            Icons.Default.KeyboardArrowRight,
+
+                        contentDescription =
+                            null,
+
+                        tint =
+                            textSecondary
+
                     )
 
                 }
 
             }
 
+
+            Spacer(
+                Modifier.height(
+                    26.dp
+                )
+            )
+
+
+            // =================================================
+            // PROMOTION TITLE
+            // =================================================
+
+            Text(
+
+                text =
+                    "Special for you",
+
+                style =
+                    MaterialTheme
+                        .typography
+                        .titleLarge,
+
+                fontWeight =
+                    FontWeight.Bold
+
+            )
+
+
+            Spacer(
+                Modifier.height(
+                    12.dp
+                )
+            )
+
+
+            // =================================================
+            // PROMOTIONAL CARD
+            // =================================================
+
+            Card(
+
+                modifier =
+                    Modifier.fillMaxWidth(),
+
+                shape =
+                    RoundedCornerShape(
+                        28.dp
+                    ),
+
+                colors =
+                    CardDefaults.cardColors(
+
+                        containerColor =
+                            Color.Transparent
+
+                    )
+
+            ) {
+
+                Box(
+
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .background(
+
+                                Brush.horizontalGradient(
+
+                                    listOf(
+
+                                        Color(
+                                            0xFF00695C
+                                        ),
+
+                                        Color(
+                                            0xFF26A69A
+                                        )
+
+                                    )
+
+                                )
+
+                            )
+                            .padding(
+                                22.dp
+                            )
+
+                ) {
+
+
+                    Row(
+
+                        modifier =
+                            Modifier.fillMaxWidth(),
+
+                        verticalAlignment =
+                            Alignment.CenterVertically
+
+                    ) {
+
+
+                        Column(
+
+                            modifier =
+                                Modifier.weight(
+                                    1f
+                                )
+
+                        ) {
+
+                            Surface(
+
+                                color =
+                                    Color.White.copy(
+                                        alpha = 0.18f
+                                    ),
+
+                                shape =
+                                    RoundedCornerShape(
+                                        50.dp
+                                    )
+
+                            ) {
+
+                                Text(
+
+                                    text =
+                                        "20% OFF",
+
+                                    modifier =
+                                        Modifier.padding(
+                                            horizontal = 12.dp,
+                                            vertical = 5.dp
+                                        ),
+
+                                    color =
+                                        Color.White,
+
+                                    fontWeight =
+                                        FontWeight.Bold
+
+                                )
+
+                            }
+
+
+                            Spacer(
+                                Modifier.height(
+                                    12.dp
+                                )
+                            )
+
+
+                            Text(
+
+                                text =
+                                    "Home Cleaning",
+
+                                fontSize =
+                                    24.sp,
+
+                                fontWeight =
+                                    FontWeight.Bold,
+
+                                color =
+                                    Color.White
+
+                            )
+
+
+                            Text(
+
+                                text =
+                                    "Give your home a fresh start.",
+
+                                color =
+                                    Color.White.copy(
+                                        alpha = 0.85f
+                                    )
+
+                            )
+
+
+                            Spacer(
+                                Modifier.height(
+                                    16.dp
+                                )
+                            )
+
+
+                            Button(
+
+                                onClick = {
+
+
+                                    val area =
+                                        selectedArea
+
+
+                                    if (
+                                        area == null
+                                    ) {
+
+                                        showSelectAreaDialog =
+                                            true
+
+                                    } else {
+
+                                        categories
+                                            .firstOrNull {
+
+                                                it.category_name
+                                                    .equals(
+                                                        "Cleaning",
+                                                        ignoreCase = true
+                                                    )
+
+                                            }
+                                            ?.let { category ->
+
+
+                                                navController.navigate(
+
+                                                    "services/" +
+                                                            "${category.category_id}" +
+                                                            "?areaId=${area.area_id}" +
+                                                            "&areaName=${
+                                                                android.net.Uri.encode(
+                                                                    area.area_name
+                                                                )
+                                                            }" +
+                                                            "&promo=true"
+
+                                                )
+
+                                            }
+
+                                    }
+
+                                },
+
+                                colors =
+                                    ButtonDefaults.buttonColors(
+
+                                        containerColor =
+                                            Color.White,
+
+                                        contentColor =
+                                            darkPrimary
+
+                                    ),
+
+                                shape =
+                                    RoundedCornerShape(
+                                        16.dp
+                                    )
+
+                            ) {
+
+                                Text(
+
+                                    text =
+                                        "Explore Cleaning",
+
+                                    fontWeight =
+                                        FontWeight.Bold
+
+                                )
+
+                            }
+
+                        }
+
+
+                        Spacer(
+                            Modifier.width(
+                                12.dp
+                            )
+                        )
+
+
+                        Surface(
+
+                            modifier =
+                                Modifier.size(
+                                    94.dp
+                                ),
+
+                            shape =
+                                RoundedCornerShape(
+                                    28.dp
+                                ),
+
+                            color =
+                                Color.White.copy(
+                                    alpha = 0.15f
+                                )
+
+                        ) {
+
+                            Box(
+
+                                contentAlignment =
+                                    Alignment.Center
+
+                            ) {
+
+                                Text(
+
+                                    text =
+                                        "🧹",
+
+                                    fontSize =
+                                        54.sp
+
+                                )
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+
+            Spacer(
+                Modifier.height(
+                    30.dp
+                )
+            )
+
+        }
+
+    }
+
+}
+
+
+// =====================================================
+// CATEGORY CARD
+// =====================================================
+
+@Composable
+private fun ServiceCategoryCard(
+
+    modifier: Modifier = Modifier,
+
+    title: String,
+
+    emoji: String,
+
+    primary: Color,
+
+    onClick: () -> Unit
+
+) {
+
+
+    Card(
+
+        modifier =
+            modifier
+                .height(
+                    150.dp
+                )
+                .clickable {
+
+                    onClick()
+
+                },
+
+        shape =
+            RoundedCornerShape(
+                24.dp
+            ),
+
+        colors =
+            CardDefaults.cardColors(
+
+                containerColor =
+                    Color.White
+
+            ),
+
+        elevation =
+            CardDefaults.cardElevation(
+                3.dp
+            )
+
+    ) {
+
+
+        Column(
+
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(
+                        16.dp
+                    ),
+
+            horizontalAlignment =
+                Alignment.CenterHorizontally,
+
+            verticalArrangement =
+                Arrangement.Center
+
+        ) {
+
+
+            Surface(
+
+                modifier =
+                    Modifier.size(
+                        68.dp
+                    ),
+
+                shape =
+                    RoundedCornerShape(
+                        22.dp
+                    ),
+
+                color =
+                    Color(
+                        0xFFE7F7F4
+                    )
+
+            ) {
+
+                Box(
+
+                    contentAlignment =
+                        Alignment.Center
+
+                ) {
+
+                    Text(
+
+                        text =
+                            emoji,
+
+                        fontSize =
+                            38.sp
+
+                    )
+
+                }
+
+            }
+
+
+            Spacer(
+                Modifier.height(
+                    10.dp
+                )
+            )
+
+
+            Text(
+
+                text =
+                    title,
+
+                style =
+                    MaterialTheme
+                        .typography
+                        .titleSmall,
+
+                fontWeight =
+                    FontWeight.SemiBold,
+
+                maxLines =
+                    1,
+
+                overflow =
+                    TextOverflow.Ellipsis
+
+            )
+
+
+            Spacer(
+                Modifier.height(
+                    3.dp
+                )
+            )
+
+
+            Text(
+
+                text =
+                    "View services",
+
+                style =
+                    MaterialTheme
+                        .typography
+                        .bodySmall,
+
+                color =
+                    primary
+
+            )
+
+        }
+
+    }
+
+}
+
+
+// =====================================================
+// CATEGORY VISUAL
+// =====================================================
+
+private fun categoryEmoji(
+
+    categoryName: String
+
+): String {
+
+
+    return when {
+
+
+        categoryName.contains(
+            "clean",
+            ignoreCase = true
+        ) -> {
+
+            "🧹"
+
         }
 
 
-        Spacer(
-            Modifier.height(
-                30.dp
-            )
-        )
+        categoryName.contains(
+            "ac",
+            ignoreCase = true
+        ) -> {
+
+            "❄️"
+
+        }
+
+
+        categoryName.contains(
+            "plumb",
+            ignoreCase = true
+        ) -> {
+
+            "🚰"
+
+        }
+
+
+        categoryName.contains(
+            "electric",
+            ignoreCase = true
+        ) -> {
+
+            "⚡"
+
+        }
+
+
+        categoryName.contains(
+            "paint",
+            ignoreCase = true
+        ) -> {
+
+            "🎨"
+
+        }
+
+
+        categoryName.contains(
+            "repair",
+            ignoreCase = true
+        ) -> {
+
+            "🛠️"
+
+        }
+
+
+        categoryName.contains(
+            "carpenter",
+            ignoreCase = true
+        ) -> {
+
+            "🪚"
+
+        }
+
+
+        categoryName.contains(
+            "beauty",
+            ignoreCase = true
+        ) -> {
+
+            "✨"
+
+        }
+
+
+        categoryName.contains(
+            "pest",
+            ignoreCase = true
+        ) -> {
+
+            "🐜"
+
+        }
+
+
+        else -> {
+
+            "🔧"
+
+        }
 
     }
 

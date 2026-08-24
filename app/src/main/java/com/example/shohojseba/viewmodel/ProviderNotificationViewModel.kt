@@ -12,7 +12,7 @@ import com.example.shohojseba.data.repository.NotificationRepository
 import kotlinx.coroutines.launch
 
 
-class NotificationViewModel : ViewModel() {
+class ProviderNotificationViewModel : ViewModel() {
 
 
     private val repository =
@@ -20,7 +20,7 @@ class NotificationViewModel : ViewModel() {
 
 
     // =====================================================
-    // CUSTOMER NOTIFICATIONS
+    // NOTIFICATIONS
     // =====================================================
 
     private val _notifications =
@@ -54,15 +54,18 @@ class NotificationViewModel : ViewModel() {
             _notifications
                 .value
                 .count {
+
                     !it.is_read
+
                 }
 
 
     // =====================================================
-    // LOAD CUSTOMER NOTIFICATIONS
+    // LOAD PROVIDER NOTIFICATIONS
     // =====================================================
 
     fun loadNotifications() {
+
 
         viewModelScope.launch {
 
@@ -73,7 +76,7 @@ class NotificationViewModel : ViewModel() {
 
             val result =
                 repository
-                    .getCustomerNotifications()
+                    .getProviderNotifications()
 
 
             if (
@@ -97,7 +100,7 @@ class NotificationViewModel : ViewModel() {
 
 
     // =====================================================
-    // MARK ONE AS READ
+    // MARK ONE READ
     // =====================================================
 
     fun markAsRead(
@@ -105,6 +108,7 @@ class NotificationViewModel : ViewModel() {
         notificationId: Long
 
     ) {
+
 
         viewModelScope.launch {
 
@@ -119,6 +123,7 @@ class NotificationViewModel : ViewModel() {
             if (
                 result.isSuccess
             ) {
+
 
                 _notifications.value =
                     _notifications
@@ -151,22 +156,24 @@ class NotificationViewModel : ViewModel() {
 
 
     // =====================================================
-    // MARK ALL CUSTOMER NOTIFICATIONS AS READ
+    // MARK ALL READ
     // =====================================================
 
     fun markAllAsRead() {
+
 
         viewModelScope.launch {
 
 
             val result =
                 repository
-                    .markAllAsRead()
+                    .markAllProviderAsRead()
 
 
             if (
                 result.isSuccess
             ) {
+
 
                 _notifications.value =
                     _notifications

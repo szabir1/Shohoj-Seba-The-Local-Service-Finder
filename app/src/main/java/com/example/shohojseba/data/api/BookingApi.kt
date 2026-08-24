@@ -2,6 +2,8 @@ package com.example.shohojseba.data.api
 
 import com.example.shohojseba.data.model.Booking
 import com.example.shohojseba.data.model.BookingRequest
+import com.example.shohojseba.data.model.QuotationUpdate
+
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
@@ -9,12 +11,21 @@ import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Query
 
+
 interface BookingApi {
+
+
+    // =====================================================
+    // CREATE BOOKING / QUOTATION REQUEST
+    // =====================================================
 
     @Headers("Prefer: return=representation")
     @POST("booking")
     suspend fun createBooking(
-        @Body booking: BookingRequest
+
+        @Body
+        booking: BookingRequest
+
     ): List<Booking>
 
 
@@ -53,7 +64,7 @@ interface BookingApi {
 
 
     // =====================================================
-    // UPDATE STATUS
+    // UPDATE BOOKING STATUS
     // =====================================================
 
     @Headers("Prefer: return=representation")
@@ -67,4 +78,22 @@ interface BookingApi {
         body: Map<String, String>
 
     ): List<Booking>
+
+
+    // =====================================================
+    // PROVIDER SENDS QUOTATION
+    // =====================================================
+
+    @Headers("Prefer: return=representation")
+    @PATCH("booking")
+    suspend fun sendQuotation(
+
+        @Query("booking_id")
+        bookingId: String,
+
+        @Body
+        quotation: QuotationUpdate
+
+    ): List<Booking>
+
 }

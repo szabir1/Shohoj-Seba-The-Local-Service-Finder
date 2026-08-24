@@ -2,6 +2,7 @@ package com.example.shohojseba.data.model
 
 import com.google.gson.annotations.SerializedName
 
+
 data class Booking(
 
     @SerializedName("booking_id")
@@ -35,22 +36,57 @@ data class Booking(
     val serviceId: Long = 0,
 
 
-    // Joined Customer
+    // =====================================================
+    // PROMOTION
+    // =====================================================
+
+    @SerializedName("original_price")
+    val originalPrice: Double? = null,
+
+    @SerializedName("discount_percent")
+    val discountPercent: Double = 0.0,
+
+    @SerializedName("final_price")
+    val finalPrice: Double? = null,
+
+
+    // =====================================================
+    // QUOTATION
+    // =====================================================
+
+    @SerializedName("quotation_requested")
+    val quotationRequested: Boolean = false,
+
+    @SerializedName("quoted_price")
+    val quotedPrice: Double? = null,
+
+    @SerializedName("quotation_message")
+    val quotationMessage: String? = null,
+
+
+    // =====================================================
+    // JOINED CUSTOMER
+    // =====================================================
 
     @SerializedName("customer")
     val customer: BookingCustomer? = null,
 
 
-    // Joined Provider
+    // =====================================================
+    // JOINED PROVIDER
+    // =====================================================
 
     @SerializedName("provider")
     val provider: BookingProvider? = null,
 
 
-    // Joined Service
+    // =====================================================
+    // JOINED SERVICE
+    // =====================================================
 
     @SerializedName("service")
     val service: BookingService? = null
+
 )
 
 
@@ -64,6 +100,7 @@ data class BookingCustomer(
 
     @SerializedName("phone")
     val phone: String = ""
+
 )
 
 
@@ -77,6 +114,7 @@ data class BookingProvider(
 
     @SerializedName("phone")
     val phone: String = ""
+
 )
 
 
@@ -87,4 +125,5 @@ data class BookingService(
 
     @SerializedName("service_name")
     val serviceName: String = ""
+
 )

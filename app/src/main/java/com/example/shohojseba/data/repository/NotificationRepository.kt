@@ -15,13 +15,39 @@ class NotificationRepository {
 
 
     // =====================================================
-    // INSERT MODEL
+    // CUSTOMER INSERT MODEL
     // =====================================================
 
     @Serializable
-    private data class NotificationInsert(
+    private data class CustomerNotificationInsert(
 
         val customer_id: Long,
+
+        val provider_id: Long? = null,
+
+        val booking_id: Long?,
+
+        val title: String,
+
+        val message: String,
+
+        val notification_type: String,
+
+        val is_read: Boolean = false
+
+    )
+
+
+    // =====================================================
+    // PROVIDER INSERT MODEL
+    // =====================================================
+
+    @Serializable
+    private data class ProviderNotificationInsert(
+
+        val customer_id: Long? = null,
+
+        val provider_id: Long,
 
         val booking_id: Long?,
 
@@ -49,7 +75,8 @@ class NotificationRepository {
 
 
     // =====================================================
-    // CREATE NOTIFICATION
+    // CREATE CUSTOMER NOTIFICATION
+    // EXISTING FUNCTION - KEEP WORKING
     // =====================================================
 
     suspend fun createNotification(
@@ -70,7 +97,7 @@ class NotificationRepository {
 
 
             val notification =
-                NotificationInsert(
+                CustomerNotificationInsert(
 
                     customer_id =
                         customerId,
@@ -102,7 +129,7 @@ class NotificationRepository {
 
             Log.d(
                 "NOTIFICATION_TEST",
-                "Notification created = $notification"
+                "Customer notification created = $notification"
             )
 
 
@@ -114,7 +141,7 @@ class NotificationRepository {
 
             Log.e(
                 "NOTIFICATION_TEST",
-                "CREATE ERROR = ${e.message}",
+                "CUSTOMER CREATE ERROR = ${e.message}",
                 e
             )
 
@@ -127,7 +154,85 @@ class NotificationRepository {
 
 
     // =====================================================
-    // GET CURRENT CUSTOMER NOTIFICATIONS
+    // CREATE PROVIDER NOTIFICATION
+    // =====================================================
+
+    suspend fun createProviderNotification(
+
+        providerId: Long,
+
+        bookingId: Long?,
+
+        title: String,
+
+        message: String,
+
+        type: String
+
+    ): Result<Unit> {
+
+        return try {
+
+
+            val notification =
+                ProviderNotificationInsert(
+
+                    provider_id =
+                        providerId,
+
+                    booking_id =
+                        bookingId,
+
+                    title =
+                        title,
+
+                    message =
+                        message,
+
+                    notification_type =
+                        type,
+
+                    is_read =
+                        false
+
+                )
+
+
+            supabase
+                .from("notification")
+                .insert(
+                    notification
+                )
+
+
+            Log.d(
+                "PROVIDER_NOTIFICATION_TEST",
+                "Provider notification created = $notification"
+            )
+
+
+            Result.success(Unit)
+
+
+        } catch (e: Exception) {
+
+
+            Log.e(
+                "PROVIDER_NOTIFICATION_TEST",
+                "PROVIDER CREATE ERROR = ${e.message}",
+                e
+            )
+
+
+            Result.failure(e)
+
+        }
+
+    }
+
+
+    // =====================================================
+    // GET CUSTOMER NOTIFICATIONS
     // =====================================================
 
     suspend fun getCustomerNotifications():
@@ -168,7 +273,7 @@ class NotificationRepository {
 
             Log.d(
                 "NOTIFICATION_TEST",
-                "Notifications = $notifications"
+                "Customer notifications = $notifications"
             )
 
 
@@ -182,7 +287,75 @@ class NotificationRepository {
 
             Log.e(
                 "NOTIFICATION_TEST",
-                "LOAD ERROR = ${e.message}",
+                "CUSTOMER LOAD ERROR = ${e.message}",
+                e
+            )
+
+
+            Result.failure(e)
+
+        }
+
+    }
+
+
+    // =====================================================
+    // GET PROVIDER NOTIFICATIONS
+    // =====================================================
+
+    suspend fun getProviderNotifications():
+            Result<List<AppNotification>> {
+
+        return try {
+
+
+            val providerId =
+                UserSession.providerId
+                    ?: throw Exception(
+                        "Provider not logged in"
+                    )
+
+
+            val notifications =
+                supabase
+                    .from("notification")
+                    .select {
+
+                        filter {
+
+                            eq(
+                                "provider_id",
+                                providerId
+                            )
+
+                        }
+
+                    }
+                    .decodeList<AppNotification>()
+                    .sortedByDescending {
+
+                        it.created_at ?: ""
+
+                    }
+
+
+            Log.d(
+                "PROVIDER_NOTIFICATION_TEST",
+                "Provider notifications = $notifications"
+            )
+
+
+            Result.success(
+                notifications
+            )
+
+
+        } catch (e: Exception) {
+
+
+            Log.e(
+                "PROVIDER_NOTIFICATION_TEST",
+                "PROVIDER LOAD ERROR = ${e.message}",
                 e
             )
 
@@ -196,6 +369,7 @@ class NotificationRepository {
 
     // =====================================================
     // MARK ONE AS READ
+    // WORKS FOR CUSTOMER OR PROVIDER
     // =====================================================
 
     suspend fun markAsRead(
@@ -250,7 +424,7 @@ class NotificationRepository {
 
 
     // =====================================================
-    // MARK ALL AS READ
+    // MARK ALL CUSTOMER NOTIFICATIONS READ
     // =====================================================
 
     suspend fun markAllAsRead():
@@ -296,7 +470,66 @@ class NotificationRepository {
 
             Log.e(
                 "NOTIFICATION_TEST",
-                "MARK ALL READ ERROR = ${e.message}",
+                "MARK CUSTOMER ALL READ ERROR = ${e.message}",
+                e
+            )
+
+
+            Result.failure(e)
+
+        }
+
+    }
+
+
+    // =====================================================
+    // MARK ALL PROVIDER NOTIFICATIONS READ
+    // =====================================================
+
+    suspend fun markAllProviderAsRead():
+            Result<Unit> {
+
+        return try {
+
+
+            val providerId =
+                UserSession.providerId
+                    ?: throw Exception(
+                        "Provider not logged in"
+                    )
+
+
+            supabase
+                .from("notification")
+                .update(
+
+                    NotificationReadUpdate(
+                        is_read = true
+                    )
+
+                ) {
+
+                    filter {
+
+                        eq(
+                            "provider_id",
+                            providerId
+                        )
+
+                    }
+
+                }
+
+
+            Result.success(Unit)
+
+
+        } catch (e: Exception) {
+
+
+            Log.e(
+                "PROVIDER_NOTIFICATION_TEST",
+                "MARK PROVIDER ALL READ ERROR = ${e.message}",
                 e
             )
 

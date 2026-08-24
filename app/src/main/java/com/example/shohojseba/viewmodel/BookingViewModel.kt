@@ -73,7 +73,8 @@ class BookingViewModel : ViewModel() {
 
 
     // =====================================================
-    // CREATE BOOKING
+    // CREATE BOOKING / QUOTATION REQUEST
+    // ALSO CREATE PROVIDER NOTIFICATION
     // =====================================================
 
     fun createBooking(
@@ -82,9 +83,7 @@ class BookingViewModel : ViewModel() {
 
     ) {
 
-
         viewModelScope.launch {
-
 
             _isLoading.value =
                 true
@@ -101,6 +100,82 @@ class BookingViewModel : ViewModel() {
                 result != null
 
 
+            if (
+                result != null
+            ) {
+
+                // =================================================
+                // PROVIDER NOTIFICATION
+                // =================================================
+
+                val providerNotificationResult =
+                    notificationRepository
+                        .createProviderNotification(
+
+                            providerId =
+                                booking.provider_id,
+
+                            bookingId =
+                                result.bookingId,
+
+                            title =
+
+                                if (
+                                    booking.quotation_requested
+                                ) {
+
+                                    "New Quotation Request"
+
+                                } else {
+
+                                    "New Booking Request"
+
+                                },
+
+                            message =
+
+                                if (
+                                    booking.quotation_requested
+                                ) {
+
+                                    "A customer requested a custom quotation for your service."
+
+                                } else {
+
+                                    "You received a new service booking request."
+
+                                },
+
+                            type =
+
+                                if (
+                                    booking.quotation_requested
+                                ) {
+
+                                    "QUOTATION_REQUEST"
+
+                                } else {
+
+                                    "NEW_BOOKING"
+
+                                }
+
+                        )
+
+
+                Log.d(
+
+                    "PROVIDER_NOTIFICATION_TEST",
+
+                    "NEW REQUEST notification result = ${
+                        providerNotificationResult.isSuccess
+                    }"
+
+                )
+
+            }
+
+
             _isLoading.value =
                 false
 
@@ -115,14 +190,12 @@ class BookingViewModel : ViewModel() {
 
     fun loadCustomerBookings() {
 
-
         val customerId =
             UserSession.customerId
                 ?: return
 
 
         viewModelScope.launch {
-
 
             _isLoading.value =
                 true
@@ -133,6 +206,15 @@ class BookingViewModel : ViewModel() {
                     .getBookingsByCustomer(
                         customerId
                     )
+
+
+            Log.d(
+
+                "BOOKING_TEST",
+
+                "Customer bookings = ${_bookings.value}"
+
+            )
 
 
             _isLoading.value =
@@ -149,9 +231,7 @@ class BookingViewModel : ViewModel() {
 
     fun loadProviderBookings() {
 
-
         viewModelScope.launch {
-
 
             _isLoading.value =
                 true
@@ -161,9 +241,26 @@ class BookingViewModel : ViewModel() {
                 UserSession.providerId
 
 
+            Log.d(
+
+                "BOOKING_TEST",
+
+                "Provider Session ID = $providerId"
+
+            )
+
+
             if (
                 providerId == null
             ) {
+
+                Log.e(
+
+                    "BOOKING_TEST",
+
+                    "Provider ID is NULL"
+
+                )
 
 
                 _bookings.value =
@@ -179,11 +276,24 @@ class BookingViewModel : ViewModel() {
             }
 
 
-            _bookings.value =
+            val bookings =
                 repository
                     .getBookingsByProvider(
                         providerId
                     )
+
+
+            Log.d(
+
+                "BOOKING_TEST",
+
+                "Provider bookings = $bookings"
+
+            )
+
+
+            _bookings.value =
+                bookings
 
 
             _isLoading.value =
@@ -195,7 +305,8 @@ class BookingViewModel : ViewModel() {
 
 
     // =====================================================
-    // ACCEPT BOOKING
+    // ACCEPT NORMAL BOOKING
+    // CUSTOMER NOTIFICATION
     // =====================================================
 
     fun acceptBooking(
@@ -204,9 +315,7 @@ class BookingViewModel : ViewModel() {
 
     ) {
 
-
         viewModelScope.launch {
-
 
             _isLoading.value =
                 true
@@ -229,40 +338,47 @@ class BookingViewModel : ViewModel() {
                 success
             ) {
 
-
                 val serviceName =
-
                     booking.service
                         ?.serviceName
                         ?: "service"
 
 
                 val providerName =
-
                     booking.provider
                         ?.name
-                        ?: "your provider"
+                        ?: "the provider"
 
 
-                notificationRepository
-                    .createNotification(
+                val notificationResult =
+                    notificationRepository
+                        .createNotification(
 
-                        customerId =
-                            booking.customerId,
+                            customerId =
+                                booking.customerId,
 
-                        bookingId =
-                            booking.bookingId,
+                            bookingId =
+                                booking.bookingId,
 
-                        title =
-                            "Booking Accepted",
+                            title =
+                                "Booking Accepted",
 
-                        message =
-                            "Your $serviceName booking has been accepted by $providerName.",
+                            message =
+                                "Your $serviceName booking has been accepted by $providerName.",
 
-                        type =
-                            "ACCEPTED"
+                            type =
+                                "ACCEPTED"
 
-                    )
+                        )
+
+
+                Log.d(
+
+                    "NOTIFICATION_TEST",
+
+                    "ACCEPT notification result = ${notificationResult.isSuccess}"
+
+                )
 
 
                 loadProviderBookings()
@@ -279,7 +395,8 @@ class BookingViewModel : ViewModel() {
 
 
     // =====================================================
-    // REJECT BOOKING
+    // REJECT BOOKING / QUOTATION REQUEST
+    // CUSTOMER NOTIFICATION
     // =====================================================
 
     fun rejectBooking(
@@ -288,9 +405,7 @@ class BookingViewModel : ViewModel() {
 
     ) {
 
-
         viewModelScope.launch {
-
 
             _isLoading.value =
                 true
@@ -313,33 +428,71 @@ class BookingViewModel : ViewModel() {
                 success
             ) {
 
-
                 val serviceName =
-
                     booking.service
                         ?.serviceName
                         ?: "service"
 
 
-                notificationRepository
-                    .createNotification(
+                val notificationTitle =
 
-                        customerId =
-                            booking.customerId,
+                    if (
+                        booking.quotationRequested
+                    ) {
 
-                        bookingId =
-                            booking.bookingId,
+                        "Quotation Request Rejected"
 
-                        title =
-                            "Booking Rejected",
+                    } else {
 
-                        message =
-                            "Your $serviceName booking request was rejected.",
+                        "Booking Rejected"
 
-                        type =
-                            "REJECTED"
+                    }
 
-                    )
+
+                val notificationMessage =
+
+                    if (
+                        booking.quotationRequested
+                    ) {
+
+                        "Your quotation request for $serviceName was rejected."
+
+                    } else {
+
+                        "Your $serviceName booking request was rejected."
+
+                    }
+
+
+                val notificationResult =
+                    notificationRepository
+                        .createNotification(
+
+                            customerId =
+                                booking.customerId,
+
+                            bookingId =
+                                booking.bookingId,
+
+                            title =
+                                notificationTitle,
+
+                            message =
+                                notificationMessage,
+
+                            type =
+                                "REJECTED"
+
+                        )
+
+
+                Log.d(
+
+                    "NOTIFICATION_TEST",
+
+                    "REJECT notification result = ${notificationResult.isSuccess}"
+
+                )
 
 
                 loadProviderBookings()
@@ -356,7 +509,273 @@ class BookingViewModel : ViewModel() {
 
 
     // =====================================================
+    // PROVIDER SEND QUOTATION
+    // CUSTOMER NOTIFICATION
+    // =====================================================
+
+    fun sendQuotation(
+
+        booking: Booking,
+
+        quotedPrice: Double,
+
+        message: String
+
+    ) {
+
+        viewModelScope.launch {
+
+            _isLoading.value =
+                true
+
+
+            val success =
+                repository
+                    .sendQuotation(
+
+                        bookingId =
+                            booking.bookingId,
+
+                        quotedPrice =
+                            quotedPrice,
+
+                        message =
+                            message
+
+                    )
+
+
+            if (
+                success
+            ) {
+
+                val serviceName =
+                    booking.service
+                        ?.serviceName
+                        ?: "service"
+
+
+                val notificationResult =
+                    notificationRepository
+                        .createNotification(
+
+                            customerId =
+                                booking.customerId,
+
+                            bookingId =
+                                booking.bookingId,
+
+                            title =
+                                "Quotation Received",
+
+                            message =
+                                "You received a quotation of ৳$quotedPrice for $serviceName.",
+
+                            type =
+                                "QUOTATION"
+
+                        )
+
+
+                Log.d(
+
+                    "NOTIFICATION_TEST",
+
+                    "QUOTATION notification result = ${notificationResult.isSuccess}"
+
+                )
+
+
+                loadProviderBookings()
+
+            }
+
+
+            _isLoading.value =
+                false
+
+        }
+
+    }
+
+
+    // =====================================================
+    // CUSTOMER ACCEPT QUOTATION
+    // PROVIDER NOTIFICATION
+    // =====================================================
+
+    fun acceptQuotation(
+
+        booking: Booking
+
+    ) {
+
+        viewModelScope.launch {
+
+            _isLoading.value =
+                true
+
+
+            val success =
+                repository
+                    .updateBookingStatus(
+
+                        bookingId =
+                            booking.bookingId,
+
+                        status =
+                            "Accepted"
+
+                    )
+
+
+            if (
+                success
+            ) {
+
+                val serviceName =
+                    booking.service
+                        ?.serviceName
+                        ?: "service"
+
+
+                val providerNotificationResult =
+                    notificationRepository
+                        .createProviderNotification(
+
+                            providerId =
+                                booking.providerId,
+
+                            bookingId =
+                                booking.bookingId,
+
+                            title =
+                                "Quotation Accepted",
+
+                            message =
+                                "The customer accepted your quotation of ৳${
+                                    booking.quotedPrice ?: 0.0
+                                } for $serviceName.",
+
+                            type =
+                                "QUOTATION_ACCEPTED"
+
+                        )
+
+
+                Log.d(
+
+                    "PROVIDER_NOTIFICATION_TEST",
+
+                    "QUOTATION ACCEPT notification result = ${
+                        providerNotificationResult.isSuccess
+                    }"
+
+                )
+
+
+                loadCustomerBookings()
+
+            }
+
+
+            _isLoading.value =
+                false
+
+        }
+
+    }
+
+
+    // =====================================================
+    // CUSTOMER REJECT QUOTATION
+    // PROVIDER NOTIFICATION
+    // =====================================================
+
+    fun rejectQuotation(
+
+        booking: Booking
+
+    ) {
+
+        viewModelScope.launch {
+
+            _isLoading.value =
+                true
+
+
+            val success =
+                repository
+                    .updateBookingStatus(
+
+                        bookingId =
+                            booking.bookingId,
+
+                        status =
+                            "Rejected"
+
+                    )
+
+
+            if (
+                success
+            ) {
+
+                val serviceName =
+                    booking.service
+                        ?.serviceName
+                        ?: "service"
+
+
+                val providerNotificationResult =
+                    notificationRepository
+                        .createProviderNotification(
+
+                            providerId =
+                                booking.providerId,
+
+                            bookingId =
+                                booking.bookingId,
+
+                            title =
+                                "Quotation Rejected",
+
+                            message =
+                                "The customer rejected your quotation for $serviceName.",
+
+                            type =
+                                "QUOTATION_REJECTED"
+
+                        )
+
+
+                Log.d(
+
+                    "PROVIDER_NOTIFICATION_TEST",
+
+                    "QUOTATION REJECT notification result = ${
+                        providerNotificationResult.isSuccess
+                    }"
+
+                )
+
+
+                loadCustomerBookings()
+
+            }
+
+
+            _isLoading.value =
+                false
+
+        }
+
+    }
+
+
+    // =====================================================
     // COMPLETE BOOKING
+    // CUSTOMER NOTIFICATION + EXISTING REMINDER
     // =====================================================
 
     fun completeBooking(
@@ -365,9 +784,7 @@ class BookingViewModel : ViewModel() {
 
     ) {
 
-
         viewModelScope.launch {
-
 
             _isLoading.value =
                 true
@@ -390,42 +807,50 @@ class BookingViewModel : ViewModel() {
                 completed
             ) {
 
-
-                // =============================================
-                // COMPLETION NOTIFICATION
-                // =============================================
-
                 val serviceName =
-
                     booking.service
                         ?.serviceName
                         ?: "service"
 
 
-                notificationRepository
-                    .createNotification(
+                // =================================================
+                // CUSTOMER COMPLETION NOTIFICATION
+                // =================================================
 
-                        customerId =
-                            booking.customerId,
+                val notificationResult =
+                    notificationRepository
+                        .createNotification(
 
-                        bookingId =
-                            booking.bookingId,
+                            customerId =
+                                booking.customerId,
 
-                        title =
-                            "Service Completed",
+                            bookingId =
+                                booking.bookingId,
 
-                        message =
-                            "Your $serviceName has been marked as completed.",
+                            title =
+                                "Service Completed",
 
-                        type =
-                            "COMPLETED"
+                            message =
+                                "Your $serviceName has been marked as completed.",
 
-                    )
+                            type =
+                                "COMPLETED"
+
+                        )
 
 
-                // =============================================
-                // AC SERVICE REMINDER
-                // =============================================
+                Log.d(
+
+                    "NOTIFICATION_TEST",
+
+                    "COMPLETE notification result = ${notificationResult.isSuccess}"
+
+                )
+
+
+                // =================================================
+                // EXISTING SERVICE REMINDER
+                // =================================================
 
                 val reminderResult =
                     reminderRepository
@@ -434,10 +859,35 @@ class BookingViewModel : ViewModel() {
                         )
 
 
-                Log.d(
-                    "REMINDER_TEST",
-                    "Reminder result = ${reminderResult.getOrNull()}"
-                )
+                if (
+                    reminderResult.isSuccess
+                ) {
+
+                    Log.d(
+
+                        "REMINDER_TEST",
+
+                        "Reminder result = ${
+                            reminderResult.getOrNull()
+                        }"
+
+                    )
+
+                } else {
+
+                    Log.e(
+
+                        "REMINDER_TEST",
+
+                        "Reminder failed = ${
+                            reminderResult
+                                .exceptionOrNull()
+                                ?.message
+                        }"
+
+                    )
+
+                }
 
 
                 loadProviderBookings()
@@ -454,7 +904,7 @@ class BookingViewModel : ViewModel() {
 
 
     // =====================================================
-    // RESET
+    // RESET BOOKING STATE
     // =====================================================
 
     fun resetBookingState() {

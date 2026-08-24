@@ -10,7 +10,9 @@ data class AppNotification(
 
     val created_at: String? = null,
 
-    val customer_id: Long,
+    val customer_id: Long? = null,
+
+    val provider_id: Long? = null,
 
     val booking_id: Long? = null,
 

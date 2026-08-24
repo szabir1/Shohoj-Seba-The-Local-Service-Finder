@@ -2,11 +2,22 @@ package com.example.shohojseba.navigation
 
 import android.net.Uri
 
+import androidx.compose.foundation.layout.padding
+
+import androidx.compose.material3.Scaffold
+
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+
+import androidx.compose.ui.Modifier
+
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 
@@ -48,6 +59,8 @@ import com.example.shohojseba.ui.customer.ReviewScreen
 import com.example.shohojseba.ui.customer.ServiceRemindersScreen
 import com.example.shohojseba.ui.customer.ServiceScreen
 
+import com.example.shohojseba.ui.customer.components.CustomerBottomNavBar
+
 
 // =====================================================
 // PROVIDER
@@ -56,6 +69,17 @@ import com.example.shohojseba.ui.customer.ServiceScreen
 import com.example.shohojseba.ui.provider.AddServiceScreen
 import com.example.shohojseba.ui.provider.ProviderBookingsScreen
 import com.example.shohojseba.ui.provider.ProviderDashboard
+import com.example.shohojseba.ui.provider.ProviderNotificationsScreen
+
+import com.example.shohojseba.ui.provider.components.ProviderBottomNavBar
+
+
+// =====================================================
+// VIEWMODELS
+// =====================================================
+
+import com.example.shohojseba.viewmodel.NotificationViewModel
+import com.example.shohojseba.viewmodel.ProviderNotificationViewModel
 
 
 sealed class Screen(
@@ -64,27 +88,16 @@ sealed class Screen(
 
 ) {
 
-
-    // =====================================================
-    // AUTH
-    // =====================================================
-
     object Landing :
-        Screen(
-            "landing"
-        )
+        Screen("landing")
 
 
     object Login :
-        Screen(
-            "login"
-        )
+        Screen("login")
 
 
     object Register :
-        Screen(
-            "register"
-        )
+        Screen("register")
 
 
     // =====================================================
@@ -92,33 +105,33 @@ sealed class Screen(
     // =====================================================
 
     object Home :
-        Screen(
-            "home"
-        )
+        Screen("home")
 
 
     object Category :
-        Screen(
-            "category"
-        )
+        Screen("category")
 
 
     object Service :
         Screen(
-            "services/{categoryId}?areaId={areaId}&areaName={areaName}"
+            "services/{categoryId}" +
+                    "?areaId={areaId}" +
+                    "&areaName={areaName}" +
+                    "&promo={promo}"
         )
 
 
     object Booking :
         Screen(
-            "booking/{providerId}/{serviceId}/{serviceName}/{providerName}"
+            "booking/{providerId}/{serviceId}/{serviceName}/{providerName}" +
+                    "?originalPrice={originalPrice}" +
+                    "&discountPercent={discountPercent}" +
+                    "&finalPrice={finalPrice}"
         )
 
 
     object CustomerBookings :
-        Screen(
-            "customer_bookings"
-        )
+        Screen("customer_bookings")
 
 
     object Review :
@@ -134,21 +147,15 @@ sealed class Screen(
 
 
     object ServiceReminders :
-        Screen(
-            "service_reminders"
-        )
+        Screen("service_reminders")
 
 
     object Favorites :
-        Screen(
-            "favorites"
-        )
+        Screen("favorites")
 
 
     object Notifications :
-        Screen(
-            "notifications"
-        )
+        Screen("notifications")
 
 
     // =====================================================
@@ -156,21 +163,19 @@ sealed class Screen(
     // =====================================================
 
     object Provider :
-        Screen(
-            "provider"
-        )
+        Screen("provider")
 
 
     object ProviderBookings :
-        Screen(
-            "provider_bookings"
-        )
+        Screen("provider_bookings")
+
+
+    object ProviderNotifications :
+        Screen("provider_notifications")
 
 
     object AddService :
-        Screen(
-            "add_service"
-        )
+        Screen("add_service")
 
 
     // =====================================================
@@ -178,48 +183,33 @@ sealed class Screen(
     // =====================================================
 
     object Admin :
-        Screen(
-            "admin"
-        )
+        Screen("admin")
 
 
     object AdminCategories :
-        Screen(
-            "admin_categories"
-        )
+        Screen("admin_categories")
 
 
     object AdminAreas :
-        Screen(
-            "admin_areas"
-        )
+        Screen("admin_areas")
 
 
     object AdminCustomers :
-        Screen(
-            "admin_customers"
-        )
+        Screen("admin_customers")
 
 
     object AdminProviders :
-        Screen(
-            "admin_providers"
-        )
+        Screen("admin_providers")
 
 
     object AdminServices :
-        Screen(
-            "admin_services"
-        )
+        Screen("admin_services")
 
 
     object AdminReviews :
-        Screen(
-            "admin_reviews"
-        )
+        Screen("admin_reviews")
 
 }
-
 
 
 @Composable
@@ -230,858 +220,1376 @@ fun NavGraph() {
         rememberNavController()
 
 
-    NavHost(
-
-        navController =
-            navController,
-
-        startDestination =
-            Screen.Landing.route
-
-    ) {
+    val navBackStackEntry by
+    navController
+        .currentBackStackEntryAsState()
 
 
-        // =====================================================
-        // LANDING
-        // =====================================================
+    val currentRoute =
+        navBackStackEntry
+            ?.destination
+            ?.route
 
-        composable(
-            Screen.Landing.route
-        ) {
 
-            LandingScreen(
+    // =====================================================
+    // CUSTOMER NOTIFICATIONS
+    // =====================================================
 
-                onGetStartedClick = {
+    val customerNotificationViewModel:
+            NotificationViewModel =
+        viewModel()
 
-                    navController.navigate(
-                        Screen.Register.route
-                    )
 
-                },
+    val customerNotifications by
+    customerNotificationViewModel.notifications
 
-                onLoginClick = {
 
-                    navController.navigate(
-                        Screen.Login.route
-                    )
+    val customerUnreadCount =
+        customerNotifications.count {
 
-                }
-
-            )
+            !it.is_read
 
         }
 
 
-        // =====================================================
-        // LOGIN
-        // =====================================================
+    // =====================================================
+    // PROVIDER NOTIFICATIONS
+    // =====================================================
 
-        composable(
-            Screen.Login.route
+    val providerNotificationViewModel:
+            ProviderNotificationViewModel =
+        viewModel()
+
+
+    val providerNotifications by
+    providerNotificationViewModel.notifications
+
+
+    val providerUnreadCount =
+        providerNotifications.count {
+
+            !it.is_read
+
+        }
+
+
+    // =====================================================
+    // LOAD BADGES
+    // =====================================================
+
+    LaunchedEffect(
+        currentRoute
+    ) {
+
+
+        if (
+            currentRoute == Screen.Home.route ||
+            currentRoute == Screen.CustomerBookings.route ||
+            currentRoute == Screen.Favorites.route ||
+            currentRoute == Screen.Notifications.route
         ) {
 
-            LoginScreen(
+            customerNotificationViewModel
+                .loadNotifications()
 
-                onRegisterClick = {
-
-                    navController.navigate(
-                        Screen.Register.route
-                    )
-
-                },
-
-                onLoginSuccess = { role ->
+        }
 
 
-                    if (
-                        role ==
-                        "CUSTOMER"
-                    ) {
+        if (
+            currentRoute == Screen.Provider.route ||
+            currentRoute == Screen.ProviderBookings.route ||
+            currentRoute == Screen.ProviderNotifications.route ||
+            currentRoute == Screen.AddService.route
+        ) {
 
-                        navController.navigate(
-                            Screen.Home.route
-                        ) {
+            providerNotificationViewModel
+                .loadNotifications()
 
-                            popUpTo(
-                                Screen.Login.route
+        }
+
+    }
+
+
+    // =====================================================
+    // BOTTOM BAR VISIBILITY
+    // =====================================================
+
+    val showCustomerBottomBar =
+
+        currentRoute ==
+                Screen.CustomerBookings.route ||
+
+                currentRoute ==
+                Screen.Favorites.route ||
+
+                currentRoute ==
+                Screen.Notifications.route
+
+
+    val showProviderBottomBar =
+
+        currentRoute ==
+                Screen.Provider.route ||
+
+                currentRoute ==
+                Screen.ProviderBookings.route ||
+
+                currentRoute ==
+                Screen.ProviderNotifications.route ||
+
+                currentRoute ==
+                Screen.AddService.route
+
+
+    Scaffold(
+
+        bottomBar = {
+
+
+            when {
+
+
+                // =================================================
+                // CUSTOMER
+                // =================================================
+
+                showCustomerBottomBar -> {
+
+
+                    CustomerBottomNavBar(
+
+                        currentRoute =
+                            currentRoute,
+
+                        unreadNotificationCount =
+                            customerUnreadCount,
+
+                        onHomeClick = {
+
+                            navController.navigate(
+                                Screen.Home.route
                             ) {
 
-                                inclusive =
+                                popUpTo(
+                                    Screen.Home.route
+                                ) {
+
+                                    inclusive =
+                                        false
+
+                                }
+
+                                launchSingleTop =
+                                    true
+
+                            }
+
+                        },
+
+                        onBookingsClick = {
+
+                            navController.navigate(
+                                Screen.CustomerBookings.route
+                            ) {
+
+                                launchSingleTop =
+                                    true
+
+                            }
+
+                        },
+
+                        onSavedClick = {
+
+                            navController.navigate(
+                                Screen.Favorites.route
+                            ) {
+
+                                launchSingleTop =
+                                    true
+
+                            }
+
+                        },
+
+                        onAlertsClick = {
+
+                            navController.navigate(
+                                Screen.Notifications.route
+                            ) {
+
+                                launchSingleTop =
                                     true
 
                             }
 
                         }
 
-                    } else if (
-                        role ==
-                        "PROVIDER"
-                    ) {
+                    )
+
+                }
+
+
+                // =================================================
+                // PROVIDER
+                // =================================================
+
+                showProviderBottomBar -> {
+
+
+                    ProviderBottomNavBar(
+
+                        currentRoute =
+                            currentRoute,
+
+                        unreadNotificationCount =
+                            providerUnreadCount,
+
+                        onHomeClick = {
+
+                            navController.navigate(
+                                Screen.Provider.route
+                            ) {
+
+                                popUpTo(
+                                    Screen.Provider.route
+                                ) {
+
+                                    inclusive =
+                                        false
+
+                                }
+
+                                launchSingleTop =
+                                    true
+
+                            }
+
+                        },
+
+                        onBookingsClick = {
+
+                            navController.navigate(
+                                Screen.ProviderBookings.route
+                            ) {
+
+                                launchSingleTop =
+                                    true
+
+                            }
+
+                        },
+
+                        onAddServiceClick = {
+
+                            navController.navigate(
+                                Screen.AddService.route
+                            ) {
+
+                                launchSingleTop =
+                                    true
+
+                            }
+
+                        },
+
+                        onAlertsClick = {
+
+                            navController.navigate(
+                                Screen.ProviderNotifications.route
+                            ) {
+
+                                launchSingleTop =
+                                    true
+
+                            }
+
+                        }
+
+                    )
+
+                }
+
+            }
+
+        }
+
+    ) { outerPadding ->
+
+
+        NavHost(
+
+            navController =
+                navController,
+
+            startDestination =
+                Screen.Landing.route,
+
+            modifier =
+                Modifier.padding(
+                    outerPadding
+                )
+
+        ) {
+
+
+            // =================================================
+            // LANDING
+            // =================================================
+
+            composable(
+                Screen.Landing.route
+            ) {
+
+                LandingScreen(
+
+                    onGetStartedClick = {
+
+                        navController.navigate(
+                            Screen.Register.route
+                        )
+
+                    },
+
+                    onLoginClick = {
+
+                        navController.navigate(
+                            Screen.Login.route
+                        )
+
+                    }
+
+                )
+
+            }
+
+
+            // =================================================
+            // LOGIN
+            // =================================================
+
+            composable(
+                Screen.Login.route
+            ) {
+
+                LoginScreen(
+
+                    onRegisterClick = {
+
+                        navController.navigate(
+                            Screen.Register.route
+                        )
+
+                    },
+
+                    onLoginSuccess = { role ->
+
+
+                        when (
+                            role
+                        ) {
+
+
+                            "CUSTOMER" -> {
+
+                                navController.navigate(
+                                    Screen.Home.route
+                                ) {
+
+                                    popUpTo(
+                                        Screen.Login.route
+                                    ) {
+
+                                        inclusive =
+                                            true
+
+                                    }
+
+                                }
+
+                            }
+
+
+                            "PROVIDER" -> {
+
+                                navController.navigate(
+                                    Screen.Provider.route
+                                ) {
+
+                                    popUpTo(
+                                        Screen.Login.route
+                                    ) {
+
+                                        inclusive =
+                                            true
+
+                                    }
+
+                                }
+
+                            }
+
+
+                            "ADMIN" -> {
+
+                                navController.navigate(
+                                    Screen.Admin.route
+                                ) {
+
+                                    popUpTo(
+                                        Screen.Login.route
+                                    ) {
+
+                                        inclusive =
+                                            true
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                )
+
+            }
+
+
+            // =================================================
+            // REGISTER
+            // =================================================
+
+            composable(
+                Screen.Register.route
+            ) {
+
+                RegisterScreen(
+
+                    onLoginClick = {
+
+                        navController.navigate(
+                            Screen.Login.route
+                        )
+
+                    }
+
+                )
+
+            }
+
+
+            // =================================================
+            // ADMIN DASHBOARD
+            // =================================================
+
+            composable(
+                Screen.Admin.route
+            ) {
+
+                AdminDashboard(
+
+                    onCategoriesClick = {
+
+                        navController.navigate(
+                            Screen.AdminCategories.route
+                        )
+
+                    },
+
+                    onAreasClick = {
+
+                        navController.navigate(
+                            Screen.AdminAreas.route
+                        )
+
+                    },
+
+                    onCustomersClick = {
+
+                        navController.navigate(
+                            Screen.AdminCustomers.route
+                        )
+
+                    },
+
+                    onProvidersClick = {
+
+                        navController.navigate(
+                            Screen.AdminProviders.route
+                        )
+
+                    },
+
+                    onServicesClick = {
+
+                        navController.navigate(
+                            Screen.AdminServices.route
+                        )
+
+                    },
+
+                    onReviewsClick = {
+
+                        navController.navigate(
+                            Screen.AdminReviews.route
+                        )
+
+                    },
+
+                    onLogoutClick = {
+
+                        navController.navigate(
+                            Screen.Login.route
+                        ) {
+
+                            popUpTo(0) {
+
+                                inclusive =
+                                    true
+
+                            }
+
+                            launchSingleTop =
+                                true
+
+                        }
+
+                    }
+
+                )
+
+            }
+
+
+            // =================================================
+            // ADMIN CATEGORIES
+            // =================================================
+
+            composable(
+                Screen.AdminCategories.route
+            ) {
+
+                AdminCategoryScreen()
+
+            }
+
+
+            // =================================================
+            // ADMIN AREAS
+            // =================================================
+
+            composable(
+                Screen.AdminAreas.route
+            ) {
+
+                AdminAreaScreen()
+
+            }
+
+
+            // =================================================
+            // ADMIN CUSTOMERS
+            // =================================================
+
+            composable(
+                Screen.AdminCustomers.route
+            ) {
+
+                AdminCustomersScreen()
+
+            }
+
+
+            // =================================================
+            // ADMIN PROVIDERS
+            // =================================================
+
+            composable(
+                Screen.AdminProviders.route
+            ) {
+
+                AdminProvidersScreen()
+
+            }
+
+
+            // =================================================
+            // ADMIN SERVICES
+            // =================================================
+
+            composable(
+                Screen.AdminServices.route
+            ) {
+
+                AdminServicesScreen()
+
+            }
+
+
+            // =================================================
+            // ADMIN REVIEWS
+            // =================================================
+
+            composable(
+                Screen.AdminReviews.route
+            ) {
+
+                AdminReviewsScreen()
+
+            }
+
+
+            // =================================================
+            // CUSTOMER HOME
+            // =================================================
+
+            composable(
+                Screen.Home.route
+            ) {
+
+                HomeScreen(
+
+                    navController =
+                        navController
+
+                )
+
+            }
+
+
+            // =================================================
+            // CUSTOMER NOTIFICATIONS
+            // =================================================
+
+            composable(
+                Screen.Notifications.route
+            ) {
+
+                NotificationsScreen(
+
+                    onBookingsClick = {
+
+                        navController.navigate(
+                            Screen.CustomerBookings.route
+                        ) {
+
+                            launchSingleTop =
+                                true
+
+                        }
+
+                    },
+
+                    onRemindersClick = {
+
+                        navController.navigate(
+                            Screen.ServiceReminders.route
+                        )
+
+                    }
+
+                )
+
+            }
+
+
+            // =================================================
+            // FAVORITES
+            // =================================================
+
+            composable(
+                Screen.Favorites.route
+            ) {
+
+                FavoritesScreen(
+
+                    onBookServiceClick = {
+                            providerId,
+                            serviceId,
+                            serviceName,
+                            providerName ->
+
+
+                        navController.navigate(
+
+                            "booking/" +
+                                    "$providerId/" +
+                                    "$serviceId/" +
+                                    "${Uri.encode(serviceName)}/" +
+                                    "${Uri.encode(providerName)}" +
+                                    "?originalPrice=0.0" +
+                                    "&discountPercent=0.0" +
+                                    "&finalPrice=0.0"
+
+                        )
+
+                    },
+
+                    onReviewsClick = {
+                            providerId,
+                            providerName ->
+
+
+                        navController.navigate(
+
+                            "provider_reviews/" +
+                                    "$providerId/" +
+                                    Uri.encode(
+                                        providerName
+                                    )
+
+                        )
+
+                    }
+
+                )
+
+            }
+
+
+            // =================================================
+            // SERVICE REMINDERS
+            // =================================================
+
+            composable(
+                Screen.ServiceReminders.route
+            ) {
+
+                ServiceRemindersScreen()
+
+            }
+
+
+            // =================================================
+            // CUSTOMER BOOKINGS
+            // =================================================
+
+            composable(
+                Screen.CustomerBookings.route
+            ) {
+
+                CustomerBookingsScreen(
+
+                    onReviewClick = {
+                            bookingId,
+                            providerId,
+                            serviceName,
+                            providerName ->
+
+
+                        navController.navigate(
+
+                            "review/" +
+                                    "$bookingId/" +
+                                    "$providerId/" +
+                                    "${Uri.encode(serviceName)}/" +
+                                    Uri.encode(
+                                        providerName
+                                    )
+
+                        )
+
+                    }
+
+                )
+
+            }
+
+
+            // =================================================
+            // REVIEW
+            // =================================================
+
+            composable(
+
+                route =
+                    Screen.Review.route,
+
+                arguments =
+                    listOf(
+
+                        navArgument(
+                            "bookingId"
+                        ) {
+
+                            type =
+                                NavType.LongType
+
+                        },
+
+                        navArgument(
+                            "providerId"
+                        ) {
+
+                            type =
+                                NavType.LongType
+
+                        },
+
+                        navArgument(
+                            "serviceName"
+                        ) {
+
+                            type =
+                                NavType.StringType
+
+                        },
+
+                        navArgument(
+                            "providerName"
+                        ) {
+
+                            type =
+                                NavType.StringType
+
+                        }
+
+                    )
+
+            ) { entry ->
+
+
+                ReviewScreen(
+
+                    bookingId =
+                        entry.arguments
+                            ?.getLong(
+                                "bookingId"
+                            )
+                            ?: 0L,
+
+                    providerId =
+                        entry.arguments
+                            ?.getLong(
+                                "providerId"
+                            )
+                            ?: 0L,
+
+                    serviceName =
+                        entry.arguments
+                            ?.getString(
+                                "serviceName"
+                            )
+                            ?: "Service",
+
+                    providerName =
+                        entry.arguments
+                            ?.getString(
+                                "providerName"
+                            )
+                            ?: "Provider",
+
+                    onReviewSubmitted = {
+
+                        navController
+                            .popBackStack()
+
+                    }
+
+                )
+
+            }
+
+
+            // =================================================
+            // PROVIDER REVIEWS
+            // =================================================
+
+            composable(
+
+                route =
+                    Screen.ProviderReviews.route,
+
+                arguments =
+                    listOf(
+
+                        navArgument(
+                            "providerId"
+                        ) {
+
+                            type =
+                                NavType.LongType
+
+                        },
+
+                        navArgument(
+                            "providerName"
+                        ) {
+
+                            type =
+                                NavType.StringType
+
+                        }
+
+                    )
+
+            ) { entry ->
+
+
+                ProviderReviewsScreen(
+
+                    providerId =
+                        entry.arguments
+                            ?.getLong(
+                                "providerId"
+                            )
+                            ?: 0L,
+
+                    providerName =
+                        entry.arguments
+                            ?.getString(
+                                "providerName"
+                            )
+                            ?: "Provider"
+
+                )
+
+            }
+
+
+            // =================================================
+            // CATEGORY
+            // =================================================
+
+            composable(
+                Screen.Category.route
+            ) {
+
+                CategoryScreen(
+
+                    navController =
+                        navController
+
+                )
+
+            }
+
+
+            // =================================================
+            // SERVICES
+            // =================================================
+
+            composable(
+
+                route =
+                    Screen.Service.route,
+
+                arguments =
+                    listOf(
+
+                        navArgument(
+                            "categoryId"
+                        ) {
+
+                            type =
+                                NavType.LongType
+
+                        },
+
+                        navArgument(
+                            "areaId"
+                        ) {
+
+                            type =
+                                NavType.LongType
+
+                            defaultValue =
+                                0L
+
+                        },
+
+                        navArgument(
+                            "areaName"
+                        ) {
+
+                            type =
+                                NavType.StringType
+
+                            defaultValue =
+                                ""
+
+                        },
+
+                        navArgument(
+                            "promo"
+                        ) {
+
+                            type =
+                                NavType.BoolType
+
+                            defaultValue =
+                                false
+
+                        }
+
+                    )
+
+            ) { entry ->
+
+
+                ServiceScreen(
+
+                    categoryId =
+                        entry.arguments
+                            ?.getLong(
+                                "categoryId"
+                            )
+                            ?: 0L,
+
+                    areaId =
+                        entry.arguments
+                            ?.getLong(
+                                "areaId"
+                            )
+                            ?: 0L,
+
+                    areaName =
+                        entry.arguments
+                            ?.getString(
+                                "areaName"
+                            )
+                            ?: "",
+
+                    isPromotion =
+                        entry.arguments
+                            ?.getBoolean(
+                                "promo"
+                            )
+                            ?: false,
+
+                    onBookServiceClick = {
+                            providerId,
+                            serviceId,
+                            serviceName,
+                            providerName,
+                            originalPrice,
+                            discountPercent,
+                            finalPrice ->
+
+
+                        navController.navigate(
+
+                            "booking/" +
+                                    "$providerId/" +
+                                    "$serviceId/" +
+                                    "${Uri.encode(serviceName)}/" +
+                                    "${Uri.encode(providerName)}" +
+                                    "?originalPrice=$originalPrice" +
+                                    "&discountPercent=$discountPercent" +
+                                    "&finalPrice=$finalPrice"
+
+                        )
+
+                    },
+
+                    onReviewsClick = {
+                            providerId,
+                            providerName ->
+
+
+                        navController.navigate(
+
+                            "provider_reviews/" +
+                                    "$providerId/" +
+                                    Uri.encode(
+                                        providerName
+                                    )
+
+                        )
+
+                    }
+
+                )
+
+            }
+
+
+            // =================================================
+            // BOOKING FORM
+            // =================================================
+
+            composable(
+
+                route =
+                    Screen.Booking.route,
+
+                arguments =
+                    listOf(
+
+                        navArgument(
+                            "providerId"
+                        ) {
+
+                            type =
+                                NavType.LongType
+
+                        },
+
+                        navArgument(
+                            "serviceId"
+                        ) {
+
+                            type =
+                                NavType.LongType
+
+                        },
+
+                        navArgument(
+                            "serviceName"
+                        ) {
+
+                            type =
+                                NavType.StringType
+
+                        },
+
+                        navArgument(
+                            "providerName"
+                        ) {
+
+                            type =
+                                NavType.StringType
+
+                        },
+
+                        navArgument(
+                            "originalPrice"
+                        ) {
+
+                            type =
+                                NavType.FloatType
+
+                            defaultValue =
+                                0.0f
+
+                        },
+
+                        navArgument(
+                            "discountPercent"
+                        ) {
+
+                            type =
+                                NavType.FloatType
+
+                            defaultValue =
+                                0.0f
+
+                        },
+
+                        navArgument(
+                            "finalPrice"
+                        ) {
+
+                            type =
+                                NavType.FloatType
+
+                            defaultValue =
+                                0.0f
+
+                        }
+
+                    )
+
+            ) { entry ->
+
+
+                BookingScreen(
+
+                    providerId =
+                        entry.arguments
+                            ?.getLong(
+                                "providerId"
+                            )
+                            ?: 0L,
+
+                    serviceId =
+                        entry.arguments
+                            ?.getLong(
+                                "serviceId"
+                            )
+                            ?: 0L,
+
+                    serviceName =
+                        entry.arguments
+                            ?.getString(
+                                "serviceName"
+                            )
+                            ?: "",
+
+                    providerName =
+                        entry.arguments
+                            ?.getString(
+                                "providerName"
+                            )
+                            ?: "",
+
+                    originalPrice =
+                        entry.arguments
+                            ?.getFloat(
+                                "originalPrice"
+                            )
+                            ?.toDouble()
+                            ?: 0.0,
+
+                    discountPercent =
+                        entry.arguments
+                            ?.getFloat(
+                                "discountPercent"
+                            )
+                            ?.toDouble()
+                            ?: 0.0,
+
+                    finalPrice =
+                        entry.arguments
+                            ?.getFloat(
+                                "finalPrice"
+                            )
+                            ?.toDouble()
+                            ?: 0.0
+
+                )
+
+            }
+
+
+            // =================================================
+            // PROVIDER DASHBOARD
+            // =================================================
+
+            composable(
+                Screen.Provider.route
+            ) {
+
+                ProviderDashboard(
+
+                    onAddServiceClick = {
+
+                        navController.navigate(
+                            Screen.AddService.route
+                        )
+
+                    },
+
+                    onBookingRequestsClick = {
+
+                        navController.navigate(
+                            Screen.ProviderBookings.route
+                        )
+
+                    },
+
+                    onNotificationsClick = {
+
+                        navController.navigate(
+                            Screen.ProviderNotifications.route
+                        )
+
+                    },
+
+                    onLogoutClick = {
+
+                        navController.navigate(
+                            Screen.Login.route
+                        ) {
+
+                            popUpTo(0) {
+
+                                inclusive =
+                                    true
+
+                            }
+
+                            launchSingleTop =
+                                true
+
+                        }
+
+                    }
+
+                )
+
+            }
+
+
+            // =================================================
+            // PROVIDER BOOKINGS
+            // =================================================
+
+            composable(
+                Screen.ProviderBookings.route
+            ) {
+
+                ProviderBookingsScreen()
+
+            }
+
+
+            // =================================================
+            // PROVIDER NOTIFICATIONS
+            // =================================================
+
+            composable(
+                Screen.ProviderNotifications.route
+            ) {
+
+                ProviderNotificationsScreen(
+
+                    onServiceRequestsClick = {
+
+                        navController.navigate(
+                            Screen.ProviderBookings.route
+                        ) {
+
+                            launchSingleTop =
+                                true
+
+                        }
+
+                    }
+
+                )
+
+            }
+
+
+            // =================================================
+            // ADD SERVICE
+            // =================================================
+
+            composable(
+                Screen.AddService.route
+            ) {
+
+                AddServiceScreen(
+
+                    onServiceAdded = {
 
                         navController.navigate(
                             Screen.Provider.route
                         ) {
 
                             popUpTo(
-                                Screen.Login.route
+                                Screen.Provider.route
                             ) {
 
                                 inclusive =
-                                    true
+                                    false
 
                             }
 
-                        }
-
-                    } else if (
-                        role ==
-                        "ADMIN"
-                    ) {
-
-                        navController.navigate(
-                            Screen.Admin.route
-                        ) {
-
-                            popUpTo(
-                                Screen.Login.route
-                            ) {
-
-                                inclusive =
-                                    true
-
-                            }
+                            launchSingleTop =
+                                true
 
                         }
 
                     }
 
-                }
-
-            )
-
-        }
-
-
-        // =====================================================
-        // REGISTER
-        // =====================================================
-
-        composable(
-            Screen.Register.route
-        ) {
-
-            RegisterScreen(
-
-                onLoginClick = {
-
-                    navController.navigate(
-                        Screen.Login.route
-                    )
-
-                }
-
-            )
-
-        }
-
-
-        // =====================================================
-        // ADMIN DASHBOARD
-        // =====================================================
-
-        composable(
-            Screen.Admin.route
-        ) {
-
-            AdminDashboard(
-
-                onCategoriesClick = {
-
-                    navController.navigate(
-                        Screen.AdminCategories.route
-                    )
-
-                },
-
-                onAreasClick = {
-
-                    navController.navigate(
-                        Screen.AdminAreas.route
-                    )
-
-                },
-
-                onCustomersClick = {
-
-                    navController.navigate(
-                        Screen.AdminCustomers.route
-                    )
-
-                },
-
-                onProvidersClick = {
-
-                    navController.navigate(
-                        Screen.AdminProviders.route
-                    )
-
-                },
-
-                onServicesClick = {
-
-                    navController.navigate(
-                        Screen.AdminServices.route
-                    )
-
-                },
-
-                onReviewsClick = {
-
-                    navController.navigate(
-                        Screen.AdminReviews.route
-                    )
-
-                }
-
-            )
-
-        }
-
-
-        composable(
-            Screen.AdminCategories.route
-        ) {
-
-            AdminCategoryScreen()
-
-        }
-
-
-        composable(
-            Screen.AdminAreas.route
-        ) {
-
-            AdminAreaScreen()
-
-        }
-
-
-        composable(
-            Screen.AdminCustomers.route
-        ) {
-
-            AdminCustomersScreen()
-
-        }
-
-
-        composable(
-            Screen.AdminProviders.route
-        ) {
-
-            AdminProvidersScreen()
-
-        }
-
-
-        composable(
-            Screen.AdminServices.route
-        ) {
-
-            AdminServicesScreen()
-
-        }
-
-
-        composable(
-            Screen.AdminReviews.route
-        ) {
-
-            AdminReviewsScreen()
-
-        }
-
-
-        // =====================================================
-        // HOME
-        // =====================================================
-
-        composable(
-            Screen.Home.route
-        ) {
-
-            HomeScreen(
-
-                navController =
-                    navController
-
-            )
-
-        }
-
-
-        // =====================================================
-        // NOTIFICATIONS
-        // =====================================================
-
-        composable(
-            Screen.Notifications.route
-        ) {
-
-            NotificationsScreen()
-
-        }
-
-
-        // =====================================================
-        // FAVORITES
-        // =====================================================
-
-        composable(
-            Screen.Favorites.route
-        ) {
-
-            FavoritesScreen(
-
-                onBookServiceClick = {
-                        providerId,
-                        serviceId,
-                        serviceName,
-                        providerName ->
-
-
-                    navController.navigate(
-
-                        "booking/" +
-                                "$providerId/" +
-                                "$serviceId/" +
-                                "${Uri.encode(serviceName)}/" +
-                                Uri.encode(
-                                    providerName
-                                )
-
-                    )
-
-                },
-
-                onReviewsClick = {
-                        providerId,
-                        providerName ->
-
-
-                    navController.navigate(
-
-                        "provider_reviews/" +
-                                "$providerId/" +
-                                Uri.encode(
-                                    providerName
-                                )
-
-                    )
-
-                }
-
-            )
-
-        }
-
-
-        // =====================================================
-        // SERVICE REMINDERS
-        // =====================================================
-
-        composable(
-            Screen.ServiceReminders.route
-        ) {
-
-            ServiceRemindersScreen()
-
-        }
-
-
-        // =====================================================
-        // CUSTOMER BOOKINGS
-        // =====================================================
-
-        composable(
-            Screen.CustomerBookings.route
-        ) {
-
-            CustomerBookingsScreen(
-
-                onReviewClick = {
-                        bookingId,
-                        providerId,
-                        serviceName,
-                        providerName ->
-
-
-                    navController.navigate(
-
-                        "review/" +
-                                "$bookingId/" +
-                                "$providerId/" +
-                                "${Uri.encode(serviceName)}/" +
-                                Uri.encode(
-                                    providerName
-                                )
-
-                    )
-
-                }
-
-            )
-
-        }
-
-
-        // =====================================================
-        // REVIEW
-        // =====================================================
-
-        composable(
-
-            route =
-                Screen.Review.route,
-
-            arguments =
-                listOf(
-
-                    navArgument(
-                        "bookingId"
-                    ) {
-
-                        type =
-                            NavType.LongType
-
-                    },
-
-                    navArgument(
-                        "providerId"
-                    ) {
-
-                        type =
-                            NavType.LongType
-
-                    },
-
-                    navArgument(
-                        "serviceName"
-                    ) {
-
-                        type =
-                            NavType.StringType
-
-                    },
-
-                    navArgument(
-                        "providerName"
-                    ) {
-
-                        type =
-                            NavType.StringType
-
-                    }
-
                 )
 
-        ) { entry ->
-
-
-            ReviewScreen(
-
-                bookingId =
-                    entry.arguments
-                        ?.getLong(
-                            "bookingId"
-                        )
-                        ?: 0L,
-
-                providerId =
-                    entry.arguments
-                        ?.getLong(
-                            "providerId"
-                        )
-                        ?: 0L,
-
-                serviceName =
-                    entry.arguments
-                        ?.getString(
-                            "serviceName"
-                        )
-                        ?: "Service",
-
-                providerName =
-                    entry.arguments
-                        ?.getString(
-                            "providerName"
-                        )
-                        ?: "Provider",
-
-                onReviewSubmitted = {
-
-                    navController
-                        .popBackStack()
-
-                }
-
-            )
-
-        }
-
-
-        // =====================================================
-        // PROVIDER REVIEWS
-        // =====================================================
-
-        composable(
-
-            route =
-                Screen.ProviderReviews.route,
-
-            arguments =
-                listOf(
-
-                    navArgument(
-                        "providerId"
-                    ) {
-
-                        type =
-                            NavType.LongType
-
-                    },
-
-                    navArgument(
-                        "providerName"
-                    ) {
-
-                        type =
-                            NavType.StringType
-
-                    }
-
-                )
-
-        ) { entry ->
-
-
-            ProviderReviewsScreen(
-
-                providerId =
-                    entry.arguments
-                        ?.getLong(
-                            "providerId"
-                        )
-                        ?: 0L,
-
-                providerName =
-                    entry.arguments
-                        ?.getString(
-                            "providerName"
-                        )
-                        ?: "Provider"
-
-            )
-
-        }
-
-
-        // =====================================================
-        // CATEGORY
-        // =====================================================
-
-        composable(
-            Screen.Category.route
-        ) {
-
-            CategoryScreen(
-
-                navController =
-                    navController
-
-            )
-
-        }
-
-
-        // =====================================================
-        // SERVICES
-        // =====================================================
-
-        composable(
-
-            route =
-                Screen.Service.route,
-
-            arguments =
-                listOf(
-
-                    navArgument(
-                        "categoryId"
-                    ) {
-
-                        type =
-                            NavType.LongType
-
-                    },
-
-                    navArgument(
-                        "areaId"
-                    ) {
-
-                        type =
-                            NavType.LongType
-
-                        defaultValue =
-                            0L
-
-                    },
-
-                    navArgument(
-                        "areaName"
-                    ) {
-
-                        type =
-                            NavType.StringType
-
-                        defaultValue =
-                            ""
-
-                    }
-
-                )
-
-        ) { entry ->
-
-
-            val categoryId =
-                entry.arguments
-                    ?.getLong(
-                        "categoryId"
-                    )
-                    ?: 0L
-
-
-            val areaId =
-                entry.arguments
-                    ?.getLong(
-                        "areaId"
-                    )
-                    ?: 0L
-
-
-            val areaName =
-                entry.arguments
-                    ?.getString(
-                        "areaName"
-                    )
-                    ?: ""
-
-
-            ServiceScreen(
-
-                categoryId =
-                    categoryId,
-
-                areaId =
-                    areaId,
-
-                areaName =
-                    areaName,
-
-                onBookServiceClick = {
-                        providerId,
-                        serviceId,
-                        serviceName,
-                        providerName ->
-
-
-                    navController.navigate(
-
-                        "booking/" +
-                                "$providerId/" +
-                                "$serviceId/" +
-                                "${Uri.encode(serviceName)}/" +
-                                Uri.encode(
-                                    providerName
-                                )
-
-                    )
-
-                },
-
-                onReviewsClick = {
-                        providerId,
-                        providerName ->
-
-
-                    navController.navigate(
-
-                        "provider_reviews/" +
-                                "$providerId/" +
-                                Uri.encode(
-                                    providerName
-                                )
-
-                    )
-
-                }
-
-            )
-
-        }
-
-
-        // =====================================================
-        // BOOKING
-        // =====================================================
-
-        composable(
-
-            route =
-                Screen.Booking.route,
-
-            arguments =
-                listOf(
-
-                    navArgument(
-                        "providerId"
-                    ) {
-
-                        type =
-                            NavType.LongType
-
-                    },
-
-                    navArgument(
-                        "serviceId"
-                    ) {
-
-                        type =
-                            NavType.LongType
-
-                    },
-
-                    navArgument(
-                        "serviceName"
-                    ) {
-
-                        type =
-                            NavType.StringType
-
-                    },
-
-                    navArgument(
-                        "providerName"
-                    ) {
-
-                        type =
-                            NavType.StringType
-
-                    }
-
-                )
-
-        ) { entry ->
-
-
-            BookingScreen(
-
-                providerId =
-                    entry.arguments
-                        ?.getLong(
-                            "providerId"
-                        )
-                        ?: 0L,
-
-                serviceId =
-                    entry.arguments
-                        ?.getLong(
-                            "serviceId"
-                        )
-                        ?: 0L,
-
-                serviceName =
-                    entry.arguments
-                        ?.getString(
-                            "serviceName"
-                        )
-                        ?: "",
-
-                providerName =
-                    entry.arguments
-                        ?.getString(
-                            "providerName"
-                        )
-                        ?: ""
-
-            )
-
-        }
-
-
-        // =====================================================
-        // PROVIDER DASHBOARD
-        // =====================================================
-
-        composable(
-            Screen.Provider.route
-        ) {
-
-            ProviderDashboard(
-
-                onAddServiceClick = {
-
-                    navController.navigate(
-                        Screen.AddService.route
-                    )
-
-                },
-
-                onBookingRequestsClick = {
-
-                    navController.navigate(
-                        Screen.ProviderBookings.route
-                    )
-
-                }
-
-            )
-
-        }
-
-
-        // =====================================================
-        // PROVIDER BOOKINGS
-        // =====================================================
-
-        composable(
-            Screen.ProviderBookings.route
-        ) {
-
-            ProviderBookingsScreen()
-
-        }
-
-
-        // =====================================================
-        // ADD SERVICE
-        // =====================================================
-
-        composable(
-            Screen.AddService.route
-        ) {
-
-            AddServiceScreen(
-
-                onServiceAdded = {
-
-                    navController
-                        .popBackStack()
-
-                }
-
-            )
+            }
 
         }
 
