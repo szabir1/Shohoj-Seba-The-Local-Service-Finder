@@ -1,0 +1,16 @@
+AI USAGE DECLARATION
+
+Project: ShohojSeba
+
+Generative AI tools, primarily ChatGPT were used during the development of this project as a supporting tool.
+
+AI assistance was used for:
+- Code suggestions and debugging
+- UI/UX improvement suggestions
+- Explanation of errors and implementation concepts
+- Assistance with testing and troubleshooting
+- Documentation preparation
+
+All AI-generated suggestions were reviewed, modified where necessary, integrated into the existing project, and tested during development.
+
+The final implementation and submitted project were verified by the project developers.
