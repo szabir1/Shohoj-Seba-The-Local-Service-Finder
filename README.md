@@ -1140,14 +1140,6 @@ AI-generated suggestions were adapted to the project's actual codebase, database
 
 ---
 
-# 🎓 Academic Use
-
-This repository was developed as an academic software-development project.
-
-A formal open-source license should only be added if redistribution or reuse terms are required by the project owner or course.
-
----
-
 # 📌 Final Summary
 
 **ShohojSeba** demonstrates a complete multi-role Android local-service marketplace connecting **Customers, Service Providers, and Administrators**.
